@@ -1,0 +1,254 @@
+service: scoreplus-back
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs16.x
+  stage: stage
+  environment:
+    AWS_REGION: us-east-1
+    WORKSPACE: sdx
+    AUTH_ES256_PRIVATE_KEY: ${ssm:/sdx/auth-key/ecdsa/private}
+    DYNAMO_TABLE_USERPLUS_ACCESS_TOKEN: userplus-access-token-sdx
+    DYNAMO_TABLE_USERPLUS_COMPANY: userplus-company-sdx
+    DYNAMO_TABLE_USERPLUS_USER: userplus-users-sdx
+    DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD: userplus-recovery-password-sdx
+    DYNAMO_TABLE_USERPLUS_PASSWORD_HISTORY: userplus-password-history-sdx
+    DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON: requestplus-analysis-person-sdx
+    DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE: requestplus-analysis-vehicle-sdx
+    DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON: requestplus-finished-analysis-person-sdx
+    DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE: requestplus-finished-analysis-vehicle-sdx
+    DYNAMO_TABLE_ANALYSISPLUS_PEOPLE: analysisplus-people-sdx
+    DYNAMO_TABLE_ANALYSISPLUS_VEHICLES: analysisplus-vehicles-sdx
+    USER_RECOVERY_KEY_URL: https://user.api.sdx.systemscoreplus.com.br/reset-password
+    SCOREPLUS_EMAIL: sdx.no-reply@systemscoreplus.com.br
+
+package:
+  individually: false
+
+plugins:
+  - serverless-esbuild
+  - serverless-offline-local-authorizers-plugin
+  - serverless-offline
+
+custom:
+  esbuild:
+    sourcemap: true
+    watch:
+      pattern: 'src/**/*'
+
+  serverless-offline:
+    noPrependStageInUrl: true
+
+functions:
+  auth:
+    handler: src/auth/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /auth
+
+  controllers-userplus-login:
+    handler: src/controllers/userplus/login/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /login
+
+  controllers-userplus-register-user:
+    handler: src/controllers/userplus/register/user/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /register/user
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-userplus-register-company:
+    handler: src/controllers/userplus/register/company/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /register/company
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-userplus-change-password:
+    handler: src/controllers/userplus/change-password/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /change-password
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-userplus-recovery-password:
+    handler: src/controllers/userplus/recovery-password/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /recovery-password
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-userplus-reset-password:
+    handler: src/controllers/userplus/reset-password/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /reset-password
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-userplus-list-companies:
+    handler: src/controllers/userplus/list-companies/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /companies
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-requestplus-analysis:
+    handler: src/controllers/requestplus/send-request-analysis/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /analysis/{analysis_type}
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-requestplus-people:
+    handler: src/controllers/requestplus/consult/analysis/list-people/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /analysis/people
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-requestplus-vehicles:
+    handler: src/controllers/requestplus/consult/analysis/list-vehicles/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /analysis/vehicles
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-requestplus-person:
+    handler: src/controllers/requestplus/consult/analysis/get-person/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /analysis/person/{person_id}
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-requestplus-vehicle:
+    handler: src/controllers/requestplus/consult/analysis/get-vehicle/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /analysis/vehicle/{vehicle_id}
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-requestplus-analysis-by-document-plate:
+    handler: src/controllers/requestplus/consult/query-analysis-by-document-plate/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /{path_type}
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-requestplus-answer:
+    handler: src/controllers/requestplus/send-answer/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /analysis/{analysis_type}/{id}/answer
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  controllers-reportplus-analysis:
+    handler: src/controllers/reportplus/generate-analysis-request/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /report/analysis/{path_type}
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
