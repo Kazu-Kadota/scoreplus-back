@@ -33,6 +33,10 @@ class Logger {
     }
   }
 
+  setRequestId (request_id: string) {
+    this.config.request_id = request_id
+  }
+
   getConfig () {
     return {
       created_at: new Date().toISOString(),
