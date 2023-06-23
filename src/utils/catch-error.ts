@@ -9,8 +9,6 @@ const catchError = (err: any) => {
     }
   }
 
-  console.log(err)
-
   if (err.$metadata) {
     return {
       headers: defaultHeaders,

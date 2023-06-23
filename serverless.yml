@@ -7,21 +7,27 @@ provider:
   stage: stage
   environment:
     AWS_REGION: us-east-1
-    WORKSPACE: sdx
-    AUTH_ES256_PRIVATE_KEY: ${ssm:/sdx/auth-key/ecdsa/private}
-    DYNAMO_TABLE_USERPLUS_ACCESS_TOKEN: userplus-access-token-sdx
-    DYNAMO_TABLE_USERPLUS_COMPANY: userplus-company-sdx
-    DYNAMO_TABLE_USERPLUS_USER: userplus-users-sdx
-    DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD: userplus-recovery-password-sdx
-    DYNAMO_TABLE_USERPLUS_PASSWORD_HISTORY: userplus-password-history-sdx
-    DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON: requestplus-analysis-person-sdx
-    DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE: requestplus-analysis-vehicle-sdx
-    DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON: requestplus-finished-analysis-person-sdx
-    DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE: requestplus-finished-analysis-vehicle-sdx
-    DYNAMO_TABLE_ANALYSISPLUS_PEOPLE: analysisplus-people-sdx
-    DYNAMO_TABLE_ANALYSISPLUS_VEHICLES: analysisplus-vehicles-sdx
-    USER_RECOVERY_KEY_URL: https://user.api.sdx.systemscoreplus.com.br/reset-password
-    SCOREPLUS_EMAIL: sdx.no-reply@systemscoreplus.com.br
+    WORKSPACE: prd
+    AUTH_ES256_PRIVATE_KEY: ${ssm:/prd/auth-key/ecdsa/private}
+    DYNAMO_TABLE_USERPLUS_ACCESS_TOKEN: userplus-access-token-prd
+    DYNAMO_TABLE_USERPLUS_COMPANY: userplus-company-prd
+    DYNAMO_TABLE_USERPLUS_USER: userplus-users-prd
+    DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD: userplus-recovery-password-prd
+    DYNAMO_TABLE_USERPLUS_PASSWORD_HISTORY: userplus-password-history-prd
+    DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON: requestplus-analysis-person-prd
+    DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE: requestplus-analysis-vehicle-prd
+    DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON: requestplus-finished-analysis-person-prd
+    DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE: requestplus-finished-analysis-vehicle-prd
+    DYNAMO_TABLE_ANALYSISPLUS_PEOPLE: analysisplus-people-prd
+    DYNAMO_TABLE_ANALYSISPLUS_VEHICLES: analysisplus-vehicles-prd
+    USER_RECOVERY_KEY_URL: https://user.api.systemscoreplus.com.br/reset-password
+    SCOREPLUS_EMAIL: prd.no-reply@systemscoreplus.com.br
+    SQS_DATAVALID_FACIAL: https://sqs.us-east-1.amazonaws.com/316279706039/requestplus-pf-facial-biometry-prd.fifo
+    SCOREPLUS_DATAVALID_USER_ACCOUNT: ${ssm:/prd/lambda/worker/datavalid/user}
+    SCOREPLUS_DATAVALID_USER_PASSWORD: ${ssm:/prd/lambda/worker/datavalid/password}
+    SCOREPLUS_USERPLUS_URL: https://user.api.systemscoreplus.com.br
+    SCOREPLUS_REQUESTPLUS_URL: https://request.api.systemscoreplus.com.br
+
 
 package:
   individually: false
@@ -252,3 +258,6 @@ functions:
           localAuthorizer:
             name: "mylocalAuthProxyFn"
             type: "request"
+
+  worker-datavalid-pf-facial-biometry-result:
+    handler: src/workers/datavalid/pf-facial-biometry-result/index.handler

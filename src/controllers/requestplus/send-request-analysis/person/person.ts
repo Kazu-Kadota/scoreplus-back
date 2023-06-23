@@ -1,4 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { SQSClient } from '@aws-sdk/client-sqs'
 import { AnalysisTypeEnum, PersonAnalysisTypeEnum, PersonRegionTypeEnum, RequestStatusEnum, StateEnum } from 'src/models/dynamo/request-enum'
 import { PersonRequestKey, PersonRequestForms, PersonRequestBody } from 'src/models/dynamo/request-person'
 import queryPersonByDocument from 'src/services/aws/dynamo/analysis/person/query-by-document'
@@ -28,6 +29,7 @@ export interface PersonAnalysisRequest {
   person_data: PersonRequestForms
   region_type: PersonRegionTypeEnum,
   region?: StateEnum,
+  sqsClient: SQSClient,
   user_info: UserInfoFromJwt
 }
 

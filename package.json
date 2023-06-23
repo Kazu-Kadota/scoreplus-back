@@ -6,6 +6,7 @@
   "scripts": {
     "start": "AWS_PROFILE=score-plus-sdx sls offline",
     "debug": "AWS_PROFILE=score-plus-sdx sls offline",
+    "debug:datavalidPfFacialBiometryResult": "AWS_PROFILE=score-plus-prd AWS_REGION=us-east-1 sls invoke local --function worker-datavalid-pf-facial-biometry-result --path local/debug/requestplus-pf-facial-biometry-result.fifo.json",
     "test": "LOGGER_LEVEL=silent jest",
     "lint": "tsc --noEmit && eslint --ext .ts src",
     "clean": "rimraf dist",
@@ -27,8 +28,10 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.272.0",
     "@aws-sdk/client-ses": "^3.306.0",
+    "@aws-sdk/client-sqs": "^3.352.0",
     "@aws-sdk/lib-dynamodb": "^3.289.0",
     "@aws-sdk/util-dynamodb": "^3.272.0",
+    "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "csv-stringify": "^6.2.4",
     "joi": "~17.7.0",
@@ -53,6 +56,7 @@
     "eslint-plugin-import": "^2.27.4",
     "eslint-plugin-n": "^15.6.1",
     "eslint-plugin-promise": "^6.1.1",
+    "lru-cache": "^10.0.0",
     "prune": "^0.0.2",
     "rimraf": "^4.1.2",
     "serverless": "^3.26.0",

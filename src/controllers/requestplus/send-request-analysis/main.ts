@@ -1,4 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { SQSClient } from '@aws-sdk/client-sqs'
 import { APIGatewayProxyEvent } from 'aws-lambda'
 import { AnalysisTypeEnum } from 'src/models/dynamo/request-enum'
 import { ReturnResponse } from 'src/models/lambda'
@@ -7,14 +8,22 @@ import { UserInfoFromJwt } from 'src/utils/extract-jwt-lambda'
 import logger from 'src/utils/logger'
 import removeEmpty from 'src/utils/remove-empty'
 
-import personAnalysisConstructor, { PersonAnalysisConstructor } from './person_analysis_constructor'
+import personAnalysisConstructor, { PersonAnalysisConstructor } from './person/person-analysis-constructor'
+import sendMessageFacialBiometryAdapter, { SendMessageFacialBiometryAdapterParams } from './person/send-message-facial-biometry-adapter'
 import validateBodyCombo from './validate/validate-body-combo'
 import validateBodyPerson from './validate/validate-body-person'
 import validateBodyVehicle from './validate/validate-body-vehicle'
 import validatePath from './validate/validate-path'
-import vehicleAnalysis, { ReturnVehicleAnalysis, VehicleAnalysisRequest } from './vehicle'
+import vehicleAnalysis, { ReturnVehicleAnalysis, VehicleAnalysisRequest } from './vehicle/vehicle'
 
-const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
+const dynamodbClient = new DynamoDBClient({
+  region: 'us-east-1',
+  maxAttempts: 5,
+})
+const sqsClient = new SQSClient({
+  region: 'us-east-1',
+  maxAttempts: 5,
+})
 
 const requestAnalysis = async (
   event: APIGatewayProxyEvent,
@@ -34,10 +43,27 @@ const requestAnalysis = async (
         person_data: body.person,
         dynamodbClient,
         user_info,
+        sqsClient,
       }
 
       person_analyzes.push(await personAnalysisConstructor(person_analysis, person_analysis_request))
     }
+
+    const request_ids: string[] = []
+
+    person_analyzes.forEach((first_array_itens) => {
+      first_array_itens.forEach((second_array_itens) => {
+        request_ids.push(second_array_itens.request_id)
+      })
+    })
+
+    const send_message_facial_biometry_adapter_params: SendMessageFacialBiometryAdapterParams = {
+      data: body.person,
+      person_id: person_analyzes[0][0].person_id,
+      request_ids,
+    }
+
+    await sendMessageFacialBiometryAdapter(send_message_facial_biometry_adapter_params, sqsClient)
 
     return {
       body: {
@@ -75,19 +101,36 @@ const requestAnalysis = async (
       throw new ErrorHandler('Número de veículos informado é diferente ao númbero de veículos solicitados', 400)
     }
 
-    let person_analyzes
+    const person_analyzes = []
 
     for (const person_analysis of body.person_analysis) {
       const person_analysis_request: PersonAnalysisConstructor = {
         analysis_type,
-        person_data: body.person,
-        dynamodbClient,
-        user_info,
         combo_number: body.combo_number,
+        dynamodbClient,
+        person_data: body.person,
+        sqsClient,
+        user_info,
       }
 
-      person_analyzes = await personAnalysisConstructor(person_analysis, person_analysis_request)
+      person_analyzes.push(await personAnalysisConstructor(person_analysis, person_analysis_request))
     }
+
+    const request_ids: string[] = []
+
+    person_analyzes.forEach((first_array_itens) => {
+      first_array_itens.forEach((second_array_itens) => {
+        request_ids.push(second_array_itens.request_id)
+      })
+    })
+
+    const send_message_facial_biometry_adapter_params: SendMessageFacialBiometryAdapterParams = {
+      data: body.person,
+      person_id: person_analyzes[0][0].person_id,
+      request_ids,
+    }
+
+    await sendMessageFacialBiometryAdapter(send_message_facial_biometry_adapter_params, sqsClient)
 
     const vehicles_analysis: ReturnVehicleAnalysis[] = []
 
