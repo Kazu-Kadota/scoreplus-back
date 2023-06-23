@@ -1,0 +1,45 @@
+{
+  "body": {
+    "cpf_disponivel": true,
+    "nome": true,
+    "nome_similaridade": 1,
+    "data_nascimento": true,
+    "situacao_cpf": true,
+    "cnh_disponivel": true,
+    "cnh": {
+      "nome": true,
+      "nome_similaridade": 1,
+      "numero_registro": true,
+      "categoria": true,
+      "codigo_situacao": true,
+      "possui_impedimento": false
+    },
+    "filiacao": {
+      "nome_mae": true,
+      "nome_mae_similaridade": 1
+    },
+    "documento": {
+      "tipo": true,
+      "numero": true,
+      "numero_similaridade": 1,
+      "uf_expedidor": true
+    },
+    "endereco": {},
+    "biometria_face": {}
+  },
+  "messageAttributes": {
+    "origin": {
+      "dataType": "String",
+      "stringValue": "scoreplus"
+    },
+    "person_id": {
+      "dataType": "String",
+      "stringValue": "6f771bdd-9fc4-4c37-94e3-e63559411eb2"
+    },
+    "request_id": {
+      "dataType": "String",
+      "stringValue": "e579471a-5305-4ffa-a183-b09665232857"
+    }
+  },
+  "messageId": "6f771bdd-9fc4-4c37-94e3-e63559411eb2"
+}
