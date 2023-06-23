@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { User } from 'src/models/dynamo/user'
-import { Response } from 'src/models/lambda'
 import ErrorHandler from 'src/utils/error-handler'
 import getStringEnv from 'src/utils/get-string-env'
 import logger from 'src/utils/logger'
@@ -40,7 +39,7 @@ const invokeLogin = async ({
   }
 
   const result = await axios
-    .request<Response<any>>(options)
+    .request<InvokeLoginResponse>(options)
     .catch((err) => {
       logger.warn({
         message: 'SCOREPLUS: Error on login',
