@@ -12,6 +12,7 @@ export const handler = async (
   event: APIGatewayProxyEvent,
 ): Promise<Response<any>> => {
   try {
+    logger.setRequestId(event.requestContext.requestId)
     const user_info = extractJwtLambda(event)
 
     if (!user_info) {
