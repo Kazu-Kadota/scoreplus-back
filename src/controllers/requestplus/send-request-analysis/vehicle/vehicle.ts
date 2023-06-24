@@ -96,12 +96,10 @@ const vehicleAnalysis = async (
 
   await putRequestVehicle(request_vehicle_key, request_vehicle_body, dynamodbClient)
 
-  logger.info({
-    message: 'Successfully requested to analyze vehicle',
+  logger.debug({
+    message: 'Successfully requested vehicle analysis',
     request_id,
     vehicle_id,
-    company_name: user_info.company_name,
-    user_id: user_info.user_id,
     owner_name: body.owner_name,
     plate: body.plate,
   })
