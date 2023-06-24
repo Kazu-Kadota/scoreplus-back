@@ -105,13 +105,12 @@ const personAnalysis = async (
 
   await putRequestPerson(request_person_key, request_person_person_data, dynamodbClient)
 
-  logger.info({
-    message: 'Successfully requested to analyze person',
+  logger.debug({
+    message: 'Successfully requested person analysis',
+    region,
+    region_type,
     person_id,
     request_id,
-    name: person_data.name,
-    company_name: user_info.company_name,
-    user_id: user_info.user_id,
   })
 
   return {

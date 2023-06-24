@@ -65,6 +65,11 @@ const requestAnalysis = async (
 
     await sendMessageFacialBiometryAdapter(send_message_facial_biometry_adapter_params, sqsClient)
 
+    logger.info({
+      message: 'Successfully requested to analyze person',
+      person_id: person_analyzes[0][0].person_id,
+    })
+
     return {
       body: {
         message: 'Successfully requested to analyze person',
