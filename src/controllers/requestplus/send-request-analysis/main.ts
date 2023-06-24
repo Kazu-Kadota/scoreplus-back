@@ -88,6 +88,12 @@ const requestAnalysis = async (
 
     const vehicle_analysis = await vehicleAnalysis(vehicle_analysis_constructor)
 
+    logger.info({
+      message: 'Successfully requested to analyze vehicle',
+      vehicle_id: vehicle_analysis.vehicle_id,
+      plate: vehicle_analysis.plate,
+    })
+
     return {
       body: {
         message: 'Successfully requested to analyze vehicle',
@@ -151,6 +157,18 @@ const requestAnalysis = async (
 
       vehicles_analysis.push(await vehicleAnalysis(vehicle_analysis_constructor))
     }
+
+    const vehicle_ids: string[] = []
+
+    vehicles_analysis.forEach((vehicle) => {
+      vehicle_ids.push(vehicle.vehicle_id)
+    })
+
+    logger.info({
+      message: 'Successfully requested to analyze combo',
+      person_id: person_analyzes[0][0].person_id,
+      vehicle_id: vehicle_ids,
+    })
 
     return {
       body: {
