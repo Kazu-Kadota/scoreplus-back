@@ -105,6 +105,14 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
+  controllers-userplus-company:
+    handler: src/controllers/userplus/my-company/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /my-company
+
   controllers-userplus-recovery-password:
     handler: src/controllers/userplus/recovery-password/index.handler
     timeout: 600
