@@ -1,12 +1,63 @@
 import Joi from 'joi'
-import { CompanyBody, CompanyTypeEnum } from 'src/models/dynamo/company'
-
+import {
+  CompanyBody,
+  CompanyPersonAnalysisConfig,
+  CompanyPersonAnalysisConfigNumberEnum,
+  CompanySystemConfig,
+} from 'src/models/dynamo/company'
 import ErrorHandler from 'src/utils/error-handler'
 import logger from 'src/utils/logger'
 
 const cnpjRegex = /^([0-9]{2}\.?[0-9]{3}\.?[0-9]{3}\/?[0-9]{4}\-?[0-9]{2})$/
 
-const schema = Joi.object({
+const analysis_config_schema = Joi.object<CompanyPersonAnalysisConfig>({
+  administrative: Joi
+    .number()
+    .default(CompanyPersonAnalysisConfigNumberEnum.ADMINISTRATIVE)
+    .min(0)
+    .integer()
+    .optional(),
+  aggregate: Joi
+    .number()
+    .default(CompanyPersonAnalysisConfigNumberEnum.AGGREGATE)
+    .min(0)
+    .integer()
+    .optional(),
+  autonomous: Joi
+    .number()
+    .default(CompanyPersonAnalysisConfigNumberEnum.AUTONOMOUS)
+    .min(0)
+    .integer()
+    .optional(),
+  member: Joi
+    .number()
+    .default(CompanyPersonAnalysisConfigNumberEnum.MEMBER)
+    .min(0)
+    .integer()
+    .optional(),
+  operational: Joi
+    .number()
+    .default(CompanyPersonAnalysisConfigNumberEnum.OPERATIONAL)
+    .min(0)
+    .integer()
+    .optional(),
+})
+
+const system_config_schema = Joi.object<CompanySystemConfig>({
+  antt: Joi
+    .bool()
+    .default(false)
+    .optional(),
+  biometry: Joi
+    .bool()
+    .required(),
+  serasa: Joi
+    .bool()
+    .default(false)
+    .optional(),
+})
+
+const schema = Joi.object<CompanyBody>({
   cnpj: Joi
     .string()
     .regex(cnpjRegex)
@@ -15,10 +66,8 @@ const schema = Joi.object({
     .string()
     .max(255)
     .required(),
-  type: Joi
-    .string()
-    .valid(...Object.values(CompanyTypeEnum))
-    .required(),
+  analysis_config: analysis_config_schema.required(),
+  system_config: system_config_schema.required(),
 }).required()
 
 const validateRegisterCompany = (
