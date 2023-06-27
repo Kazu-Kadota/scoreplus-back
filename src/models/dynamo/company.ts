@@ -8,8 +8,8 @@ export enum CompanyPersonAnalysisConfigEnum {
 }
 
 export enum CompanyPersonAnalysisConfigNumberEnum {
-  MEMBER = 182,
-  AGGREGATE = 60,
+  MEMBER = 365,
+  AGGREGATE = 182,
   AUTONOMOUS = 1,
   HR = 365,
 }
