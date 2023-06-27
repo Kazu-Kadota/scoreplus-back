@@ -11,9 +11,9 @@ import logger from 'src/utils/logger'
 const cnpjRegex = /^([0-9]{2}\.?[0-9]{3}\.?[0-9]{3}\/?[0-9]{4}\-?[0-9]{2})$/
 
 const analysis_config_schema = Joi.object<CompanyPersonAnalysisConfig>({
-  administrative: Joi
+  hr: Joi
     .number()
-    .default(CompanyPersonAnalysisConfigNumberEnum.ADMINISTRATIVE)
+    .default(CompanyPersonAnalysisConfigNumberEnum.HR)
     .min(0)
     .integer()
     .optional(),
@@ -32,12 +32,6 @@ const analysis_config_schema = Joi.object<CompanyPersonAnalysisConfig>({
   member: Joi
     .number()
     .default(CompanyPersonAnalysisConfigNumberEnum.MEMBER)
-    .min(0)
-    .integer()
-    .optional(),
-  operational: Joi
-    .number()
-    .default(CompanyPersonAnalysisConfigNumberEnum.OPERATIONAL)
     .min(0)
     .integer()
     .optional(),
