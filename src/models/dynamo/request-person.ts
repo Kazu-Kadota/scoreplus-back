@@ -1,3 +1,4 @@
+import { CompanyPersonAnalysisConfigEnum } from './company'
 import {
   AnalysisTypeEnum,
   DriverCategoryEnum,
@@ -6,6 +7,7 @@ import {
   RequestStatusEnum,
   StateEnum,
 } from './request-enum'
+import { Timestamp } from './timestamp'
 
 export interface PersonRequestForms {
   birth_date: string
@@ -29,9 +31,14 @@ export interface PersonAnalysisItems {
   regions: StateEnum[]
 }
 
+export interface PersonAnalysisConfig {
+  type: CompanyPersonAnalysisConfigEnum
+}
+
 export interface PersonRequestAnalysis {
-  person_analysis: PersonAnalysisItems[]
   person: PersonRequestForms
+  person_analysis: PersonAnalysisItems[]
+  person_analysis_config: PersonAnalysisConfig
 }
 
 export interface PersonRequestKey {
@@ -41,18 +48,17 @@ export interface PersonRequestKey {
 
 export interface PersonRequestBody extends PersonRequestForms {
   analysis_type: AnalysisTypeEnum
+  combo_number?: number
+  company_name: string
+  person_analysis_config: PersonAnalysisConfig
   person_analysis_type: PersonAnalysisTypeEnum
   region_type: PersonRegionTypeEnum
   region?: StateEnum
-  combo_number?: number
-  company_name: string
-  user_id: string
   status: RequestStatusEnum
+  user_id: string
 }
 
-export interface PersonRequest extends PersonRequestKey, PersonRequestBody {
-  created_at: string
-  updated_at: string
+export interface PersonRequest extends PersonRequestKey, PersonRequestBody, Timestamp {
   finished_at?: string
   analysis_info?: string
   analysis_result?: string
