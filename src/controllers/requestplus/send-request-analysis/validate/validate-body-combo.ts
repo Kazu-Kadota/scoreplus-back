@@ -1,4 +1,5 @@
 import Joi from 'joi'
+import { CompanyPersonAnalysisConfigEnum } from 'src/models/dynamo/company'
 import {
   DriverCategoryEnum,
   PersonAnalysisTypeEnum,
@@ -7,7 +8,7 @@ import {
   StateEnum,
   VehicleType,
 } from 'src/models/dynamo/request-enum'
-import { PersonRequestAnalysis } from 'src/models/dynamo/request-person'
+import { PersonAnalysisConfig, PersonAnalysisItems, PersonRequestAnalysis, PersonRequestForms } from 'src/models/dynamo/request-person'
 import { VehicleRequestForms } from 'src/models/dynamo/request-vehicle'
 
 import ErrorHandler from 'src/utils/error-handler'
@@ -22,131 +23,143 @@ const documentRegex = /^([0-9]{3}\.?[0-9]{3}\.?[0-9]{3}\-?[0-9]{2}|[0-9]{2}\.?[0
 const cnhRegex = /(?=.*\d)[A-Za-z0-9]{1,11}/
 const plateRegex = /^([A-Za-z0-9]{7})$/
 
-const schema = Joi.object({
-  combo_number: Joi
-    .number()
+const person_schema = Joi.object<PersonRequestForms>({
+  birth_date: Joi
+    .string()
+    .isoDate()
     .required(),
-  person_analysis: Joi.array().items(
-    Joi.object({
-      type: Joi
-        .string()
-        .valid(...Object.values(PersonAnalysisTypeEnum))
-        .required(),
-      region_types: Joi
-        .array()
-        .items(
-          Joi.string().valid(...Object.values(PersonRegionTypeEnum)),
-        )
-        .max(2)
-        .required(),
-      regions: Joi
-        .array()
-        .items(Joi
-          .string()
-          .valid(...Object.values(StateEnum)))
-        .max(27)
-        .when('region_types', {
-          is: Joi.array().items().has(PersonRegionTypeEnum.STATES),
-          then: Joi.required(),
-          otherwise: Joi.forbidden(),
-        }),
-    }).required(),
-  ).required(),
-  person: Joi.object({
-    birth_date: Joi
+  category_cnh: Joi
+    .string()
+    .valid(...Object.values(DriverCategoryEnum))
+    .optional(),
+  cnh: Joi
+    .string()
+    .regex(cnhRegex)
+    .optional(),
+  company_name: Joi
+    .string()
+    .max(255)
+    .optional(),
+  document: Joi
+    .string()
+    .regex(documentRegex)
+    .required(),
+  expire_at_cnh: Joi
+    .string()
+    .isoDate()
+    .optional(),
+  father_name: Joi
+    .string()
+    .max(255)
+    .optional(),
+  mother_name: Joi
+    .string()
+    .max(255)
+    .required(),
+  name: Joi
+    .string()
+    .max(255)
+    .required(),
+  naturalness: Joi
+    .string()
+    .optional(),
+  rg: Joi
+    .string()
+    .required(),
+  security_number_cnh: Joi
+    .string()
+    .optional(),
+  state_rg: Joi
+    .string()
+    .valid(...Object.values(StateEnum))
+    .required(),
+})
+
+const person_analysis_schema = Joi.array().items(
+  Joi.object<PersonAnalysisItems>({
+    type: Joi
       .string()
-      .isoDate()
+      .valid(...Object.values(PersonAnalysisTypeEnum))
       .required(),
-    category_cnh: Joi
+    region_types: Joi
+      .array()
+      .items(
+        Joi.string().valid(...Object.values(PersonRegionTypeEnum)),
+      )
+      .max(2)
+      .required(),
+    regions: Joi
+      .array()
+      .items(Joi
+        .string()
+        .valid(...Object.values(StateEnum)))
+      .max(27)
+      .when('region_types', {
+        is: Joi.array().items().has(PersonRegionTypeEnum.STATES),
+        then: Joi.required(),
+        otherwise: Joi.forbidden(),
+      }),
+  }).required(),
+)
+
+const person_analysis_config_schema = Joi.object<PersonAnalysisConfig>({
+  type: Joi
+    .string()
+    .valid(...Object.values(CompanyPersonAnalysisConfigEnum))
+    .required(),
+})
+
+const vehicle_schema = Joi.array().items(
+  Joi.object<VehicleRequestForms>({
+    chassis: Joi
       .string()
-      .valid(...Object.values(DriverCategoryEnum))
-      .optional(),
-    cnh: Joi
-      .string()
-      .regex(cnhRegex)
+      .max(255)
       .optional(),
     company_name: Joi
       .string()
       .max(255)
       .optional(),
-    document: Joi
+    driver_name: Joi
+      .string()
+      .max(255)
+      .optional(),
+    owner_document: Joi
       .string()
       .regex(documentRegex)
       .required(),
-    expire_at_cnh: Joi
-      .string()
-      .isoDate()
-      .optional(),
-    father_name: Joi
-      .string()
-      .max(255)
-      .optional(),
-    mother_name: Joi
+    owner_name: Joi
       .string()
       .max(255)
       .required(),
-    name: Joi
+    plate_state: Joi
+      .string()
+      .valid(...Object.values(PlateStateEnum))
+      .required(),
+    plate: Joi
+      .string()
+      .regex(plateRegex)
+      .required(),
+    renavam: Joi
       .string()
       .max(255)
-      .required(),
-    naturalness: Joi
-      .string()
       .optional(),
-    rg: Joi
+    vehicle_model: Joi
       .string()
-      .required(),
-    security_number_cnh: Joi
-      .string()
+      .max(255)
       .optional(),
-    state_rg: Joi
+    vehicle_type: Joi
       .string()
-      .valid(...Object.values(StateEnum))
+      .valid(...Object.values(VehicleType))
       .required(),
   }).required(),
-  vehicles: Joi.array().items(
-    Joi.object({
-      chassis: Joi
-        .string()
-        .max(255)
-        .optional(),
-      company_name: Joi
-        .string()
-        .max(255)
-        .optional(),
-      driver_name: Joi
-        .string()
-        .max(255)
-        .optional(),
-      owner_document: Joi
-        .string()
-        .regex(documentRegex)
-        .required(),
-      owner_name: Joi
-        .string()
-        .max(255)
-        .required(),
-      plate_state: Joi
-        .string()
-        .valid(...Object.values(PlateStateEnum))
-        .required(),
-      plate: Joi
-        .string()
-        .regex(plateRegex)
-        .required(),
-      renavam: Joi
-        .string()
-        .max(255)
-        .optional(),
-      vehicle_model: Joi
-        .string()
-        .max(255)
-        .optional(),
-      vehicle_type: Joi
-        .string()
-        .valid(...Object.values(VehicleType))
-        .required(),
-    }).required(),
-  ).required(),
+)
+
+const schema = Joi.object({
+  combo_number: Joi.number().min(0).max(10).required(),
+  person: person_schema.required(),
+  person_analysis: person_analysis_schema.required(),
+  person_analysis_config: person_analysis_config_schema.required(),
+  vehicles: vehicle_schema.required(),
 }).required()
 
 const validateBodyCombo = (

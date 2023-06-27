@@ -4,24 +4,21 @@ export enum CompanyPersonAnalysisConfigEnum {
   MEMBER = 'member',
   AGGREGATE = 'aggregate',
   AUTONOMOUS = 'autonomous',
-  OPERATIONAL = 'operational',
-  ADMINISTRATIVE = 'administrative',
+  HR = 'hr',
 }
 
 export enum CompanyPersonAnalysisConfigNumberEnum {
-  MEMBER = 182,
-  AGGREGATE = 60,
+  MEMBER = 365,
+  AGGREGATE = 182,
   AUTONOMOUS = 1,
-  OPERATIONAL = 365,
-  ADMINISTRATIVE = 365,
+  HR = 365,
 }
 
 export interface CompanyPersonAnalysisConfig {
   member: number
   aggregate: number
   autonomous: number
-  operational: number
-  administrative: number
+  hr: number
 }
 
 export interface CompanySystemConfig {
