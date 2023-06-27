@@ -41,9 +41,9 @@ const requestAnalysis = async (
       const person_analysis_request: PersonAnalysisConstructor = {
         analysis_type,
         person_data: body.person,
+        person_analysis_config: body.person_analysis_config,
         dynamodbClient,
         user_info,
-        sqsClient,
       }
 
       person_analyzes.push(await personAnalysisConstructor(person_analysis, person_analysis_request))
@@ -120,7 +120,7 @@ const requestAnalysis = async (
         combo_number: body.combo_number,
         dynamodbClient,
         person_data: body.person,
-        sqsClient,
+        person_analysis_config: body.person_analysis_config,
         user_info,
       }
 

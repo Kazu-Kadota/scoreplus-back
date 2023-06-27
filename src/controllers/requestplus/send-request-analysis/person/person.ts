@@ -1,7 +1,6 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { SQSClient } from '@aws-sdk/client-sqs'
 import { AnalysisTypeEnum, PersonAnalysisTypeEnum, PersonRegionTypeEnum, RequestStatusEnum, StateEnum } from 'src/models/dynamo/request-enum'
-import { PersonRequestKey, PersonRequestForms, PersonRequestBody } from 'src/models/dynamo/request-person'
+import { PersonRequestKey, PersonRequestForms, PersonRequestBody, PersonAnalysisConfig } from 'src/models/dynamo/request-person'
 import queryPersonByDocument from 'src/services/aws/dynamo/analysis/person/query-by-document'
 import putRequestPerson from 'src/services/aws/dynamo/request/analysis/person/put'
 import queryRequestPersonByDocument, { QueryRequestPersonByDocumentQuery } from 'src/services/aws/dynamo/request/analysis/person/query-by-document'
@@ -27,9 +26,9 @@ export interface PersonAnalysisRequest {
   dynamodbClient: DynamoDBClient
   person_analysis_type: PersonAnalysisTypeEnum
   person_data: PersonRequestForms
+  person_analysis_config: PersonAnalysisConfig
   region_type: PersonRegionTypeEnum,
   region?: StateEnum,
-  sqsClient: SQSClient,
   user_info: UserInfoFromJwt
 }
 
@@ -40,6 +39,7 @@ const personAnalysis = async (
     dynamodbClient,
     person_analysis_type,
     person_data,
+    person_analysis_config,
     region_type,
     region,
     user_info,
@@ -86,14 +86,15 @@ const personAnalysis = async (
 
   const data_request_person: PersonRequestBody = {
     ...person_data,
-    region,
-    region_type,
     analysis_type,
-    person_analysis_type,
     combo_number: combo_number || undefined,
     company_name: user_info.user_type === 'admin' ? person_data.company_name as string : user_info.company_name,
-    user_id: user_info.user_id,
+    person_analysis_config,
+    person_analysis_type,
+    region_type,
+    region,
     status: RequestStatusEnum.WAITING,
+    user_id: user_info.user_id,
   }
 
   const request_person_person_data = removeEmpty(data_request_person)
