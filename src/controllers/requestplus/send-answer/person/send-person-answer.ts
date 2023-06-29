@@ -7,14 +7,13 @@ import getPerson from 'src/services/aws/dynamo/analysis/person/get'
 import putPerson from 'src/services/aws/dynamo/analysis/person/put'
 import updatePerson from 'src/services/aws/dynamo/analysis/person/update'
 import deleteRequestPerson from 'src/services/aws/dynamo/request/analysis/person/delete'
-import getRequestPerson from 'src/services/aws/dynamo/request/analysis/person/get'
 import putFinishedRequestPerson from 'src/services/aws/dynamo/request/finished/person/put'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
 import removeEmpty from 'src/utils/remove-empty'
 
+import getRequestPersonAdapter from './get-request-person-adapter'
 import personConstructor from './person-constructor'
 import updatePersonConstructor from './update-person-constructor'
+import verifyRequestStatus from './verify-request-status'
 
 export interface SendPersonAnswer {
   request_id: string
@@ -39,16 +38,9 @@ const sendPersonAnswer = async (
     request_id,
   }
 
-  const request_person = await getRequestPerson(request_person_key, dynamodbClient)
+  const request_person = await getRequestPersonAdapter(request_person_key, dynamodbClient)
 
-  if (!request_person) {
-    logger.warn({
-      message: 'Person not exist',
-      person_id,
-    })
-
-    throw new ErrorHandler('Pessoa não existe', 404)
-  }
+  verifyRequestStatus(request_person)
 
   const {
     company_name,
@@ -62,7 +54,9 @@ const sendPersonAnswer = async (
   const finished_request: PersonRequest = removeEmpty({
     ...request_person,
     finished_at: now,
-    status: RequestStatusEnum.FINISHED,
+    status: {
+      general: RequestStatusEnum.FINISHED,
+    },
     analysis_info,
     analysis_result,
   })
