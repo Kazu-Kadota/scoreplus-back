@@ -82,15 +82,14 @@ const reportAnalysis = async (
     const csv = stringify(person_report.result, {
       header: true,
       columns: {
-        company_name: 'Nome da empresa',
-        request_id: 'ID da requisição',
-        person_id: 'ID da pessoa',
-        name: 'Nome',
-        document: 'Documento',
         analysis_type: 'Tipo de análise',
-        status: 'status',
+        company_name: 'Nome da empresa',
         created_at: 'Data de criação da análise',
+        document: 'Documento',
         finished_at: 'Data de resposta da análise',
+        name: 'Nome',
+        person_id: 'ID da pessoa',
+        request_id: 'ID da requisição',
       },
       bom: true,
     })

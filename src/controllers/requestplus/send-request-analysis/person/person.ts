@@ -1,14 +1,15 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { AnalysisTypeEnum, PersonAnalysisTypeEnum, PersonRegionTypeEnum, RequestStatusEnum, StateEnum } from 'src/models/dynamo/request-enum'
+import { CompanySystemConfig } from 'src/models/dynamo/company'
+import { AnalysisTypeEnum, PersonAnalysisTypeEnum, PersonRegionTypeEnum, StateEnum } from 'src/models/dynamo/request-enum'
 import { PersonRequestKey, PersonRequestForms, PersonRequestBody, PersonAnalysisConfig } from 'src/models/dynamo/request-person'
-import queryPersonByDocument from 'src/services/aws/dynamo/analysis/person/query-by-document'
 import putRequestPerson from 'src/services/aws/dynamo/request/analysis/person/put'
-import queryRequestPersonByDocument, { QueryRequestPersonByDocumentQuery } from 'src/services/aws/dynamo/request/analysis/person/query-by-document'
-import ErrorHandler from 'src/utils/error-handler'
 import { UserInfoFromJwt } from 'src/utils/extract-jwt-lambda'
 import logger from 'src/utils/logger'
 import removeEmpty from 'src/utils/remove-empty'
 import { v4 as uuid } from 'uuid'
+
+import getPersonId from './get-person-id'
+import personStatusConstructor from './status-constructor'
 
 export interface PersonAnalysisResponse {
   analysis_type: AnalysisTypeEnum
@@ -23,6 +24,7 @@ export interface PersonAnalysisResponse {
 export interface PersonAnalysisRequest {
   analysis_type: AnalysisTypeEnum
   combo_number?: number
+  company_system_config: CompanySystemConfig
   dynamodbClient: DynamoDBClient
   person_analysis_type: PersonAnalysisTypeEnum
   person_data: PersonRequestForms
@@ -36,6 +38,7 @@ const personAnalysis = async (
   {
     analysis_type,
     combo_number,
+    company_system_config,
     dynamodbClient,
     person_analysis_type,
     person_data,
@@ -52,37 +55,11 @@ const personAnalysis = async (
     user_id: user_info.user_id,
   })
 
-  if (user_info.user_type === 'admin' && !person_data.company_name) {
-    logger.warn({
-      message: 'Need to inform company name for admin user',
-      user_type: user_info.user_type,
-    })
-
-    throw new ErrorHandler('É necessário informar o nome da empresa para usuários admin', 400)
-  }
-
   const request_id = uuid()
 
-  const person_analysis_people = await queryPersonByDocument(person_data.document, dynamodbClient)
+  const person_id = await getPersonId(person_data.document, dynamodbClient)
 
-  const query: QueryRequestPersonByDocumentQuery = {
-    document: person_data.document,
-  }
-
-  const requested_person = await queryRequestPersonByDocument(
-    query,
-    dynamodbClient,
-  )
-
-  let person_id: string
-
-  if (person_analysis_people && person_analysis_people[0]) {
-    person_id = person_analysis_people[0].person_id
-  } else if (requested_person && requested_person[0]) {
-    person_id = requested_person[0].person_id
-  } else {
-    person_id = uuid()
-  }
+  const status = personStatusConstructor(company_system_config)
 
   const data_request_person: PersonRequestBody = {
     ...person_data,
@@ -93,7 +70,7 @@ const personAnalysis = async (
     person_analysis_type,
     region_type,
     region,
-    status: RequestStatusEnum.WAITING,
+    status,
     user_id: user_info.user_id,
   }
 

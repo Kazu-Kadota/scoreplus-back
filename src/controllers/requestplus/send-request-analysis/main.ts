@@ -8,6 +8,7 @@ import { UserInfoFromJwt } from 'src/utils/extract-jwt-lambda'
 import logger from 'src/utils/logger'
 import removeEmpty from 'src/utils/remove-empty'
 
+import getCompanyAdapter from './get-company-adapter'
 import personAnalysisConstructor, { PersonAnalysisConstructor } from './person/person-analysis-constructor'
 import sendMessageFacialBiometryAdapter, { SendMessageFacialBiometryAdapterParams } from './person/send-message-facial-biometry-adapter'
 import validateBodyCombo from './validate/validate-body-combo'
@@ -32,17 +33,29 @@ const requestAnalysis = async (
   const { analysis_type } = validatePath({ ...event.pathParameters })
   const event_body = removeEmpty(JSON.parse(event.body as string))
 
+  const company = await getCompanyAdapter(user_info.company_name, dynamodbClient)
+
   if (analysis_type === 'person') {
     const body = validateBodyPerson(event_body)
+
+    if (user_info.user_type === 'admin' && !body.person.company_name) {
+      logger.warn({
+        message: 'Need to inform company name for admin user',
+        user_type: user_info.user_type,
+      })
+
+      throw new ErrorHandler('É necessário informar o nome da empresa para usuários admin', 400)
+    }
 
     const person_analyzes = []
 
     for (const person_analysis of body.person_analysis) {
       const person_analysis_request: PersonAnalysisConstructor = {
         analysis_type,
-        person_data: body.person,
-        person_analysis_config: body.person_analysis_config,
+        company_system_config: company.system_config,
         dynamodbClient,
+        person_analysis_config: body.person_analysis_config,
+        person_data: body.person,
         user_info,
       }
 
@@ -63,7 +76,9 @@ const requestAnalysis = async (
       request_ids,
     }
 
-    await sendMessageFacialBiometryAdapter(send_message_facial_biometry_adapter_params, sqsClient)
+    if (company.system_config.biometry === true) {
+      await sendMessageFacialBiometryAdapter(send_message_facial_biometry_adapter_params, sqsClient)
+    }
 
     logger.info({
       message: 'Successfully requested to analyze person',
@@ -118,6 +133,7 @@ const requestAnalysis = async (
       const person_analysis_request: PersonAnalysisConstructor = {
         analysis_type,
         combo_number: body.combo_number,
+        company_system_config: company.system_config,
         dynamodbClient,
         person_data: body.person,
         person_analysis_config: body.person_analysis_config,
@@ -141,7 +157,9 @@ const requestAnalysis = async (
       request_ids,
     }
 
-    await sendMessageFacialBiometryAdapter(send_message_facial_biometry_adapter_params, sqsClient)
+    if (company.system_config.biometry === true) {
+      await sendMessageFacialBiometryAdapter(send_message_facial_biometry_adapter_params, sqsClient)
+    }
 
     const vehicles_analysis: ReturnVehicleAnalysis[] = []
 

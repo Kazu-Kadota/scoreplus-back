@@ -1,7 +1,8 @@
 export enum RequestStatusEnum {
-  WAITING = 'WAITING',
+  CANCELED = 'CANCELED',
+  FINISHED = 'FINISHED',
   PROCESSING = 'PROCESSING',
-  FINISHED = 'FINISHED'
+  WAITING = 'WAITING',
 }
 
 export enum AnalysisTypeEnum {

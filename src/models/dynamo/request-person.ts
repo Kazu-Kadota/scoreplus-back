@@ -1,4 +1,4 @@
-import { CompanyPersonAnalysisConfigEnum } from './company'
+import { CompanyPersonAnalysisConfigEnum, CompanySystemConfigEnum } from './company'
 import {
   AnalysisTypeEnum,
   DriverCategoryEnum,
@@ -8,6 +8,10 @@ import {
   StateEnum,
 } from './request-enum'
 import { Timestamp } from './timestamp'
+
+export enum PersonAnalysisStatusGeneralEnum {
+  GENERAL = 'general'
+}
 
 export interface PersonRequestForms {
   birth_date: string
@@ -41,6 +45,11 @@ export interface PersonRequestAnalysis {
   person_analysis_config: PersonAnalysisConfig
 }
 
+export interface PersonAnalysisStatus extends
+  Partial<Record<CompanySystemConfigEnum, RequestStatusEnum>>,
+  Record<PersonAnalysisStatusGeneralEnum, RequestStatusEnum>
+  {}
+
 export interface PersonRequestKey {
   person_id: string
   request_id: string
@@ -54,7 +63,7 @@ export interface PersonRequestBody extends PersonRequestForms {
   person_analysis_type: PersonAnalysisTypeEnum
   region_type: PersonRegionTypeEnum
   region?: StateEnum
-  status: RequestStatusEnum
+  status: PersonAnalysisStatus
   user_id: string
 }
 
