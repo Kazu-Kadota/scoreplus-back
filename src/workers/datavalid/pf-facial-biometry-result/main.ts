@@ -32,7 +32,7 @@ const pfFacialBiometryResult = async (record: SQSRecord): Promise<void> => {
     throw new ErrorHandler('Not informed request ids to message attributes', 400)
   }
 
-  await updateRequestPersonStatusAdapter(person_id, request_id, dynamodbClient)
+  await updateRequestPersonStatusAdapter(person_id, request_id, result.approved, dynamodbClient)
 
   if (result.reproved_data) {
     const send_analysis_adapter_params: sendAnalysisAdapterParams = {

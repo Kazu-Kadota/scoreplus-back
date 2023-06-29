@@ -1,18 +1,17 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { AnalysisTypeEnum, RequestStatusEnum } from 'src/models/dynamo/request-enum'
+import { AnalysisTypeEnum } from 'src/models/dynamo/request-enum'
 import queryRequestPersonByCompany, { QueryRequestPersonByCompany, QueryRequestPersonByCompanyResponse } from 'src/services/aws/dynamo/request/analysis/person/query-by-company'
 import queryFinishedRequestPersonByCompany, { QueryFinishedRequestPersonByCompanyResponse } from 'src/services/aws/dynamo/request/finished/person/query-by-company'
 
 export interface ResultPersonReport {
-  created_at: string
-  finished_at?: string | undefined
   analysis_type: AnalysisTypeEnum
   company_name: string
+  created_at: string
+  document: string
+  finished_at?: string | undefined
+  name: string
   person_id: string
   request_id: string
-  status: RequestStatusEnum
-  document: string
-  name: string
 }
 
 export interface PersonReportResponse {
