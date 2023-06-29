@@ -1,12 +1,18 @@
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { SQSRecord } from 'aws-lambda'
 
 import ErrorHandler from 'src/utils/error-handler'
-
 import logger from 'src/utils/logger'
 
 import sendAnalysisAdapter, { sendAnalysisAdapterParams } from './send-analysis-adapter'
+import updateRequestPersonStatusAdapter from './update-request-person-status-adapter'
 import validatePFFacialBiometryResult from './validate-body'
 import verifyResult from './verify-result'
+
+const dynamodbClient = new DynamoDBClient({
+  region: 'us-east-1',
+  maxAttempts: 5,
+})
 
 const pfFacialBiometryResult = async (record: SQSRecord): Promise<void> => {
   const body = validatePFFacialBiometryResult(JSON.parse(record.body))
@@ -25,6 +31,8 @@ const pfFacialBiometryResult = async (record: SQSRecord): Promise<void> => {
 
     throw new ErrorHandler('Not informed request ids to message attributes', 400)
   }
+
+  await updateRequestPersonStatusAdapter(person_id, request_id, dynamodbClient)
 
   if (result.reproved_data) {
     const send_analysis_adapter_params: sendAnalysisAdapterParams = {
