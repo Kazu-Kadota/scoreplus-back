@@ -14,17 +14,16 @@ export enum CompanyPersonAnalysisConfigNumberEnum {
   HR = 365,
 }
 
-export interface CompanyPersonAnalysisConfig {
-  member: number
-  aggregate: number
-  autonomous: number
-  hr: number
+export enum CompanySystemConfigEnum {
+  ANTT = 'antt',
+  BIOMETRY = 'biometry',
+  SERASA = 'serasa',
 }
 
-export interface CompanySystemConfig {
-  antt: boolean
-  biometry: boolean
-  serasa: boolean
+export interface CompanyPersonAnalysisConfig extends Record<CompanyPersonAnalysisConfigEnum, number> {
+}
+
+export interface CompanySystemConfig extends Record<CompanySystemConfigEnum, boolean> {
 }
 
 export interface CompanyKey {
