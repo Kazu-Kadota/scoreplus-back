@@ -4,7 +4,7 @@ import logger from 'src/utils/logger'
 
 import pfFacialBiometryResult from './main'
 
-export const handler = async (event: SQSEvent) => {
+export const handler = (event: SQSEvent) => {
   try {
     event.Records.forEach(async (record) => {
       logger.setRequestId(record.messageId)
