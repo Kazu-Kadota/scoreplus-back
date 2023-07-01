@@ -46,10 +46,20 @@ export const createExpressionAttributeValues = (data: any, update?: boolean): Re
   return Object
     .keys(data)
     .reduce(
-      (previous, current) => ({
-        ...previous,
-        [`:${current}`]: marshall(data[current]),
-      }),
+      (previous, current) => {
+        if (typeof data[current] === 'object') {
+          return {
+            ...previous,
+            [`:${current}`]: {
+              M: marshall(data[current]),
+            },
+          }
+        }
+        return {
+          ...previous,
+          [`:${current}`]: marshall(data[current]),
+        }
+      },
       {},
     )
 }

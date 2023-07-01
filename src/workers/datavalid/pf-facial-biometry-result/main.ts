@@ -16,12 +16,12 @@ const dynamodbClient = new DynamoDBClient({
 
 const pfFacialBiometryResult = async (record: SQSRecord): Promise<void> => {
   const body = validatePFFacialBiometryResult(JSON.parse(record.body))
-  const person_id = record.messageId
   const message_attributes = record.messageAttributes
 
   const result = verifyResult(body)
 
   const request_id = message_attributes.request_id.stringValue
+  const person_id = message_attributes.person_id.stringValue
 
   if (!request_id) {
     logger.warn({
@@ -30,6 +30,15 @@ const pfFacialBiometryResult = async (record: SQSRecord): Promise<void> => {
     })
 
     throw new ErrorHandler('Not informed request ids to message attributes', 400)
+  }
+
+  if (!person_id) {
+    logger.warn({
+      message: 'Not informed person_id to message attributes',
+      message_attributes,
+    })
+
+    throw new ErrorHandler('Not informed person_id to message attributes', 400)
   }
 
   await updateRequestPersonStatusAdapter(person_id, request_id, result.approved, dynamodbClient)

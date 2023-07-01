@@ -29,3 +29,27 @@ const catchError = (err: any) => {
 }
 
 export default catchError
+
+export const catchErrorWorker = (err: any) => {
+  if (err.isTreated) {
+    return {
+      success: false,
+      statusCode: err.code,
+      error: err.toObject(),
+    }
+  }
+
+  if (err.$metadata) {
+    return {
+      success: false,
+      statusCode: err.$metadata.httpStatusCode,
+      error: err,
+    }
+  }
+
+  return {
+    success: false,
+    statusCode: 500,
+    error: 'Internal Server Error',
+  }
+}
