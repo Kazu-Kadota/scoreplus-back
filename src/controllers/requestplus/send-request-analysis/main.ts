@@ -33,8 +33,6 @@ const requestAnalysis = async (
   const { analysis_type } = validatePath({ ...event.pathParameters })
   const event_body = removeEmpty(JSON.parse(event.body as string))
 
-  const company = await getCompanyAdapter(user_info.company_name, dynamodbClient)
-
   if (analysis_type === 'person') {
     const body = validateBodyPerson(event_body)
 
@@ -45,7 +43,18 @@ const requestAnalysis = async (
       })
 
       throw new ErrorHandler('É necessário informar o nome da empresa para usuários admin', 400)
+    } else if (user_info.user_type === 'client' && body.person.company_name) {
+      logger.warn({
+        message: 'User not allowed to inform company_name',
+        user_type: user_info.user_type,
+      })
+
+      throw new ErrorHandler('Usuário não permitido em informar company_name', 400)
     }
+
+    const company_name = body.person.company_name ? body.person.company_name : user_info.company_name
+
+    const company = await getCompanyAdapter(company_name, dynamodbClient)
 
     const person_analyzes = []
 
@@ -94,6 +103,22 @@ const requestAnalysis = async (
   } else if (analysis_type === 'vehicle') {
     const body = validateBodyVehicle(event_body)
 
+    if (user_info.user_type === 'admin' && !body.company_name) {
+      logger.warn({
+        message: 'Need to inform company name for admin user',
+        user_type: user_info.user_type,
+      })
+
+      throw new ErrorHandler('É necessário informar o nome da empresa para usuários admin', 400)
+    } else if (user_info.user_type === 'client' && body.company_name) {
+      logger.warn({
+        message: 'User not allowed to inform company_name',
+        user_type: user_info.user_type,
+      })
+
+      throw new ErrorHandler('Usuário não permitido em informar company_name', 400)
+    }
+
     const vehicle_analysis_constructor: VehicleAnalysisRequest = {
       analysis_type,
       body,
@@ -126,6 +151,26 @@ const requestAnalysis = async (
 
       throw new ErrorHandler('Número de veículos informado é diferente ao númbero de veículos solicitados', 400)
     }
+
+    if (user_info.user_type === 'admin' && !body.person.company_name) {
+      logger.warn({
+        message: 'Need to inform company name for admin user',
+        user_type: user_info.user_type,
+      })
+
+      throw new ErrorHandler('É necessário informar o nome da empresa para usuários admin', 400)
+    } else if (user_info.user_type === 'client' && body.person.company_name) {
+      logger.warn({
+        message: 'User not allowed to inform company_name',
+        user_type: user_info.user_type,
+      })
+
+      throw new ErrorHandler('Usuário não permitido em informar company_name', 400)
+    }
+
+    const company_name = body.person.company_name ? body.person.company_name : user_info.company_name
+
+    const company = await getCompanyAdapter(company_name, dynamodbClient)
 
     const person_analyzes = []
 
