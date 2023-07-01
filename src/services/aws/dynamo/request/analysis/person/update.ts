@@ -30,7 +30,6 @@ const updateRequestPerson = async (
   const update: Partial<PersonRequest> = {
     ...key,
     ...body,
-    created_at: now,
     updated_at: now,
   }
 
@@ -38,8 +37,8 @@ const updateRequestPerson = async (
     TableName: DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON,
     Key: marshall(key),
     UpdateExpression: createUpdateExpression(update, Object.keys(key)),
-    ExpressionAttributeNames: createExpressionAttributeNames(key),
-    ExpressionAttributeValues: createExpressionAttributeValues(key),
+    ExpressionAttributeNames: createExpressionAttributeNames(update),
+    ExpressionAttributeValues: createExpressionAttributeValues(update),
     ConditionExpression: createConditionExpression(key, true),
   })
 

@@ -1,10 +1,10 @@
 import { SQSEvent } from 'aws-lambda'
-import catchError from 'src/utils/catch-error'
+import { catchErrorWorker } from 'src/utils/catch-error'
 import logger from 'src/utils/logger'
 
 import pfFacialBiometryResult from './main'
 
-export const handler = (event: SQSEvent) => {
+export const handler = async (event: SQSEvent) => {
   try {
     event.Records.forEach(async (record) => {
       logger.setRequestId(record.messageId)
@@ -15,6 +15,6 @@ export const handler = (event: SQSEvent) => {
       await pfFacialBiometryResult(record)
     })
   } catch (err: any) {
-    catchError(err)
+    catchErrorWorker(err)
   }
 }

@@ -13,12 +13,12 @@ const updateRequestPersonStatusAdapter = async (
   approved: boolean,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
-  const update_key: PersonRequestKey = {
+  const person_request_key: PersonRequestKey = {
     person_id,
     request_id,
   }
 
-  const analysis = await getRequestPerson(update_key, dynamodbClient)
+  const analysis = await getRequestPerson(person_request_key, dynamodbClient)
 
   if (!analysis) {
     logger.warn({
@@ -76,7 +76,7 @@ const updateRequestPersonStatusAdapter = async (
     }
   }
 
-  await updateRequestPerson(update_key, update_body, dynamodbClient)
+  await updateRequestPerson(person_request_key, update_body, dynamodbClient)
 }
 
 export default updateRequestPersonStatusAdapter
