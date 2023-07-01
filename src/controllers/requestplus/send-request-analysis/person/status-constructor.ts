@@ -13,6 +13,12 @@ const personStatusConstructor = (company_system_config: CompanySystemConfig): Pe
       : undefined
   }
 
+  if (Object.keys(status).length === 0) {
+    status.general = RequestStatusEnum.WAITING
+  } else {
+    status.general = RequestStatusEnum.PROCESSING
+  }
+
   return status
 }
 
