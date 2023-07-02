@@ -39,6 +39,7 @@
     "lru-cache": "^10.0.0",
     "mustache": "^4.2.0",
     "pino": "^8.10.0",
+    "puppeteer": "^19.8.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

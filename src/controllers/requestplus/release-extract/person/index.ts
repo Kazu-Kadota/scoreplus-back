@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda'
 import LambdaHandlerNameSpace from 'src/utils/lambda/handler'
 import logger from 'src/utils/logger'
 
-import releaseExtractController from './main'
+import personReleaseExtractController from './main'
 
 export const handler = async (event: APIGatewayProxyEvent) => {
   logger.setService('requestplus')
@@ -13,7 +13,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
   }
 
   const releaseExtract = new LambdaHandlerNameSpace
-    .LambdaHandlerFunction(releaseExtractController, allowed_users)
+    .LambdaHandlerFunction(personReleaseExtractController, allowed_users)
 
   return releaseExtract.handler(event)
 }
