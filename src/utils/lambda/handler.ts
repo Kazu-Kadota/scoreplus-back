@@ -63,7 +63,8 @@ namespace LambdaHandlerNameSpace {
           },
           multiValueHeaders: result.multiValueHeaders,
           statusCode: result.statusCode ?? 200,
-          body: JSON.stringify(result.body),
+          body: result.notJsonBody === true ? result.body : JSON.stringify(result.body),
+          isBase64Encoded: result.isBase64Encoded,
         }
       } catch (err: any) {
         return catchError(err)

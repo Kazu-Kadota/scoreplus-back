@@ -17,6 +17,8 @@ export interface Response<T = any> extends ReturnResponse<T> {
     }
   | undefined;
   statusCode?: number
+  isBase64Encoded?: boolean | undefined
+  notJsonBody?: boolean
 }
 
 export interface Request extends APIGatewayProxyEvent {
