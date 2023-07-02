@@ -33,6 +33,14 @@ class Logger {
     }
   }
 
+  setService (service: string) {
+    this.config.service = service
+  }
+
+  setUser (user_id: string) {
+    this.config.user_id = user_id
+  }
+
   setRequestId (request_id: string) {
     this.config.request_id = request_id
   }
