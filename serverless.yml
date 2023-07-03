@@ -249,6 +249,14 @@ functions:
           method: get
           path: /release-extract/person
 
+  controllers-requestplus-release-extract-vehicle:
+    handler: src/controllers/requestplus/release-extract/vehicle/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /release-extract/vehicle
+
   controllers-requestplus-answer:
     handler: src/controllers/requestplus/send-answer/index.handler
     timeout: 600
