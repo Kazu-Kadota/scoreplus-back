@@ -1,0 +1,70 @@
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { UserKey } from 'src/models/dynamo/user'
+import { Controller, Request } from 'src/models/lambda'
+import getUser from 'src/services/aws/dynamo/user/user/get'
+import ErrorHandler from 'src/utils/error-handler'
+import logger from 'src/utils/logger'
+
+import generatePersonPdf, { GeneratePersonPdfParams } from './generate-combo-pdf'
+import getCompanyAdapter from './get-company-adapter'
+import getFinishedPersonAnalysisAdapter from './get-finished-person-analysis-adapter'
+import getFinishedVehicleAnalysisAdapter from './get-finished-vehicle-analysis-adapter'
+import validateComboReleaseExtract from './validate'
+
+const dynamodbClient = new DynamoDBClient({
+  region: 'us-east-1',
+  maxAttempts: 5,
+})
+
+const comboReleaseExtractController: Controller = async (req: Request) => {
+  logger.debug({
+    message: 'Start path to get combo release extract',
+  })
+
+  const params = validateComboReleaseExtract({ ...req.queryStringParameters })
+
+  const person_analysis = await getFinishedPersonAnalysisAdapter(params, dynamodbClient)
+  const vehicle_analysis = await getFinishedVehicleAnalysisAdapter(params, dynamodbClient)
+
+  const user_key: UserKey = {
+    user_id: req.user_info?.user_id as string,
+  }
+
+  const user = await getUser(user_key, dynamodbClient)
+
+  if (!user) {
+    logger.warn({
+      message: 'User not found',
+      user_id: user_key.user_id,
+    })
+
+    throw new ErrorHandler('Usuário não encontrado', 404)
+  }
+
+  const company = await getCompanyAdapter(req.user_info?.company_name as string, dynamodbClient)
+
+  const person_data: GeneratePersonPdfParams = {
+    company,
+    user,
+    person_analysis,
+  }
+
+  const pdf_buffer = await generatePersonPdf(person_data)
+
+  logger.info({
+    message: 'Finish on get person release extract',
+    person_id: params.person_id,
+  })
+
+  return {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=liberação_${person_analysis.name}_${person_analysis.finished_at}.pdf`,
+    },
+    body: pdf_buffer,
+    isBase64Encoded: true,
+    notJsonBody: true,
+  }
+}
+
+export default comboReleaseExtractController
