@@ -58,6 +58,7 @@ export interface PersonRequestKey {
 export interface PersonRequestBody extends PersonRequestForms {
   analysis_type: AnalysisTypeEnum
   combo_number?: number
+  combo_id?: string
   company_name: string
   person_analysis_config: PersonAnalysisConfig
   person_analysis_type: PersonAnalysisTypeEnum

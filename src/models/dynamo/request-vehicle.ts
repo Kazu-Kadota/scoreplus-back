@@ -26,9 +26,10 @@ export interface VehicleRequestKey {
 export interface VehicleRequestBody extends VehicleRequestForms {
   analysis_type: AnalysisTypeEnum
   combo_number?: number
-  user_id: string
+  combo_id?: string
   company_name: string
   status: RequestStatusEnum
+  user_id: string
 }
 
 export interface VehicleRequest extends VehicleRequestKey, VehicleRequestBody {

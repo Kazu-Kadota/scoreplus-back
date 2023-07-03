@@ -7,6 +7,7 @@ import ErrorHandler from 'src/utils/error-handler'
 import { UserInfoFromJwt } from 'src/utils/extract-jwt-lambda'
 import logger from 'src/utils/logger'
 import removeEmpty from 'src/utils/remove-empty'
+import { v4 as uuid } from 'uuid'
 
 import getCompanyAdapter from './get-company-adapter'
 import personAnalysisConstructor, { PersonAnalysisConstructor } from './person/person-analysis-constructor'
@@ -174,10 +175,13 @@ const requestAnalysis = async (
 
     const person_analyzes = []
 
+    const combo_id = uuid()
+
     for (const person_analysis of body.person_analysis) {
       const person_analysis_request: PersonAnalysisConstructor = {
         analysis_type,
         combo_number: body.combo_number,
+        combo_id,
         company_system_config: company.system_config,
         dynamodbClient,
         person_data: body.person,
@@ -213,9 +217,10 @@ const requestAnalysis = async (
       const vehicle_analysis_constructor: VehicleAnalysisRequest = {
         analysis_type: AnalysisTypeEnum.VEHICLE,
         body: vehicle,
+        combo_number: body.combo_number,
+        combo_id,
         dynamodbClient,
         user_info,
-        combo_number: body.combo_number,
       }
 
       vehicles_analysis.push(await vehicleAnalysis(vehicle_analysis_constructor))
@@ -237,6 +242,7 @@ const requestAnalysis = async (
       body: {
         message: 'Successfully requested to analyze combo',
         analysis_type,
+        combo_id,
         person: person_analyzes,
         vehicles: vehicles_analysis,
       },
