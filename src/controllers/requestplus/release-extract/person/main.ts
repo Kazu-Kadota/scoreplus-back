@@ -5,7 +5,7 @@ import getUser from 'src/services/aws/dynamo/user/user/get'
 import ErrorHandler from 'src/utils/error-handler'
 import logger from 'src/utils/logger'
 
-import generatePersonPdf, { GeneratePersonPdfParams } from './generate-pdf'
+import generatePersonPdf, { GeneratePersonPdfParams } from './generate-person-pdf'
 import getCompanyAdapter from './get-company-adapter'
 import getFinishedPersonAnalysisAdapter from './get-finished-person-analysis-adapter'
 import validatePersonReleaseExtract from './validate'

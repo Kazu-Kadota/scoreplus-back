@@ -5,7 +5,7 @@ import getUser from 'src/services/aws/dynamo/user/user/get'
 import ErrorHandler from 'src/utils/error-handler'
 import logger from 'src/utils/logger'
 
-import generateVehiclePdf, { GenerateVehiclePdfParams } from './generate-pdf'
+import generateVehiclePdf, { GenerateVehiclePdfParams } from './generate-vehicle-pdf'
 import getCompanyAdapter from './get-company-adapter'
 import getFinishedVehicleAnalysisAdapter from './get-finished-vehicle-analysis-adapter'
 import validateVehicleReleaseExtract from './validate'
