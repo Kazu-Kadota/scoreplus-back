@@ -11,20 +11,21 @@ import removeEmpty from 'src/utils/remove-empty'
 import { v4 as uuid } from 'uuid'
 
 export interface ReturnVehicleAnalysis {
-  request_id: string
-  vehicle_id: string
   company_name: string
-  user_id: string
   owner_name: string
   plate: string
+  request_id: string
+  user_id: string
+  vehicle_id: string
 }
 
 export interface VehicleAnalysisRequest {
   analysis_type: AnalysisTypeEnum
   body: VehicleRequestForms
+  combo_number?: number
+  combo_id?: string
   dynamodbClient: DynamoDBClient
   user_info: UserInfoFromJwt
-  combo_number?: number
 }
 
 const vehicleAnalysis = async (
@@ -33,9 +34,10 @@ const vehicleAnalysis = async (
   const {
     analysis_type,
     body,
+    combo_number,
+    combo_id,
     dynamodbClient,
     user_info,
-    combo_number,
   } = data
 
   logger.debug({
@@ -82,6 +84,7 @@ const vehicleAnalysis = async (
     ...body,
     analysis_type,
     combo_number: combo_number || undefined,
+    combo_id,
     company_name: user_info.user_type === 'admin' ? body.company_name as string : user_info.company_name,
     user_id: user_info.user_id,
     status: RequestStatusEnum.WAITING,

@@ -24,6 +24,7 @@ export interface PersonAnalysisResponse {
 export interface PersonAnalysisRequest {
   analysis_type: AnalysisTypeEnum
   combo_number?: number
+  combo_id?: string
   company_system_config: CompanySystemConfig
   dynamodbClient: DynamoDBClient
   person_analysis_type: PersonAnalysisTypeEnum
@@ -38,6 +39,7 @@ const personAnalysis = async (
   {
     analysis_type,
     combo_number,
+    combo_id,
     company_system_config,
     dynamodbClient,
     person_analysis_type,
@@ -65,6 +67,7 @@ const personAnalysis = async (
     ...person_data,
     analysis_type,
     combo_number: combo_number || undefined,
+    combo_id,
     company_name: user_info.user_type === 'admin' ? person_data.company_name as string : user_info.company_name,
     person_analysis_config,
     person_analysis_type,
