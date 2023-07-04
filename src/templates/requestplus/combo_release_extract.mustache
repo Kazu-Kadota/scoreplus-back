@@ -2,7 +2,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Análise de Liberação de Pessoa</title>
+    <title>Análise de Liberação Combo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -136,6 +136,12 @@
         margin-bottom: 0.4375rem;
       }
 
+      .line {
+        height: 0.0313rem;
+        background-color: #333;
+        margin: 0.3125rem 0;
+      }
+
       .button.error {
         background: #d90d26;
       }
@@ -151,7 +157,7 @@
       <header class="box-gradient-container">
         <div class="box-gradient wrapper">
           {{> logo }}
-          <h1>Análise de Liberação de Pessoa</h1>
+          <h1>Análise de Liberação Combo</h1>
           <div class="logo-image"></div>
         </div>
       </header>
@@ -169,12 +175,12 @@
             </p>
             <p>
               <strong>E-mail do Usuário: </strong>
-              {{ user.email }}
+              {{ company.email }}
             </p>
           </div>
           <div class="box">
             <h3>Vínculo</h3>
-            <p>{{ person_analysis.analysis_config_string }}</p>
+            <p>{{ analysis_config_string }}</p>
           </div>
           <div class="box row">
             <div>
@@ -217,6 +223,55 @@
                 >
               </p>
             </div>
+          </div>
+          <div class="box">
+            {{#vehicle_analysis}}
+            {{#index}}
+            <div class="line"></div>
+            {{/index}}
+            <div class="row">
+              <div>
+                {{^index}}
+                <h3>Dados da Frota</h3>
+                {{/index}}
+                <p>
+                  <strong>Placa: </strong>
+                  {{ item.plate }}
+                </p>
+                <p>
+                  <strong>CPF/CNPJ: </strong>
+                  {{ item.owner_document }}
+                </p>
+                <p>
+                  <strong>Proprietário/Arrendatário: </strong>
+                  {{ item.owner_name }}
+                </p>
+              </div>
+              <div>
+                {{#item.isApproved}}
+                <div class="button success">
+                  <strong>Perfil: </strong> {{ item.analysis_result_string }}
+                </div>
+                {{/item.isApproved}} {{^item.isApproved}}
+                <div class="button error">
+                  <strong>Perfil: </strong> {{ item.analysis_result_string }}
+                </div>
+                {{/item.isApproved}}
+                <p>
+                  <small
+                    ><strong>Data da Análise: </strong>
+                    {{ item.created_at_formatted }}</small
+                  >
+                </p>
+                <p>
+                  <small
+                    ><strong>Vigência da Análise: </strong>
+                    {{ item.finished_at_formatted }}</small
+                  >
+                </p>
+              </div>
+            </div>
+            {{/vehicle_analysis}}
           </div>
         </div>
       </main>

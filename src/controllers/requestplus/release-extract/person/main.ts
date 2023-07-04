@@ -3,9 +3,12 @@ import { UserKey } from 'src/models/dynamo/user'
 import { Controller, Request } from 'src/models/lambda'
 import getUser from 'src/services/aws/dynamo/user/user/get'
 import ErrorHandler from 'src/utils/error-handler'
+import generatePdf from 'src/utils/generete-pdf'
 import logger from 'src/utils/logger'
 
-import generatePersonPdf, { GeneratePersonPdfParams } from './generate-person-pdf'
+import renderTemplate from '../render-template'
+
+import formatPersonAnalysis from './format-person-analysis'
 import getCompanyAdapter from './get-company-adapter'
 import getFinishedPersonAnalysisAdapter from './get-finished-person-analysis-adapter'
 import validatePersonReleaseExtract from './validate'
@@ -41,13 +44,16 @@ const personReleaseExtractController: Controller = async (req: Request) => {
 
   const company = await getCompanyAdapter(req.user_info?.company_name as string, dynamodbClient)
 
-  const person_data: GeneratePersonPdfParams = {
+  const pdfData = {
     company,
     user,
-    person_analysis,
+    verification_code: 'MOCK', // TODO: Remove it
+    person_analysis: formatPersonAnalysis(person_analysis),
   }
 
-  const pdf_buffer = await generatePersonPdf(person_data)
+  const template = await renderTemplate('person_release_extract.mustache', pdfData)
+
+  const pdf_buffer = await generatePdf(template)
 
   logger.info({
     message: 'Finish on get person release extract',

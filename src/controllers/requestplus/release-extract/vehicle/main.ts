@@ -3,9 +3,12 @@ import { UserKey } from 'src/models/dynamo/user'
 import { Controller, Request } from 'src/models/lambda'
 import getUser from 'src/services/aws/dynamo/user/user/get'
 import ErrorHandler from 'src/utils/error-handler'
+import generatePdf from 'src/utils/generete-pdf'
 import logger from 'src/utils/logger'
 
-import generateVehiclePdf, { GenerateVehiclePdfParams } from './generate-vehicle-pdf'
+import renderTemplate from '../render-template'
+
+import formatVehicleAnalysis from './format-vehicle-analysis'
 import getCompanyAdapter from './get-company-adapter'
 import getFinishedVehicleAnalysisAdapter from './get-finished-vehicle-analysis-adapter'
 import validateVehicleReleaseExtract from './validate'
@@ -41,13 +44,27 @@ const vehicleReleaseExtractController: Controller = async (req: Request) => {
 
   const company = await getCompanyAdapter(req.user_info?.company_name as string, dynamodbClient)
 
-  const vehicle_data: GenerateVehiclePdfParams = {
+  const vehicle_data = {
     company,
     user,
-    vehicle_analysis,
+    verification_code: 'MOCK', // TODO: Remove it
+    vehicle_analysis: formatVehicleAnalysis(vehicle_analysis),
   }
 
-  const pdf_buffer = await generateVehiclePdf(vehicle_data)
+  const template = await renderTemplate('vehicle_release_extract.mustache', vehicle_data)
+
+  /* TODO: Example for Combo - Remove it later */
+  // const combo_data = {
+  //   company,
+  //   user,
+  //   verification_code: 'MOCK', // TODO: Remove it
+  //   person_analysis: formatPersonAnalysis(person_analysis),
+  //   vehicle_analysis: formatVehicleComboAnalysis(vehicle_analysis),
+  // }
+
+  // const template = await renderTemplate('combo_release_extract.mustache', vehicle_data)
+
+  const pdf_buffer = await generatePdf(template)
 
   logger.info({
     message: 'Finish on get vehicle release extract',
