@@ -79,18 +79,34 @@ const reportAnalysis = async (
       message: 'Converting to CSV',
     })
 
+    person_report.result.sort(
+      (r1, r2) => r1.created_at > r2.created_at
+        ? 1
+        : r1.created_at < r2.created_at
+          ? -1
+          : 0,
+    )
+
+    const columns: Record<string, string> = {
+      company_name: 'Nome da empresa',
+      request_id: 'ID da requisição',
+      person_id: 'ID da pessoa',
+      name: 'Nome',
+      document: 'Documento',
+      person_analysis_type: 'Tipo de análise da pessoa',
+      region_type: 'Região de pesquisa',
+      status: 'Status da análise',
+      created_at: 'Data de criação da análise',
+      finished_at: 'Data de resposta da análise',
+    }
+
+    if (user_info.user_type === 'admin') {
+      columns.analysis_result = 'Resposta da análise'
+    }
+
     const csv = stringify(person_report.result, {
       header: true,
-      columns: {
-        analysis_type: 'Tipo de análise',
-        company_name: 'Nome da empresa',
-        created_at: 'Data de criação da análise',
-        document: 'Documento',
-        finished_at: 'Data de resposta da análise',
-        name: 'Nome',
-        person_id: 'ID da pessoa',
-        request_id: 'ID da requisição',
-      },
+      columns,
       bom: true,
     })
 
@@ -129,20 +145,34 @@ const reportAnalysis = async (
     message: 'Converting to CSV',
   })
 
+  vehicle_report.result.sort(
+    (r1, r2) => r1.created_at > r2.created_at
+      ? 1
+      : r1.created_at < r2.created_at
+        ? -1
+        : 0,
+  )
+
+  const columns: Record<string, string> = {
+    company_name: 'Nome da empresa',
+    request_id: 'ID da requisição',
+    vehicle_id: 'ID do veículo',
+    plate: 'Placa',
+    vehicle_type: 'Tipo do veículo',
+    owner_name: 'Nome do dono',
+    owner_document: 'Documento do dono',
+    status: 'status',
+    created_at: 'Data de criação da análise',
+    finished_at: 'Data de resposta da análise',
+  }
+
+  if (user_info.user_type === 'admin') {
+    columns.analysis_result = 'Resposta da análise'
+  }
+
   const csv = stringify(vehicle_report.result, {
     header: true,
-    columns: {
-      company_name: 'Nome da empresa',
-      request_id: 'ID da requisição',
-      vehicle_id: 'ID do veículo',
-      plate: 'Placa',
-      vehicle_type: 'Tipo do veículo',
-      owner_name: 'Nome do dono',
-      owner_document: 'Documento do dono',
-      status: 'status',
-      created_at: 'Data de criação da análise',
-      finished_at: 'Data de resposta da análise',
-    },
+    columns,
     bom: true,
   })
 
