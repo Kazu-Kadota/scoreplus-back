@@ -1,6 +1,11 @@
 import Joi from 'joi'
+import { CompanyVehicleAnalysisConfigEnum } from 'src/models/dynamo/company'
 import { PlateStateEnum, VehicleType } from 'src/models/dynamo/request-enum'
-import { VehicleRequestForms } from 'src/models/dynamo/request-vehicle'
+import {
+  VehicleAnalysisConfig,
+  VehicleRequestAnalysis,
+  VehicleRequestForms,
+} from 'src/models/dynamo/request-vehicle'
 
 import ErrorHandler from 'src/utils/error-handler'
 import logger from 'src/utils/logger'
@@ -8,7 +13,7 @@ import logger from 'src/utils/logger'
 const plateRegex = /^([A-Za-z0-9]{7})$/
 const documentRegex = /^([0-9]{3}\.?[0-9]{3}\.?[0-9]{3}\-?[0-9]{2}|[0-9]{2}\.?[0-9]{3}\.?[0-9]{3}\/?[0-9]{4}\-?[0-9]{2})$/
 
-const schema = Joi.object({
+const vehicle_schema = Joi.object<VehicleRequestForms>({
   chassis: Joi
     .string()
     .max(255)
@@ -49,11 +54,23 @@ const schema = Joi.object({
     .string()
     .valid(...Object.values(VehicleType))
     .required(),
-}).required()
+})
+
+const vehicle_analysis_config_schema = Joi.object<VehicleAnalysisConfig>({
+  type: Joi
+    .string()
+    .valid(...Object.values(CompanyVehicleAnalysisConfigEnum))
+    .required(),
+})
+
+const schema = Joi.object<VehicleRequestAnalysis>({
+  vehicle: vehicle_schema.required(),
+  vehicle_analysis_config: vehicle_analysis_config_schema.required(),
+})
 
 const validateBodyVehicle = (
-  data: Partial<VehicleRequestForms>,
-): VehicleRequestForms => {
+  data: Partial<VehicleRequestAnalysis>,
+): VehicleRequestAnalysis => {
   const { value, error } = schema.validate(data, {
     abortEarly: true,
   })

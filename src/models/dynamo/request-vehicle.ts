@@ -1,9 +1,11 @@
+import { CompanyVehicleAnalysisConfigEnum } from './company'
 import {
   AnalysisTypeEnum,
   PlateStateEnum,
   RequestStatusEnum,
   VehicleType,
 } from './request-enum'
+import { Timestamp } from './timestamp'
 
 export interface VehicleRequestForms {
   chassis?: string
@@ -18,6 +20,15 @@ export interface VehicleRequestForms {
   vehicle_type: VehicleType
 }
 
+export interface VehicleAnalysisConfig {
+  type: CompanyVehicleAnalysisConfigEnum
+}
+
+export interface VehicleRequestAnalysis {
+  vehicle: VehicleRequestForms
+  vehicle_analysis_config: VehicleAnalysisConfig
+}
+
 export interface VehicleRequestKey {
   request_id: string
   vehicle_id: string
@@ -30,20 +41,17 @@ export interface VehicleRequestBody extends VehicleRequestForms {
   company_name: string
   status: RequestStatusEnum
   user_id: string
+  vehicle_analysis_config: VehicleAnalysisConfig
 }
 
-export interface VehicleRequest extends VehicleRequestKey, VehicleRequestBody {
-  created_at: string
-  updated_at: string
+export interface VehicleRequest extends VehicleRequestKey, VehicleRequestBody, Timestamp {
   finished_at?: string
   analysis_info?: string
   analysis_result?: string
 }
 
-export interface FinishedVehicleRequestBody extends VehicleRequestBody {
-  created_at: string
-  updated_at: string
-  finished_at?: string
+export interface FinishedVehicleRequestBody extends VehicleRequestBody, Timestamp {
+  finished_at: string
   analysis_info?: string
   analysis_result?: string
 }

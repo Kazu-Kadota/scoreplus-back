@@ -1,14 +1,13 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { AnalysisTypeEnum, RequestStatusEnum } from 'src/models/dynamo/request-enum'
-import { VehicleRequestBody, VehicleRequestForms, VehicleRequestKey } from 'src/models/dynamo/request-vehicle'
-import queryVehicleByPlate from 'src/services/aws/dynamo/analysis/vehicle/query-by-plate'
+import { VehicleAnalysisConfig, VehicleRequestBody, VehicleRequestForms, VehicleRequestKey } from 'src/models/dynamo/request-vehicle'
 import putRequestVehicle from 'src/services/aws/dynamo/request/analysis/vehicle/put'
-import queryRequestVehicleByPlate, { QueryRequestVehicleByPlateQuery } from 'src/services/aws/dynamo/request/analysis/vehicle/query-by-plate'
-import ErrorHandler from 'src/utils/error-handler'
 import { UserInfoFromJwt } from 'src/utils/extract-jwt-lambda'
 import logger from 'src/utils/logger'
 import removeEmpty from 'src/utils/remove-empty'
 import { v4 as uuid } from 'uuid'
+
+import getVehicleId from './get-vehicle-id'
 
 export interface ReturnVehicleAnalysis {
   company_name: string
@@ -21,11 +20,12 @@ export interface ReturnVehicleAnalysis {
 
 export interface VehicleAnalysisRequest {
   analysis_type: AnalysisTypeEnum
-  body: VehicleRequestForms
   combo_number?: number
   combo_id?: string
   dynamodbClient: DynamoDBClient
   user_info: UserInfoFromJwt
+  vehicle_data: VehicleRequestForms
+  vehicle_analysis_config: VehicleAnalysisConfig
 }
 
 const vehicleAnalysis = async (
@@ -33,11 +33,12 @@ const vehicleAnalysis = async (
 ): Promise<ReturnVehicleAnalysis> => {
   const {
     analysis_type,
-    body,
     combo_number,
     combo_id,
     dynamodbClient,
     user_info,
+    vehicle_data,
+    vehicle_analysis_config,
   } = data
 
   logger.debug({
@@ -47,47 +48,19 @@ const vehicleAnalysis = async (
     user_id: user_info.user_id,
   })
 
-  if (user_info.user_type === 'admin' && !body.company_name) {
-    logger.warn({
-      message: 'Need to inform company name for admin user',
-      user_type: user_info.user_type,
-    })
-
-    throw new ErrorHandler('É necessário informar o nome da empresa para usuários admin', 400)
-  }
-
   const request_id = uuid()
 
-  const vehicle = await queryVehicleByPlate(body.plate, body.plate_state, dynamodbClient)
-
-  const query_requested_vehicle: QueryRequestVehicleByPlateQuery = {
-    plate: body.plate,
-    plate_state: body.plate_state,
-  }
-
-  const requested_vehicle = await queryRequestVehicleByPlate(
-    query_requested_vehicle,
-    dynamodbClient,
-  )
-
-  let vehicle_id: string
-
-  if (vehicle && vehicle[0]) {
-    vehicle_id = vehicle[0].vehicle_id
-  } else if (requested_vehicle && requested_vehicle[0]) {
-    vehicle_id = requested_vehicle[0].vehicle_id
-  } else {
-    vehicle_id = uuid()
-  }
+  const vehicle_id = await getVehicleId(vehicle_data.plate, vehicle_data.plate_state, dynamodbClient)
 
   const data_request_vehicle: VehicleRequestBody = {
-    ...body,
+    ...vehicle_data,
     analysis_type,
     combo_number: combo_number || undefined,
     combo_id,
-    company_name: user_info.user_type === 'admin' ? body.company_name as string : user_info.company_name,
+    company_name: user_info.user_type === 'admin' ? vehicle_data.company_name as string : user_info.company_name,
     user_id: user_info.user_id,
     status: RequestStatusEnum.WAITING,
+    vehicle_analysis_config,
   }
 
   const request_vehicle_body = removeEmpty(data_request_vehicle)
@@ -103,8 +76,8 @@ const vehicleAnalysis = async (
     message: 'Successfully requested vehicle analysis',
     request_id,
     vehicle_id,
-    owner_name: body.owner_name,
-    plate: body.plate,
+    owner_name: vehicle_data.owner_name,
+    plate: vehicle_data.plate,
   })
 
   return {
@@ -112,8 +85,8 @@ const vehicleAnalysis = async (
     vehicle_id,
     company_name: user_info.company_name,
     user_id: user_info.user_id,
-    owner_name: body.owner_name,
-    plate: body.plate,
+    owner_name: vehicle_data.owner_name,
+    plate: vehicle_data.plate,
   }
 }
 

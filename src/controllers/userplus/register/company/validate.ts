@@ -2,7 +2,7 @@ import Joi from 'joi'
 import {
   CompanyBody,
   CompanyPersonAnalysisConfig,
-  CompanyPersonAnalysisConfigNumberEnum,
+  CompanyAnalysisConfigNumberEnum,
   CompanySystemConfig,
 } from 'src/models/dynamo/company'
 import ErrorHandler from 'src/utils/error-handler'
@@ -13,25 +13,25 @@ const cnpjRegex = /^([0-9]{2}\.?[0-9]{3}\.?[0-9]{3}\/?[0-9]{4}\-?[0-9]{2})$/
 const analysis_config_schema = Joi.object<CompanyPersonAnalysisConfig>({
   hr: Joi
     .number()
-    .default(CompanyPersonAnalysisConfigNumberEnum.HR)
+    .default(CompanyAnalysisConfigNumberEnum.HR)
     .min(0)
     .integer()
     .optional(),
   aggregate: Joi
     .number()
-    .default(CompanyPersonAnalysisConfigNumberEnum.AGGREGATE)
+    .default(CompanyAnalysisConfigNumberEnum.AGGREGATE)
     .min(0)
     .integer()
     .optional(),
   autonomous: Joi
     .number()
-    .default(CompanyPersonAnalysisConfigNumberEnum.AUTONOMOUS)
+    .default(CompanyAnalysisConfigNumberEnum.AUTONOMOUS)
     .min(0)
     .integer()
     .optional(),
   member: Joi
     .number()
-    .default(CompanyPersonAnalysisConfigNumberEnum.MEMBER)
+    .default(CompanyAnalysisConfigNumberEnum.MEMBER)
     .min(0)
     .integer()
     .optional(),
