@@ -23,30 +23,32 @@ export interface PersonAnalysisResponse {
 
 export interface PersonAnalysisRequest {
   analysis_type: AnalysisTypeEnum
-  combo_number?: number
   combo_id?: string
+  combo_number?: number
   company_system_config: CompanySystemConfig
   dynamodbClient: DynamoDBClient
+  person_analysis_config: PersonAnalysisConfig
   person_analysis_type: PersonAnalysisTypeEnum
   person_data: PersonRequestForms
-  person_analysis_config: PersonAnalysisConfig
   region_type: PersonRegionTypeEnum,
   region?: StateEnum,
+  release_extract_id?: string
   user_info: UserInfoFromJwt
 }
 
 const personAnalysis = async (
   {
     analysis_type,
-    combo_number,
     combo_id,
+    combo_number,
     company_system_config,
     dynamodbClient,
+    person_analysis_config,
     person_analysis_type,
     person_data,
-    person_analysis_config,
     region_type,
     region,
+    release_extract_id,
     user_info,
   }: PersonAnalysisRequest,
 ): Promise<PersonAnalysisResponse> => {
@@ -66,13 +68,14 @@ const personAnalysis = async (
   const data_request_person: PersonRequestBody = {
     ...person_data,
     analysis_type,
-    combo_number: combo_number || undefined,
     combo_id,
+    combo_number: combo_number || undefined,
     company_name: user_info.user_type === 'admin' ? person_data.company_name as string : user_info.company_name,
     person_analysis_config,
     person_analysis_type,
     region_type,
     region,
+    release_extract_id,
     status,
     user_id: user_info.user_id,
   }

@@ -66,6 +66,7 @@ const requestAnalysis = async (
         dynamodbClient,
         person_analysis_config: body.person_analysis_config,
         person_data: body.person,
+        release_extract_id: uuid(),
         user_info,
       }
 
