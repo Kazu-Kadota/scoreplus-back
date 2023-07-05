@@ -18,6 +18,7 @@ export interface PersonAnalysisResponse {
   person_analysis_type: PersonAnalysisTypeEnum
   region_type: PersonRegionTypeEnum,
   region?: StateEnum,
+  release_extract_id?: string
   request_id: string
 }
 
@@ -104,6 +105,7 @@ const personAnalysis = async (
     person_analysis_type,
     region_type,
     region,
+    release_extract_id,
     request_id,
   }
 }
