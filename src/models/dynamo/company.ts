@@ -7,7 +7,13 @@ export enum CompanyPersonAnalysisConfigEnum {
   HR = 'hr',
 }
 
-export enum CompanyPersonAnalysisConfigNumberEnum {
+export enum CompanyVehicleAnalysisConfigEnum {
+  MEMBER = 'member',
+  AGGREGATE = 'aggregate',
+  AUTONOMOUS = 'autonomous',
+}
+
+export enum CompanyAnalysisConfigNumberEnum {
   MEMBER = 365,
   AGGREGATE = 182,
   AUTONOMOUS = 1,

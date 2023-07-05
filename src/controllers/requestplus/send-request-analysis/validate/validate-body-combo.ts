@@ -1,5 +1,5 @@
 import Joi from 'joi'
-import { CompanyPersonAnalysisConfigEnum } from 'src/models/dynamo/company'
+import { CompanyPersonAnalysisConfigEnum, CompanyVehicleAnalysisConfigEnum } from 'src/models/dynamo/company'
 import {
   DriverCategoryEnum,
   PersonAnalysisTypeEnum,
@@ -9,14 +9,14 @@ import {
   VehicleType,
 } from 'src/models/dynamo/request-enum'
 import { PersonAnalysisConfig, PersonAnalysisItems, PersonRequestAnalysis, PersonRequestForms } from 'src/models/dynamo/request-person'
-import { VehicleRequestForms } from 'src/models/dynamo/request-vehicle'
+import { VehicleAnalysisConfig, VehicleRequestAnalysis, VehicleRequestForms } from 'src/models/dynamo/request-vehicle'
 
 import ErrorHandler from 'src/utils/error-handler'
 import logger from 'src/utils/logger'
 
 export interface ValidateRequestCombo extends PersonRequestAnalysis {
   combo_number: number
-  vehicles: VehicleRequestForms[]
+  vehicles: VehicleRequestAnalysis[]
 }
 
 const documentRegex = /^([0-9]{3}\.?[0-9]{3}\.?[0-9]{3}\-?[0-9]{2}|[0-9]{2}\.?[0-9]{3}\.?[0-9]{3}\/?[0-9]{4}\-?[0-9]{2})$/
@@ -109,57 +109,69 @@ const person_analysis_config_schema = Joi.object<PersonAnalysisConfig>({
     .required(),
 })
 
-const vehicle_schema = Joi.array().items(
-  Joi.object<VehicleRequestForms>({
-    chassis: Joi
-      .string()
-      .max(255)
-      .optional(),
-    company_name: Joi
-      .string()
-      .max(255)
-      .optional(),
-    driver_name: Joi
-      .string()
-      .max(255)
-      .optional(),
-    owner_document: Joi
-      .string()
-      .regex(documentRegex)
-      .required(),
-    owner_name: Joi
-      .string()
-      .max(255)
-      .required(),
-    plate_state: Joi
-      .string()
-      .valid(...Object.values(PlateStateEnum))
-      .required(),
-    plate: Joi
-      .string()
-      .regex(plateRegex)
-      .required(),
-    renavam: Joi
-      .string()
-      .max(255)
-      .optional(),
-    vehicle_model: Joi
-      .string()
-      .max(255)
-      .optional(),
-    vehicle_type: Joi
-      .string()
-      .valid(...Object.values(VehicleType))
-      .required(),
+const vehicle_forms_schema = Joi.object<VehicleRequestForms>({
+  chassis: Joi
+    .string()
+    .max(255)
+    .optional(),
+  company_name: Joi
+    .string()
+    .max(255)
+    .optional(),
+  driver_name: Joi
+    .string()
+    .max(255)
+    .optional(),
+  owner_document: Joi
+    .string()
+    .regex(documentRegex)
+    .required(),
+  owner_name: Joi
+    .string()
+    .max(255)
+    .required(),
+  plate_state: Joi
+    .string()
+    .valid(...Object.values(PlateStateEnum))
+    .required(),
+  plate: Joi
+    .string()
+    .regex(plateRegex)
+    .required(),
+  renavam: Joi
+    .string()
+    .max(255)
+    .optional(),
+  vehicle_model: Joi
+    .string()
+    .max(255)
+    .optional(),
+  vehicle_type: Joi
+    .string()
+    .valid(...Object.values(VehicleType))
+    .required(),
+})
+
+const vehicle_analysis_config_schema = Joi.object<VehicleAnalysisConfig>({
+  type: Joi
+    .string()
+    .valid(...Object.values(CompanyVehicleAnalysisConfigEnum))
+    .required(),
+})
+
+const vehicles_schema = Joi.array<VehicleRequestAnalysis[]>().items(
+  Joi.object<VehicleRequestAnalysis>({
+    vehicle: vehicle_forms_schema.required(),
+    vehicle_analysis_config: vehicle_analysis_config_schema.required(),
   }).required(),
 )
 
-const schema = Joi.object({
+const schema = Joi.object<ValidateRequestCombo>({
   combo_number: Joi.number().min(0).max(10).required(),
   person: person_schema.required(),
   person_analysis: person_analysis_schema.required(),
   person_analysis_config: person_analysis_config_schema.required(),
-  vehicles: vehicle_schema.required(),
+  vehicles: vehicles_schema.required(),
 }).required()
 
 const validateBodyCombo = (
