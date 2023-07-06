@@ -1,8 +1,13 @@
 import { APIGatewayProxyResult } from 'aws-lambda'
 import { defaultHeaders } from 'src/constants/headers'
 
+import logger from './logger'
+
 const catchError = (err: any): APIGatewayProxyResult => {
   if (err.isTreated) {
+    logger.error({
+      err: err.toObject(),
+    })
     return {
       headers: defaultHeaders,
       statusCode: err.code,
@@ -11,6 +16,10 @@ const catchError = (err: any): APIGatewayProxyResult => {
   }
 
   if (err.$metadata) {
+    logger.error({
+      message: 'AWS error: ' + err.name,
+      err,
+    })
     return {
       headers: defaultHeaders,
       statusCode: err.$metadata.httpStatusCode,
@@ -19,6 +28,11 @@ const catchError = (err: any): APIGatewayProxyResult => {
       }),
     }
   }
+
+  logger.error({
+    message: 'Internal Server Error',
+    err,
+  })
 
   return {
     headers: defaultHeaders,
