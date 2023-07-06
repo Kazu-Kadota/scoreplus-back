@@ -1,25 +1,44 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { PersonRequest, PersonRequestKey } from 'src/models/dynamo/request-person'
-import getFinishedRequestPerson from 'src/services/aws/dynamo/request/finished/person/get'
+import { AnalysisResultEnum } from 'src/models/dynamo/answer'
+import { PersonReleaseExtractKey, PersonRequest } from 'src/models/dynamo/request-person'
+import queryRequestFinishedPersonByReleaseExtractId from 'src/services/aws/dynamo/request/finished/person/query-by-release-extract-id'
 import ErrorHandler from 'src/utils/error-handler'
 import logger from 'src/utils/logger'
 
 const getFinishedPersonAnalysisAdapter = async (
-  request_person_key: PersonRequestKey,
+  params: PersonReleaseExtractKey,
   dynamodbClient: DynamoDBClient,
 ): Promise<PersonRequest> => {
-  const finished_person = await getFinishedRequestPerson(request_person_key, dynamodbClient)
+  const finished_person = await queryRequestFinishedPersonByReleaseExtractId(params, dynamodbClient)
 
-  if (!finished_person) {
+  if (!finished_person || !finished_person[0]) {
     logger.warn({
-      message: 'Person not exist or analysis not finished',
-      person_id: request_person_key.person_id,
+      message: 'Person not exist',
+      person_id: params.release_extract_id,
     })
 
-    throw new ErrorHandler('Pessoa não existe ou análise não finalizada', 404)
+    throw new ErrorHandler('Pessoa não existe.', 404)
   }
 
-  return finished_person
+  finished_person.sort(
+    (row1, row2) => {
+      const finished_at_row1 = row1.finished_at as string
+      const finished_at_row2 = row2.finished_at as string
+      return finished_at_row1 > finished_at_row2
+        ? -1
+        : finished_at_row1 < finished_at_row2
+          ? 1
+          : 0
+    },
+  )
+
+  const rejected_person = finished_person.find((person) => person.analysis_result === AnalysisResultEnum.REJECTED)
+
+  if (!rejected_person) {
+    return finished_person[0]
+  }
+
+  return rejected_person
 }
 
 export default getFinishedPersonAnalysisAdapter

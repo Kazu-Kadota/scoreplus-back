@@ -1,23 +1,22 @@
 import Joi from 'joi'
-import { PersonRequestKey } from 'src/models/dynamo/request-person'
 
 import ErrorHandler from 'src/utils/error-handler'
 import logger from 'src/utils/logger'
 
-const schema = Joi.object<PersonRequestKey>({
-  person_id: Joi
-    .string()
-    .uuid()
-    .required(),
-  request_id: Joi
+export interface ValidatePersonReleaseExtractParams {
+  release_extract_id: string
+}
+
+const schema = Joi.object<ValidatePersonReleaseExtractParams>({
+  release_extract_id: Joi
     .string()
     .uuid()
     .required(),
 }).required()
 
 const validatePersonReleaseExtract = (
-  data: Partial<PersonRequestKey>,
-): PersonRequestKey => {
+  data: Partial<ValidatePersonReleaseExtractParams>,
+): ValidatePersonReleaseExtractParams => {
   const { value, error } = schema.validate(data, {
     abortEarly: true,
   })

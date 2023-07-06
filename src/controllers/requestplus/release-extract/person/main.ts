@@ -1,17 +1,18 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { UserKey } from 'src/models/dynamo/user'
 import { Controller, Request } from 'src/models/lambda'
-import getUser from 'src/services/aws/dynamo/user/user/get'
-import ErrorHandler from 'src/utils/error-handler'
 import generatePdf from 'src/utils/generete-pdf'
 import logger from 'src/utils/logger'
 
+import getCompanyAdapter from '../get-company-adapter '
+import getUserAdapter from '../get-user-adapter'
 import renderTemplate from '../render-template'
 
+import verifyCompanyName from '../verify-company-name'
+
 import formatPersonAnalysis from './format-person-analysis'
-import getCompanyAdapter from './get-company-adapter'
 import getFinishedPersonAnalysisAdapter from './get-finished-person-analysis-adapter'
 import validatePersonReleaseExtract from './validate'
+import verifyRequestPersonAnalysis from './verify-request-person-analysis'
 
 const dynamodbClient = new DynamoDBClient({
   region: 'us-east-1',
@@ -25,30 +26,21 @@ const personReleaseExtractController: Controller = async (req: Request) => {
 
   const params = validatePersonReleaseExtract({ ...req.queryStringParameters })
 
+  await verifyRequestPersonAnalysis(params, dynamodbClient)
+
   const person_analysis = await getFinishedPersonAnalysisAdapter(params, dynamodbClient)
 
-  const user_key: UserKey = {
-    user_id: req.user_info?.user_id as string,
-  }
+  const user = await getUserAdapter(req.user_info?.user_id as string, dynamodbClient)
 
-  const user = await getUser(user_key, dynamodbClient)
+  const company = await getCompanyAdapter(person_analysis.company_name, dynamodbClient)
 
-  if (!user) {
-    logger.warn({
-      message: 'User not found',
-      user_id: user_key.user_id,
-    })
-
-    throw new ErrorHandler('Usuário não encontrado', 404)
-  }
-
-  const company = await getCompanyAdapter(req.user_info?.company_name as string, dynamodbClient)
+  verifyCompanyName(user, person_analysis)
 
   const pdfData = {
     company,
     user,
-    verification_code: 'MOCK', // TODO: Remove it
-    person_analysis: formatPersonAnalysis(person_analysis),
+    verification_code: params.release_extract_id,
+    person_analysis: formatPersonAnalysis(person_analysis, company),
   }
 
   const template = await renderTemplate('person_release_extract.mustache', pdfData)
@@ -57,8 +49,7 @@ const personReleaseExtractController: Controller = async (req: Request) => {
 
   logger.info({
     message: 'Finish on get person release extract',
-    person_id: params.person_id,
-    request_id: params.request_id,
+    release_extract_id: params.release_extract_id,
   })
 
   return {
