@@ -1,33 +1,29 @@
-import {
-  DynamoDBClient,
-  QueryCommand,
-} from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
 import { ComboReleaseExtractKey } from 'src/models/dynamo/combo'
 import { PersonRequest } from 'src/models/dynamo/request-person'
 import {
-  createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
 } from 'src/utils/dynamo/expression'
 import getStringEnv from 'src/utils/get-string-env'
 import logger from 'src/utils/logger'
 
-const DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON')
+const DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON')
 
-const queryFinishedRequestPersonByComboId = async (
+const queryRequestPersonByComboId = async (
   query: ComboReleaseExtractKey,
   dynamodbClient: DynamoDBClient,
 ): Promise<PersonRequest[] | undefined> => {
   logger.debug({
-    message: 'Querying finished request person by combo id',
+    message: 'Querying requested person by combo id',
     combo_id: query.combo_id,
   })
 
   const command = new QueryCommand({
-    TableName: DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON,
+    TableName: DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON,
     IndexName: 'combo-id-index',
-    KeyConditionExpression: createConditionExpression(query, true),
+    KeyConditionExpression: '#combo_id = :combo_id',
     ExpressionAttributeNames: createExpressionAttributeNames(query),
     ExpressionAttributeValues: createExpressionAttributeValues(query),
   })
@@ -43,4 +39,4 @@ const queryFinishedRequestPersonByComboId = async (
   return result
 }
 
-export default queryFinishedRequestPersonByComboId
+export default queryRequestPersonByComboId

@@ -1,22 +1,23 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { VehicleRequest, VehicleRequestKey } from 'src/models/dynamo/request-vehicle'
-import getFinishedRequestVehicle from 'src/services/aws/dynamo/request/finished/vehicle/get'
+import { ComboReleaseExtractKey } from 'src/models/dynamo/combo'
+import { VehicleRequest } from 'src/models/dynamo/request-vehicle'
+import queryFinishedRequestVehicleByComboId from 'src/services/aws/dynamo/request/finished/vehicle/query-by-combo-id'
 import ErrorHandler from 'src/utils/error-handler'
 import logger from 'src/utils/logger'
 
 const getFinishedVehicleAnalysisAdapter = async (
-  request_vehicle_key: VehicleRequestKey,
+  combo_key: ComboReleaseExtractKey,
   dynamodbClient: DynamoDBClient,
-): Promise<VehicleRequest> => {
-  const finished_vehicle = await getFinishedRequestVehicle(request_vehicle_key, dynamodbClient)
+): Promise<VehicleRequest[]> => {
+  const finished_vehicle = await queryFinishedRequestVehicleByComboId(combo_key, dynamodbClient)
 
-  if (!finished_vehicle) {
+  if (!finished_vehicle || !finished_vehicle[0]) {
     logger.warn({
-      message: 'Vehicle not exist or analysis not finished',
-      vehicle_id: request_vehicle_key.vehicle_id,
+      message: 'Combo not exist',
+      combo_id: combo_key.combo_id,
     })
 
-    throw new ErrorHandler('Veículo não existe ou análise não finalizada', 404)
+    throw new ErrorHandler('Combo não existe', 404)
   }
 
   return finished_vehicle
