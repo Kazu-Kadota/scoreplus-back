@@ -33,6 +33,7 @@
     "@aws-sdk/util-dynamodb": "^3.272.0",
     "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
+    "chromium": "^3.0.3",
     "csv-stringify": "^6.2.4",
     "dayjs": "^1.11.9",
     "joi": "~17.7.0",
