@@ -1,6 +1,7 @@
+import { APIGatewayProxyResult } from 'aws-lambda'
 import { defaultHeaders } from 'src/constants/headers'
 
-const catchError = (err: any) => {
+const catchError = (err: any): APIGatewayProxyResult => {
   if (err.isTreated) {
     return {
       headers: defaultHeaders,

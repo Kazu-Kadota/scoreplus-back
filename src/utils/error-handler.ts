@@ -1,9 +1,9 @@
 export default class ErrorHandler extends Error {
   isTreated: boolean
   code: number
-  details?: any[]
+  details?: any
 
-  constructor (message: string, code: number, details?: any[]) {
+  constructor (message: string, code: number, details?: any) {
     super(message)
 
     this.isTreated = true
@@ -27,7 +27,6 @@ export default class ErrorHandler extends Error {
   toObject () {
     return {
       name: this.message,
-      ...this.getDetails(),
       error: {
         code: this.code,
         message: this.message,

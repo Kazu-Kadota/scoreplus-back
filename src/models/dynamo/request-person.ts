@@ -13,6 +13,10 @@ export enum PersonAnalysisStatusGeneralEnum {
   GENERAL = 'general'
 }
 
+export interface PersonReleaseExtractKey {
+  release_extract_id: string
+}
+
 export interface PersonRequestForms {
   birth_date: string
   category_cnh?: DriverCategoryEnum

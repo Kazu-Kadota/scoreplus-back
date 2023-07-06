@@ -42,6 +42,8 @@ custom:
     sourcemap: true
     watch:
       pattern: 'src/**/*'
+    external:
+      - vm2
 
   serverless-offline:
     noPrependStageInUrl: true
@@ -238,6 +240,30 @@ functions:
           localAuthorizer:
             name: "mylocalAuthProxyFn"
             type: "request"
+
+  controllers-requestplus-release-extract-person:
+    handler: src/controllers/requestplus/release-extract/person/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /release-extract/person
+
+  controllers-requestplus-release-extract-vehicle:
+    handler: src/controllers/requestplus/release-extract/vehicle/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /release-extract/vehicle
+
+  controllers-requestplus-release-extract-combo:
+    handler: src/controllers/requestplus/release-extract/combo/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /release-extract/combo
 
   controllers-requestplus-answer:
     handler: src/controllers/requestplus/send-answer/index.handler
