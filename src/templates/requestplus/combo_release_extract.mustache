@@ -175,7 +175,7 @@
             </p>
             <p>
               <strong>E-mail do Usuário: </strong>
-              {{ company.email }}
+              {{ user.email }}
             </p>
           </div>
           <div class="box">
@@ -213,13 +213,13 @@
               <p>
                 <small
                   ><strong>Data da Análise: </strong>
-                  {{ person_analysis.created_at_formatted }}</small
+                  {{ person_analysis.finished_at_formatted }}</small
                 >
               </p>
               <p>
                 <small
                   ><strong>Vigência da Análise: </strong>
-                  {{ person_analysis.finished_at_formatted }}</small
+                  {{ person_analysis.validity }}</small
                 >
               </p>
             </div>
@@ -260,13 +260,13 @@
                 <p>
                   <small
                     ><strong>Data da Análise: </strong>
-                    {{ item.created_at_formatted }}</small
+                    {{ item.finished_at_formatted }}</small
                   >
                 </p>
                 <p>
                   <small
                     ><strong>Vigência da Análise: </strong>
-                    {{ item.finished_at_formatted }}</small
+                    {{ item.validity }}</small
                   >
                 </p>
               </div>
