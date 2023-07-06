@@ -3,7 +3,7 @@ import mustache from 'mustache'
 import path from 'path'
 
 const renderTemplate = async <Data>(templateName: string, templateData: Data) => {
-  const filePath = path.join(__dirname, '..', '..', '..', '..', 'templates', 'requestplus')
+  const filePath = path.join(__dirname, '..', '..', '..', 'templates', 'requestplus')
 
   const [templateFile, logoFile, backgroundFile] = await Promise.all([
     fsPromises.readFile(path.join(filePath, templateName), 'utf-8'),
