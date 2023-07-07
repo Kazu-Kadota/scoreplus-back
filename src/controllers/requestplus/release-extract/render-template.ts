@@ -6,6 +6,7 @@ import getStringEnv from 'src/utils/get-string-env'
 const IS_LOCAL = getStringEnv('IS_LOCAL')
 
 const renderTemplate = async <Data>(templateName: string, templateData: Data) => {
+  console.log(IS_LOCAL)
   let filePath
 
   if (IS_LOCAL) {
@@ -13,6 +14,7 @@ const renderTemplate = async <Data>(templateName: string, templateData: Data) =>
   } else {
     filePath = path.join(__dirname, '..', '..', '..', 'templates', 'requestplus')
   }
+  console.log(filePath)
 
   const [templateFile, logoFile, backgroundFile] = await Promise.all([
     fsPromises.readFile(path.join(filePath, templateName), 'utf-8'),
