@@ -1,19 +1,24 @@
 import chromium from '@sparticuz/chromium'
-import fs from 'fs'
+import { chmodSync } from 'fs'
 import puppeteer from 'puppeteer-core'
 
 import getStringEnv from './get-string-env'
 
 const STAGE = getStringEnv('STAGE')
 
-fs.copyFileSync('../../node_modules/@sparticuz/chromium/bin/chromium', '/tmp/chromium')
+const definePath = async () => {
+  const path = await chromium.executablePath()
+  chmodSync('/tmp/chromium', 755)
+
+  return path
+}
 
 const generatePdf = async (template: string) => {
   const params = {
     args: STAGE === 'local' ? puppeteer.defaultArgs() : chromium.args,
     defaultViewport: chromium.defaultViewport,
     // Need to install chromium-browser on your pc: sudo apt-get install chromium-browser
-    executablePath: STAGE === 'local' ? '/usr/bin/chromium-browser' : '/tmp/chromium',
+    executablePath: STAGE === 'local' ? '/usr/bin/chromium-browser' : await definePath(),
     headless: STAGE === 'local' ? false : chromium.headless,
     ignoreHTTPSErrors: true,
   }
