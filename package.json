@@ -40,7 +40,7 @@
     "lru-cache": "^10.0.0",
     "mustache": "^4.2.0",
     "pino": "^8.10.0",
-    "puppeteer-core": "^20.6.0",
+    "puppeteer-core": "^20.7.4",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

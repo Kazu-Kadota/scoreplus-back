@@ -69,3 +69,4 @@ override.tf.json
 dist
 
 test.ts
+*.tar

@@ -20,6 +20,7 @@ provider:
     DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE: requestplus-finished-analysis-vehicle-prd
     DYNAMO_TABLE_ANALYSISPLUS_PEOPLE: analysisplus-people-prd
     DYNAMO_TABLE_ANALYSISPLUS_VEHICLES: analysisplus-vehicles-prd
+    IS_LOCAL: true
     USER_RECOVERY_KEY_URL: https://user.api.systemscoreplus.com.br/reset-password
     SCOREPLUS_EMAIL: prd.no-reply@systemscoreplus.com.br
     SQS_DATAVALID_FACIAL: https://sqs.us-east-1.amazonaws.com/316279706039/requestplus-pf-facial-biometry-prd.fifo
