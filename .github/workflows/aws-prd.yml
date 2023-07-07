@@ -34,5 +34,5 @@ jobs:
         run: |
           lambdas=`cat lambda-list.cd`
           for i in $lambdas; do aws s3 cp dist/latest.zip s3://infraplus-src-prd/deploy/$i-prd/latest.zip; done
-          for i in $lambdas; do aws lambda update-function-code --function-name $i-prd --zip-file fileb://dist/latest.zip; done
+          # for i in $lambdas; do aws lambda update-function-code --function-name $i-prd --zip-file fileb://dist/latest.zip; done
 

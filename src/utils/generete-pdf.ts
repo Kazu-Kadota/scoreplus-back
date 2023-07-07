@@ -10,7 +10,7 @@ const generatePdf = async (template: string) => {
     args: STAGE === 'local' ? puppeteer.defaultArgs() : chromium.args,
     defaultViewport: chromium.defaultViewport,
     // Need to install chromium-browser on your pc: sudo apt-get install chromium-browser
-    executablePath: STAGE === 'local' ? '/usr/bin/chromium-browser' : '/nodejs/node_modules/@sparticuz/chromium/bin/chromium.br',
+    executablePath: STAGE === 'local' ? '/usr/bin/chromium-browser' : '/nodejs/node_modules/@sparticuz/chromium/bin',
     headless: STAGE === 'local' ? false : chromium.headless,
     ignoreHTTPSErrors: true,
   }
