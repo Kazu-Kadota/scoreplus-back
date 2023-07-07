@@ -14,6 +14,7 @@ const generatePdf = async (template: string) => {
     headless: IS_LOCAL ? false : chromium.headless,
     ignoreHTTPSErrors: true,
   }
+  console.log(params)
   const browser = await puppeteer.launch(params)
 
   const page = await browser.newPage()
