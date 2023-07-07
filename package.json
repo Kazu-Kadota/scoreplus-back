@@ -31,6 +31,7 @@
     "@aws-sdk/client-sqs": "^3.352.0",
     "@aws-sdk/lib-dynamodb": "^3.289.0",
     "@aws-sdk/util-dynamodb": "^3.272.0",
+    "@puppeteer/browsers": "^1.4.3",
     "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "csv-stringify": "^6.2.4",
