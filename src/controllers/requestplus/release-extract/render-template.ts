@@ -13,7 +13,7 @@ const renderTemplate = async <Data>(templateName: string, templateData: Data) =>
   if (IS_LOCAL) {
     filePath = path.join(__dirname, '..', '..', '..', '..', 'templates', 'requestplus')
   } else {
-    filePath = path.join(__dirname, '..', '..', '..', 'templates', 'requestplus')
+    filePath = path.join(__dirname, '..', '..', 'templates', 'requestplus')
   }
   console.log(filePath)
 
