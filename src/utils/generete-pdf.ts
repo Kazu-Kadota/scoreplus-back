@@ -3,15 +3,15 @@ import puppeteer from 'puppeteer-core'
 
 import getStringEnv from './get-string-env'
 
-const IS_LOCAL = getStringEnv('IS_LOCAL')
+const STAGE = getStringEnv('STAGE')
 
 const generatePdf = async (template: string) => {
   const params = {
-    args: IS_LOCAL ? puppeteer.defaultArgs() : chromium.args,
+    args: STAGE === 'local' ? puppeteer.defaultArgs() : chromium.args,
     defaultViewport: chromium.defaultViewport,
     // Need to install chromium-browser on your pc: sudo apt-get install chromium-browser
-    executablePath: IS_LOCAL ? '/usr/bin/chromium-browser' : await chromium.executablePath(),
-    headless: IS_LOCAL ? false : chromium.headless,
+    executablePath: STAGE === 'local' ? '/usr/bin/chromium-browser' : await chromium.executablePath(),
+    headless: STAGE === 'local' ? false : chromium.headless,
     ignoreHTTPSErrors: true,
   }
   console.log(params)
