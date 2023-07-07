@@ -7,6 +7,7 @@ const IS_LOCAL = getStringEnv('IS_LOCAL')
 
 const renderTemplate = async <Data>(templateName: string, templateData: Data) => {
   console.log(IS_LOCAL)
+  console.log(__dirname)
   let filePath
 
   if (IS_LOCAL) {
