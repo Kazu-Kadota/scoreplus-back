@@ -3,17 +3,17 @@ import mustache from 'mustache'
 import path from 'path'
 import getStringEnv from 'src/utils/get-string-env'
 
-const IS_LOCAL = getStringEnv('IS_LOCAL')
+const STAGE = getStringEnv('STAGE')
 
 const renderTemplate = async <Data>(templateName: string, templateData: Data) => {
-  console.log(IS_LOCAL)
+  console.log(STAGE)
   console.log(__dirname)
   let filePath
 
-  if (IS_LOCAL) {
+  if (STAGE === 'local') {
     filePath = path.join(__dirname, '..', '..', '..', '..', 'templates', 'requestplus')
   } else {
-    filePath = path.join(__dirname, '..', '..', 'templates', 'requestplus')
+    filePath = path.join(__dirname, '..', '..', '..', 'templates', 'requestplus')
   }
   console.log(filePath)
 
