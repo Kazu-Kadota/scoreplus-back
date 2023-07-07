@@ -31,7 +31,6 @@
     "@aws-sdk/client-sqs": "^3.352.0",
     "@aws-sdk/lib-dynamodb": "^3.289.0",
     "@aws-sdk/util-dynamodb": "^3.272.0",
-    "@sparticuz/chromium": "^106.0.2",
     "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "csv-stringify": "^6.2.4",
@@ -41,7 +40,8 @@
     "lru-cache": "^10.0.0",
     "mustache": "^4.2.0",
     "pino": "^8.10.0",
-    "puppeteer-core": "^17.1.0",
+    "playwright-aws-lambda": "^0.10.0",
+    "playwright-core": "^1.35.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
