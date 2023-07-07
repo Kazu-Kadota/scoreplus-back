@@ -8,7 +8,7 @@ const STAGE = getStringEnv('STAGE')
 
 const definePath = async () => {
   const path = await chromium.executablePath()
-  chmodSync('/tmp/chromium', 755)
+  chmodSync('/tmp/chromium', '755')
 
   return path
 }
