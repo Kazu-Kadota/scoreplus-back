@@ -28,6 +28,7 @@ jobs:
       - run: npm run prune
       - run: npm run mv:node_modules
       - run: npm run cp:templates
+      - run: npm run cp:assets
       - run: npm run zip
 
       - name: Upload to S3

@@ -14,6 +14,7 @@
     "tsc": "tsc -p tsconfig.build.json",
     "mv:node_modules": "mv node_modules dist/node_modules",
     "cp:templates": "cp -r src/templates dist/src",
+    "cp:assets": "cp -r src/assets dist/src",
     "zip": "cd dist && zip -r latest.zip ./",
     "build": "run-s clean tsc prune mv:node_modules zip",
     "aws-lambda": "AWS_PROFILE=score-plus-sdx AWS_REGION=us-east-1 aws lambda update-function-code --function-name teste --zip-file fileb://dist/scoreplus-back.zip"
