@@ -41,8 +41,6 @@ const personReleaseExtractController: Controller = async (req: Request) => {
     person_analysis: formatPersonAnalysis(person_analysis, company),
   })
 
-  const pdf_base64 = Buffer.from(pdf_buffer).toString('base64')
-
   logger.info({
     message: 'Finish on get person release extract',
     release_extract_id: params.release_extract_id,
@@ -53,7 +51,7 @@ const personReleaseExtractController: Controller = async (req: Request) => {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename=liberacao_pessoa_${person_analysis.name}_${person_analysis.finished_at?.split('T')[0]}.pdf`,
     },
-    body: pdf_base64,
+    body: pdf_buffer,
     isBase64Encoded: true,
     notJsonBody: true,
   }
