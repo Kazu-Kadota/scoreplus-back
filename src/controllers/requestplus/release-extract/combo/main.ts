@@ -56,7 +56,7 @@ const comboReleaseExtractController: Controller = async (req: Request) => {
     vehicles_analysis: vehicle_analysis.map(analysis => formatVehicleAnalysis(analysis, company)),
   })
 
-  const pdf_base64 = pdf_buffer.toString('base64')
+  const pdf_base64 = Buffer.from(pdf_buffer).toString('base64')
 
   logger.info({
     message: 'Finish on get combo release extract',

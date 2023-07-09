@@ -41,7 +41,7 @@ const personReleaseExtractController: Controller = async (req: Request) => {
     person_analysis: formatPersonAnalysis(person_analysis, company),
   })
 
-  const pdf_base64 = pdf_buffer.toString('base64')
+  const pdf_base64 = Buffer.from(pdf_buffer).toString('base64')
 
   logger.info({
     message: 'Finish on get person release extract',
