@@ -1,5 +1,4 @@
 import { Company } from 'src/models/dynamo/company'
-
 import { User } from 'src/models/dynamo/user'
 
 import PdfLayout from '../pdf-components/pdf-layout'
