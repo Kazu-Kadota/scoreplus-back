@@ -51,7 +51,7 @@ const personReleaseExtractController: Controller = async (req: Request) => {
   return {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=liberacao_${person_analysis.name}_${person_analysis.finished_at?.split('T')[0]}.pdf`,
+      'Content-Disposition': `attachment; filename=liberacao_pessoa_${person_analysis.name}_${person_analysis.finished_at?.split('T')[0]}.pdf`,
     },
     body: pdf_base64,
     isBase64Encoded: true,
