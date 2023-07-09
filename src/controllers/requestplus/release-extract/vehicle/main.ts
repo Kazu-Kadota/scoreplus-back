@@ -39,6 +39,8 @@ const vehicleReleaseExtractController: Controller = async (req: Request) => {
     vehicle_analysis: formatVehicleAnalysis(vehicle_analysis, company),
   })
 
+  const pdf_base64 = pdf_buffer.toString('base64')
+
   logger.info({
     message: 'Finish on get vehicle release extract',
     vehicle_id: params.vehicle_id,
@@ -48,9 +50,9 @@ const vehicleReleaseExtractController: Controller = async (req: Request) => {
   return {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=liberacao_${vehicle_analysis.vehicle_id}_${vehicle_analysis.finished_at?.split('T')[0]}.pdf`,
+      'Content-Disposition': `attachment; filename=liberacao_veiculo_${vehicle_analysis.vehicle_id}_${vehicle_analysis.finished_at?.split('T')[0]}.pdf`,
     },
-    body: pdf_buffer,
+    body: pdf_base64,
     isBase64Encoded: true,
     notJsonBody: true,
   }

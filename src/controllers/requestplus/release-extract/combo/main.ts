@@ -56,6 +56,8 @@ const comboReleaseExtractController: Controller = async (req: Request) => {
     vehicles_analysis: vehicle_analysis.map(analysis => formatVehicleAnalysis(analysis, company)),
   })
 
+  const pdf_base64 = pdf_buffer.toString('base64')
+
   logger.info({
     message: 'Finish on get combo release extract',
     combo_id: params.combo_id,
@@ -64,9 +66,9 @@ const comboReleaseExtractController: Controller = async (req: Request) => {
   return {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=liberacao_combo_${new Date().toISOString().split('T')[0]}.pdf`,
+      'Content-Disposition': `attachment; filename=liberacao_combo_${params.combo_id}_${person_analysis.finished_at?.split('T')[0]}.pdf`,
     },
-    body: pdf_buffer,
+    body: pdf_base64,
     isBase64Encoded: true,
     notJsonBody: true,
   }
