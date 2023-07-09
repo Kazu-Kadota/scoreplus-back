@@ -1,15 +1,14 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { Controller, Request } from 'src/models/lambda'
-import generatePdf from 'src/utils/generete-pdf'
 import logger from 'src/utils/logger'
 
 import getCompanyAdapter from '../get-company-adapter '
 import getUserAdapter from '../get-user-adapter'
-import renderTemplate from '../render-template'
 
 import verifyCompanyName from '../verify-company-name'
 
 import formatVehicleAnalysis from './format-vehicle-analysis'
+import generateVehiclePdf from './generate-vehicle-pdf'
 import getFinishedVehicleAnalysisAdapter from './get-finished-vehicle-analysis-adapter'
 import validateVehicleReleaseExtract from './validate'
 
@@ -33,16 +32,12 @@ const vehicleReleaseExtractController: Controller = async (req: Request) => {
 
   verifyCompanyName(user, vehicle_analysis)
 
-  const vehicle_data = {
+  const pdf_buffer = await generateVehiclePdf({
     company,
     user,
     verification_code: params.request_id,
     vehicle_analysis: formatVehicleAnalysis(vehicle_analysis, company),
-  }
-
-  const template = await renderTemplate('vehicle_release_extract.mustache', vehicle_data)
-
-  const pdf_buffer = await generatePdf(template)
+  })
 
   logger.info({
     message: 'Finish on get vehicle release extract',
@@ -53,7 +48,7 @@ const vehicleReleaseExtractController: Controller = async (req: Request) => {
   return {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=liberação_${vehicle_analysis.vehicle_id}_${vehicle_analysis.finished_at}.pdf`,
+      'Content-Disposition': `attachment; filename=liberacao_${vehicle_analysis.vehicle_id}_${vehicle_analysis.finished_at?.split('T')[0]}.pdf`,
     },
     body: pdf_buffer,
     isBase64Encoded: true,

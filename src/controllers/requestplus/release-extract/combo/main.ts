@@ -1,17 +1,16 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { Controller, Request } from 'src/models/lambda'
 import ErrorHandler from 'src/utils/error-handler'
-import generatePdf from 'src/utils/generete-pdf'
 import logger from 'src/utils/logger'
 
 import getCompanyAdapter from '../get-company-adapter '
 import getUserAdapter from '../get-user-adapter'
 import formatPersonAnalysis from '../person/format-person-analysis'
-import renderTemplate from '../render-template'
 
+import formatVehicleAnalysis from '../vehicle/format-vehicle-analysis'
 import verifyCompanyName from '../verify-company-name'
 
-import formatVehicleComboAnalysis from './format-vehicle-combo-analysis'
+import generateComboPdf from './generate-combo-pdf'
 import getFinishedPersonAnalysisAdapter from './get-finished-person-analysis-adapter'
 import getFinishedVehicleAnalysisAdapter from './get-finished-vehicle-analysis-adapter'
 import validateComboReleaseExtract from './validate'
@@ -49,17 +48,13 @@ const comboReleaseExtractController: Controller = async (req: Request) => {
 
   verifyCompanyName(user, person_analysis)
 
-  const pdfData = {
+  const pdf_buffer = await generateComboPdf({
     company,
     user,
     verification_code: params.combo_id,
     person_analysis: formatPersonAnalysis(person_analysis, company),
-    vehicle_analysis: formatVehicleComboAnalysis(vehicle_analysis, company),
-  }
-
-  const template = await renderTemplate('combo_release_extract.mustache', pdfData)
-
-  const pdf_buffer = await generatePdf(template)
+    vehicles_analysis: vehicle_analysis.map(analysis => formatVehicleAnalysis(analysis, company)),
+  })
 
   logger.info({
     message: 'Finish on get combo release extract',
