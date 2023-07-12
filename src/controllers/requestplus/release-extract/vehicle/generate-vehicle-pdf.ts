@@ -39,7 +39,7 @@ const generateVehiclePdf = async ({
           { label: 'Placa', text: vehicle_analysis.plate },
           { label: 'CPF/CNPJ', text: vehicle_analysis.owner_document },
           { label: 'Proprietário/Arrendatário', text: vehicle_analysis.owner_name },
-          { label: 'Vínculo', text: vehicle_analysis.analysis_config_string },
+          { label: 'Vínculo', text: vehicle_analysis.analysis_config_string ?? '' },
         ],
       }],
     }],
