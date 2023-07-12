@@ -57,7 +57,7 @@ const generateComboPdf = async ({
             { label: 'Placa', text: analysis.plate },
             { label: 'CPF/CNPJ', text: analysis.owner_document },
             { label: 'Proprietário/Arrendatário', text: analysis.owner_name },
-            { label: 'Vínculo', text: analysis.analysis_config_string },
+            { label: 'Vínculo', text: analysis.analysis_config_string ?? '' },
           ],
         })),
       },
