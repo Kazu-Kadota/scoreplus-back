@@ -51,7 +51,7 @@ const personReleaseExtractController: Controller = async (req: Request) => {
   return {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=liberacao_pessoa_${person_analysis.name}_${person_analysis.finished_at?.split('T')[0]}.pdf`,
+      'Content-Disposition': `attachment; filename=liberacao_pessoa_${params.release_extract_id}_${person_analysis.finished_at?.split('T')[0]}.pdf`,
       'x-amazon-apigateway-binary-media-types': 'application/pdf',
     },
     body: pdf_base64,

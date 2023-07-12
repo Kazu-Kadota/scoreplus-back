@@ -50,7 +50,7 @@ const vehicleReleaseExtractController: Controller = async (req: Request) => {
   return {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=liberacao_veiculo_${vehicle_analysis.vehicle_id}_${vehicle_analysis.finished_at?.split('T')[0]}.pdf`,
+      'Content-Disposition': `attachment; filename=liberacao_veiculo_${vehicle_analysis.request_id}_${vehicle_analysis.finished_at?.split('T')[0]}.pdf`,
       'x-amazon-apigateway-binary-media-types': 'application/pdf',
     },
     body: pdf_base64,
