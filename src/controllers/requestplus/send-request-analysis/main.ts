@@ -59,6 +59,8 @@ const requestAnalysis = async (
 
     const person_analyzes = []
 
+    const release_extract_id = uuid()
+
     for (const person_analysis of body.person_analysis) {
       const person_analysis_request: PersonAnalysisConstructor = {
         analysis_type,
@@ -66,7 +68,7 @@ const requestAnalysis = async (
         dynamodbClient,
         person_analysis_config: body.person_analysis_config,
         person_data: body.person,
-        release_extract_id: uuid(),
+        release_extract_id,
         user_info,
       }
 
