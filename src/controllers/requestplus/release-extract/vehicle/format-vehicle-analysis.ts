@@ -1,11 +1,12 @@
 import dayjs from 'dayjs'
+import { companyAnalysisConfigStrings } from 'src/constants/company'
 import { AnalysisResultEnum } from 'src/models/dynamo/answer'
 import { Company, CompanyVehicleAnalysisConfigEnum } from 'src/models/dynamo/company'
 import { VehicleRequest } from 'src/models/dynamo/request-vehicle'
 
 export interface PdfVehicleRequest extends VehicleRequest {
   validity: string;
-  analysis_config_string: string;
+  analysis_config_string?: string;
 }
 
 const formatVehicleAnalysis = (analysis: VehicleRequest, company: Company) => {
@@ -24,10 +25,10 @@ const formatVehicleAnalysis = (analysis: VehicleRequest, company: Company) => {
     validity = 'Inadequado para embarque'
   }
 
-  const vehicle_analysis: PdfVehicleRequest = {
-    ...analysis,
-    analysis_config_string: 'Frota',
-    validity,
+  const vehicle_analysis: PdfVehicleRequest = { ...analysis, validity }
+
+  if (vehicle_analysis.vehicle_analysis_config?.type) {
+    vehicle_analysis.analysis_config_string = companyAnalysisConfigStrings[analysis.vehicle_analysis_config.type]
   }
 
   return vehicle_analysis

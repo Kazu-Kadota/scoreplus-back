@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import { companyPersonAnalysisConfigStrings } from 'src/constants/company'
+import { companyAnalysisConfigStrings } from 'src/constants/company'
 import { AnalysisResultEnum } from 'src/models/dynamo/answer'
 import { Company, CompanyPersonAnalysisConfigEnum } from 'src/models/dynamo/company'
 import { PersonRequest } from 'src/models/dynamo/request-person'
@@ -28,7 +28,7 @@ const formatPersonAnalysis = (analysis: PersonRequest, company: Company) => {
   const person_analysis: PdfPersonRequest = { ...analysis, validity }
 
   if (analysis.person_analysis_config?.type) {
-    person_analysis.analysis_config_string = companyPersonAnalysisConfigStrings[analysis.person_analysis_config.type]
+    person_analysis.analysis_config_string = companyAnalysisConfigStrings[analysis.person_analysis_config.type]
   }
 
   return person_analysis
