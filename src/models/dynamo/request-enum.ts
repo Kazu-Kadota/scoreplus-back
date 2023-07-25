@@ -9,6 +9,7 @@ export enum AnalysisTypeEnum {
   COMBO = 'combo',
   PERSON = 'person',
   VEHICLE = 'vehicle',
+  VEHICLE_PLATE_HISTORY = 'vehicle-plate-history'
 }
 
 export enum PersonAnalysisTypeEnum {
