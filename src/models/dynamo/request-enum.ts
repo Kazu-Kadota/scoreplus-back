@@ -6,9 +6,9 @@ export enum RequestStatusEnum {
 }
 
 export enum AnalysisTypeEnum {
+  COMBO = 'combo',
   PERSON = 'person',
   VEHICLE = 'vehicle',
-  COMBO = 'combo',
 }
 
 export enum PersonAnalysisTypeEnum {
