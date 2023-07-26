@@ -11,7 +11,7 @@ import { v4 as uuid } from 'uuid'
 import getCompanyAdapter from '../get-company-adapter'
 import personAnalysisConstructor, { PersonAnalysisConstructor } from '../person/person-analysis-constructor'
 import sendMessageFacialBiometryAdapter, { SendMessageFacialBiometryAdapterParams } from '../person/send-message-facial-biometry-adapter'
-import vehicleAnalysis, { ReturnVehicleAnalysis, VehicleAnalysisRequest } from '../vehicle/vehicle'
+import vehicleAnalysis, { ReturnVehicleAnalysis, VehicleAnalysisRequest } from '../vehicle/default/vehicle'
 
 import validateBodyCombo from './validate-body-combo'
 
