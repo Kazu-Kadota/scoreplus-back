@@ -6,9 +6,10 @@ export enum RequestStatusEnum {
 }
 
 export enum AnalysisTypeEnum {
+  COMBO = 'combo',
   PERSON = 'person',
   VEHICLE = 'vehicle',
-  COMBO = 'combo',
+  VEHICLE_PLATE_HISTORY = 'vehicle-plate-history'
 }
 
 export enum PersonAnalysisTypeEnum {
