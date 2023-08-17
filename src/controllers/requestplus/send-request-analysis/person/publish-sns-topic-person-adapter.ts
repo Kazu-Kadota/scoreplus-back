@@ -7,15 +7,15 @@ import removeEmpty from 'src/utils/remove-empty'
 
 import snsMountMessage from './sns-mount-message'
 
-export interface publishSnsTopicAdapterParams {
+export interface publishSnsTopicPersonAdapterParams {
   company: Company
   person_data: PersonRequestForms
   person_id: string,
   request_ids: string[]
 }
 
-const publishSnsTopicAdapter = async (
-  params: publishSnsTopicAdapterParams,
+const publishSnsTopicPersonAdapter = async (
+  params: publishSnsTopicPersonAdapterParams,
   sns_client: SNSClient,
 ): Promise<void | undefined> => {
   const message: SNSThirdPartyWorkersMessage = {}
@@ -49,4 +49,4 @@ const publishSnsTopicAdapter = async (
   await publishThirdPartySns(JSON.stringify(sns_message), sns_message_attributes, sns_client)
 }
 
-export default publishSnsTopicAdapter
+export default publishSnsTopicPersonAdapter
