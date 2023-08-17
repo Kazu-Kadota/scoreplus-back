@@ -23,11 +23,12 @@ provider:
     STAGE: local
     USER_RECOVERY_KEY_URL: https://user.api.systemscoreplus.com.br/reset-password
     SCOREPLUS_EMAIL: prd.no-reply@systemscoreplus.com.br
-    SQS_DATAVALID_FACIAL: https://sqs.us-east-1.amazonaws.com/316279706039/requestplus-pf-facial-biometry-prd.fifo
     SCOREPLUS_DATAVALID_USER_ACCOUNT: ${ssm:/prd/lambda/worker/datavalid/user}
     SCOREPLUS_DATAVALID_USER_PASSWORD: ${ssm:/prd/lambda/worker/datavalid/password}
     SCOREPLUS_USERPLUS_URL: https://user.api.systemscoreplus.com.br
     SCOREPLUS_REQUESTPLUS_URL: https://request.api.systemscoreplus.com.br
+    SNS_REQUESTPLUS_THIRD_PARTY_WORKERS_ARN: arn:aws:sns:us-east-1:316279706039:requestplus-third-party-workers
+    SQS_DATAVALID_FACIAL: https://sqs.us-east-1.amazonaws.com/316279706039/requestplus-pf-facial-biometry-prd.fifo
 
 
 package:
@@ -158,19 +159,37 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-requestplus-analysis:
-    handler: src/controllers/requestplus/send-request-analysis/index.handler
+  controllers-requestplus-analysis-person:
+    handler: src/controllers/requestplus/send-request-analysis/person/index.handler
     timeout: 600
     events:
       - http:
           method: post
-          path: /analysis/{analysis_type}
-          authorizer:
-            type: CUSTOM
-            authorizerId: abcjfk
-          localAuthorizer:
-            name: "mylocalAuthProxyFn"
-            type: "request"
+          path: /analysis/person
+
+  controllers-requestplus-analysis-combo:
+    handler: src/controllers/requestplus/send-request-analysis/combo/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /analysis/combo
+
+  controllers-requestplus-analysis-vehicle-default:
+    handler: src/controllers/requestplus/send-request-analysis/vehicle/default/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /analysis/vehicle/default
+
+  controllers-requestplus-analysis-vehicle-plate-history:
+    handler: src/controllers/requestplus/send-request-analysis/vehicle/plate-history/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /analysis/vehicle/plate-history
 
   controllers-requestplus-people:
     handler: src/controllers/requestplus/consult/analysis/list-people/index.handler
