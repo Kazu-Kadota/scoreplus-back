@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { SQSClient } from '@aws-sdk/client-sqs'
+import { SNSClient } from '@aws-sdk/client-sns'
 import { AnalysisTypeEnum } from 'src/models/dynamo/request-enum'
 import { Controller } from 'src/models/lambda'
 import ErrorHandler from 'src/utils/error-handler'
@@ -10,7 +10,7 @@ import { v4 as uuid } from 'uuid'
 
 import getCompanyAdapter from '../get-company-adapter'
 import personAnalysisConstructor, { PersonAnalysisConstructor } from '../person/person-analysis-constructor'
-import sendMessageFacialBiometryAdapter, { SendMessageFacialBiometryAdapterParams } from '../person/send-message-facial-biometry-adapter'
+import publishSnsTopicAdapter, { publishSnsTopicAdapterParams } from '../person/publish-sns-topic-adapter'
 import vehicleAnalysis, { ReturnVehicleAnalysis, VehicleAnalysisRequest } from '../vehicle/default/vehicle'
 
 import validateBodyCombo from './validate-body-combo'
@@ -19,7 +19,8 @@ const dynamodbClient = new DynamoDBClient({
   region: 'us-east-1',
   maxAttempts: 5,
 })
-const sqsClient = new SQSClient({
+
+const snsClient = new SNSClient({
   region: 'us-east-1',
   maxAttempts: 5,
 })
@@ -84,15 +85,14 @@ const requestAnalysis: Controller = async (req) => {
     })
   })
 
-  const send_message_facial_biometry_adapter_params: SendMessageFacialBiometryAdapterParams = {
-    data: body.person,
+  const publish_sns_topic_adapter_params: publishSnsTopicAdapterParams = {
+    company,
+    person_data: body.person,
     person_id: person_analyzes[0][0].person_id,
     request_ids,
   }
 
-  if (company.system_config.biometry === true) {
-    await sendMessageFacialBiometryAdapter(send_message_facial_biometry_adapter_params, sqsClient)
-  }
+  await publishSnsTopicAdapter(publish_sns_topic_adapter_params, snsClient)
 
   const vehicles_analysis: ReturnVehicleAnalysis[] = []
 
