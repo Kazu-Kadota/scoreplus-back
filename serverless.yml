@@ -181,7 +181,7 @@ functions:
     events:
       - http:
           method: post
-          path: /analysis/vehicle/default
+          path: /analysis/vehicle
 
   controllers-requestplus-analysis-vehicle-plate-history:
     handler: src/controllers/requestplus/send-request-analysis/vehicle/plate-history/index.handler

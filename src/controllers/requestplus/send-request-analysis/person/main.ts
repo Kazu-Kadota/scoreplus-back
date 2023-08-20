@@ -11,7 +11,7 @@ import { v4 as uuid } from 'uuid'
 import getCompanyAdapter from '../get-company-adapter'
 
 import personAnalysisConstructor, { PersonAnalysisConstructor } from './person-analysis-constructor'
-import publishSnsTopicAdapter, { publishSnsTopicAdapterParams } from './publish-sns-topic-adapter'
+import publishSnsTopicPersonAdapter, { publishSnsTopicPersonAdapterParams } from './publish-sns-topic-person-adapter'
 import validateBodyPerson from './validate-body-person'
 
 const dynamodbClient = new DynamoDBClient({
@@ -75,14 +75,14 @@ const requestAnalysisPerson: Controller = async (req) => {
     })
   })
 
-  const publish_sns_topic_adapter_params: publishSnsTopicAdapterParams = {
+  const publish_sns_topic_adapter_params: publishSnsTopicPersonAdapterParams = {
     company,
     person_data: body.person,
     person_id: person_analyzes[0][0].person_id,
     request_ids,
   }
 
-  await publishSnsTopicAdapter(publish_sns_topic_adapter_params, snsClient)
+  await publishSnsTopicPersonAdapter(publish_sns_topic_adapter_params, snsClient)
 
   logger.info({
     message: 'Successfully requested to analyze person',
