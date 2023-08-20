@@ -1,4 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { SNSClient } from '@aws-sdk/client-sns'
 import { AnalysisTypeEnum } from 'src/models/dynamo/request-enum'
 import { Controller } from 'src/models/lambda'
 import ErrorHandler from 'src/utils/error-handler'
@@ -6,10 +7,18 @@ import { UserInfoFromJwt } from 'src/utils/extract-jwt-lambda'
 import logger from 'src/utils/logger'
 import removeEmpty from 'src/utils/remove-empty'
 
+import getCompanyAdapter from '../../get-company-adapter'
+
+import publishSnsTopicVehicleAdapter, { publishSnsTopicVehicleAdapterParams } from './publish-sns-topic-vehicle-adapter'
 import validateBodyVehicle from './validate-body-vehicle'
 import vehicleAnalysis, { VehicleAnalysisRequest } from './vehicle'
 
 const dynamodbClient = new DynamoDBClient({
+  region: 'us-east-1',
+  maxAttempts: 5,
+})
+
+const snsClient = new SNSClient({
   region: 'us-east-1',
   maxAttempts: 5,
 })
@@ -36,6 +45,9 @@ const requestAnalysisVehicleDefault: Controller = async (req) => {
     throw new ErrorHandler('Usuário não permitido em informar company_name', 400)
   }
 
+  const company_name = body.vehicle.company_name ? body.vehicle.company_name : user_info.company_name
+  const company = await getCompanyAdapter(company_name, dynamodbClient)
+
   const vehicle_analysis_constructor: VehicleAnalysisRequest = {
     analysis_type: AnalysisTypeEnum.VEHICLE,
     dynamodbClient,
@@ -45,6 +57,15 @@ const requestAnalysisVehicleDefault: Controller = async (req) => {
   }
 
   const vehicle_analysis = await vehicleAnalysis(vehicle_analysis_constructor)
+
+  const vehicle_params: publishSnsTopicVehicleAdapterParams = {
+    company,
+    request_id: vehicle_analysis.request_id,
+    vehicle_data: body.vehicle,
+    vehicle_id: vehicle_analysis.vehicle_id,
+  }
+
+  await publishSnsTopicVehicleAdapter(vehicle_params, snsClient)
 
   logger.info({
     message: 'Successfully requested to analyze vehicle',

@@ -11,6 +11,7 @@ import { v4 as uuid } from 'uuid'
 import getCompanyAdapter from '../get-company-adapter'
 import personAnalysisConstructor, { PersonAnalysisConstructor } from '../person/person-analysis-constructor'
 import publishSnsTopicPersonAdapter, { publishSnsTopicPersonAdapterParams } from '../person/publish-sns-topic-person-adapter'
+import publishSnsTopicVehicleAdapter, { publishSnsTopicVehicleAdapterParams } from '../vehicle/default/publish-sns-topic-vehicle-adapter'
 import vehicleAnalysis, { ReturnVehicleAnalysis, VehicleAnalysisRequest } from '../vehicle/default/vehicle'
 
 import validateBodyCombo from './validate-body-combo'
@@ -95,6 +96,7 @@ const requestAnalysis: Controller = async (req) => {
   await publishSnsTopicPersonAdapter(publish_sns_topic_adapter_params, snsClient)
 
   const vehicles_analysis: ReturnVehicleAnalysis[] = []
+  const vehicles_params: publishSnsTopicVehicleAdapterParams[] = []
 
   for (const vehicle_analysis of body.vehicles) {
     vehicle_analysis.vehicle.driver_name = body.person.name
@@ -108,13 +110,28 @@ const requestAnalysis: Controller = async (req) => {
       vehicle_analysis_config: vehicle_analysis.vehicle_analysis_config,
     }
 
-    vehicles_analysis.push(await vehicleAnalysis(vehicle_analysis_constructor))
+    const vehicle_result = await vehicleAnalysis(vehicle_analysis_constructor)
+
+    vehicles_analysis.push(vehicle_result)
+
+    const vehicle_params: publishSnsTopicVehicleAdapterParams = {
+      company,
+      request_id: vehicle_result.request_id,
+      vehicle_data: vehicle_analysis.vehicle,
+      vehicle_id: vehicle_result.vehicle_id,
+    }
+
+    vehicles_params.push(vehicle_params)
   }
 
   const vehicle_ids: string[] = []
 
   vehicles_analysis.forEach((vehicle) => {
     vehicle_ids.push(vehicle.vehicle_id)
+  })
+
+  vehicles_params.forEach(async (vehicle_params) => {
+    await publishSnsTopicVehicleAdapter(vehicle_params, snsClient)
   })
 
   logger.info({
