@@ -37,7 +37,7 @@
     "bcryptjs": "^2.4.3",
     "csv-stringify": "^6.2.4",
     "dayjs": "^1.11.9",
-    "joi": "~17.7.0",
+    "joi": "~17.11.0",
     "jsonwebtoken": "^9.0.0",
     "lru-cache": "^10.0.0",
     "mustache": "^4.2.0",
