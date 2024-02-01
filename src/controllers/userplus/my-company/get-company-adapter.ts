@@ -1,25 +1,29 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { Company } from 'src/models/dynamo/company'
-import queryCompanyByName from 'src/services/aws/dynamo/company/query-by-name'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+
+import { UserplusCompany, UserplusCompanyKey } from '~/models/dynamo/userplus/company'
+import getUserplusCompany from '~/services/aws/dynamo/company/get'
+import NotFoundError from '~/utils/errors/404-not-found'
+import logger from '~/utils/logger'
 
 const getCompanyByNameAdapter = async (
-  company_name: string,
+  company_id: string,
   dynamodbClient: DynamoDBClient,
-): Promise<Company> => {
-  const company = await queryCompanyByName(company_name, dynamodbClient)
+): Promise<UserplusCompany> => {
+  const company_key: UserplusCompanyKey = {
+    company_id,
+  }
+  const company = await getUserplusCompany(company_key, dynamodbClient)
 
-  if (!company || !company[0]) {
+  if (!company) {
     logger.warn({
       message: 'Company not exist',
-      company_name,
+      company_name: company_id,
     })
 
-    throw new ErrorHandler('Company not exist', 404)
+    throw new NotFoundError('Company not exist')
   }
 
-  return company[0]
+  return company
 }
 
 export default getCompanyByNameAdapter
