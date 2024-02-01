@@ -5,16 +5,19 @@ export enum RequestStatusEnum {
   WAITING = 'WAITING',
 }
 
+export enum AnalysisResultEnum {
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export enum GeneralAnalysisStatusEnum {
+  GENERAL = 'general'
+}
+
 export enum AnalysisTypeEnum {
   COMBO = 'combo',
   PERSON = 'person',
   VEHICLE = 'vehicle',
-  VEHICLE_PLATE_HISTORY = 'vehicle-plate-history'
-}
-
-export enum PersonAnalysisTypeEnum {
-  SIMPLE = 'simple',
-  HISTORY = 'history'
 }
 
 export enum PersonRegionTypeEnum {
@@ -59,6 +62,37 @@ export enum StateEnum {
   SP = 'SP',
   SE = 'SE',
   TO = 'TO',
+}
+
+export enum PersonStateEnum {
+  AC = 'AC',
+  AL = 'AL',
+  AP = 'AP',
+  AM = 'AM',
+  BA = 'BA',
+  CE = 'CE',
+  DF = 'DF',
+  ES = 'ES',
+  GO = 'GO',
+  MA = 'MA',
+  MT = 'MT',
+  MS = 'MS',
+  MG = 'MG',
+  PA = 'PA',
+  PB = 'PB',
+  PR = 'PR',
+  PE = 'PE',
+  PI = 'PI',
+  RJ = 'RJ',
+  RN = 'RN',
+  RS = 'RS',
+  RO = 'RO',
+  RR = 'RR',
+  SC = 'SC',
+  SP = 'SP',
+  SE = 'SE',
+  TO = 'TO',
+  BRASIL = 'BRASIL',
 }
 
 export enum PlateStateEnum {

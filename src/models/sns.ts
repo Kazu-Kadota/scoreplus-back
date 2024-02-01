@@ -1,3 +1,5 @@
-import { CompanySystemConfigEnum } from './dynamo/company'
+import { CompanyRequestPersonConfigEnum, CompanyRequestVehicleConfigEnum } from './dynamo/enums/company'
 
-export interface SNSThirdPartyWorkersMessage<T = any> extends Partial<Record<CompanySystemConfigEnum, T>> {}
+export interface SNSThirdPartyWorkersPersonMessage<T = any> extends Partial<Record<CompanyRequestPersonConfigEnum, T>> {}
+
+export interface SNSThirdPartyWorkersVehicleMessage<T = any> extends Partial<Record<CompanyRequestVehicleConfigEnum, T>> {}

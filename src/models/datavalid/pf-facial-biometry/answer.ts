@@ -1,4 +1,4 @@
-import { StateEnum } from '../../dynamo/request-enum'
+import { StateEnum } from '../../dynamo/enums/request'
 
 export interface PFKey {
   cpf: string
