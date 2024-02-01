@@ -1,18 +1,18 @@
 import Joi from 'joi'
-import { PlateStateEnum } from 'src/models/dynamo/request-enum'
 
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import { PlateStateEnum } from '~/models/dynamo/enums/request'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
 const plateRegex = /^([A-Za-z0-9]{7})$/
 
-export interface RequestVehicleByPlateQuery {
+export type RequestVehicleByPlateQuery = {
   plate: string
   plate_state: PlateStateEnum
   company_name?: string
 }
 
-const schema = Joi.object({
+const schema = Joi.object<RequestVehicleByPlateQuery, true>({
   plate: Joi
     .string()
     .regex(plateRegex)
@@ -26,7 +26,7 @@ const schema = Joi.object({
     .optional(),
 }).required()
 
-const validateQueryVehicle = (
+const validateQuery = (
   data: Partial<RequestVehicleByPlateQuery | undefined>,
 ): RequestVehicleByPlateQuery => {
   const { value, error } = schema.validate(data, {
@@ -34,12 +34,14 @@ const validateQueryVehicle = (
   })
 
   if (error) {
-    logger.error('Error on validate query string of query vehicle by document email request')
+    logger.error({
+      message: 'Error on validate "query vehicle by plate" query',
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new BadRequestError('Erro na validação do query para obter veículo pela placa', error.stack as string)
   }
 
   return value
 }
 
-export default validateQueryVehicle
+export default validateQuery
