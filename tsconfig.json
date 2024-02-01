@@ -16,6 +16,15 @@
     "sourceMap": false,
     "strict": true,
     "target": "es2020",
+    "paths": {
+      "~/assets/*": ["./src/assets/*"],
+      "~/constants/*": ["./src/constants/*"],
+      "~/models/*": ["./src/models/*"],
+      "~/services/*": ["./src/services/*"],
+      "~/use-cases/*": ["./src/use-cases/*"],
+      "~/utils/*": ["./src/utils/*"],
+      "~/workers/*": ["./src/workers/*"],
+    }
   },
   "include": ["src", "test.ts"],
   "exclude": [
