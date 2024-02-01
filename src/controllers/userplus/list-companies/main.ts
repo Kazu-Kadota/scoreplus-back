@@ -1,45 +1,33 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { Company } from 'src/models/dynamo/company'
-import { ReturnResponse } from 'src/models/lambda'
-import scanCompany, { ScanCompanyResponse } from 'src/services/aws/dynamo/company/scan'
-import logger from 'src/utils/logger'
-import { v4 as uuid } from 'uuid'
+
+import { UserplusCompany } from '~/models/dynamo/userplus/company'
+import { Controller } from '~/models/lambda'
+import scanUserplusCompany, { ScanCompanyResponse } from '~/services/aws/dynamo/company/scan'
+import logger from '~/utils/logger'
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
 
-const requestCompanies = async (): Promise<ReturnResponse<any>> => {
-  const request_id = uuid()
+const requestCompanies: Controller<true> = async () => {
+  logger.debug({
+    message: 'Start list companies',
+  })
+
   let last_evaluated_key
-  const result: Company[] = []
+  const result: UserplusCompany[] = []
 
   do {
-    const scan: ScanCompanyResponse | undefined = await scanCompany(
-      request_id,
+    const scan: ScanCompanyResponse | undefined = await scanUserplusCompany(
       dynamodbClient,
       last_evaluated_key,
     )
 
-    if (!scan) {
-      logger.info({
-        message: 'Finish on get companies',
-        companies: result,
-      })
-
-      return {
-        body: {
-          message: 'Finish on get companies',
-          companies: result,
-        },
-      }
-    }
-
-    if (scan.result) {
+    if (scan && scan.result) {
       for (const item of scan.result) {
         result.push(item)
       }
-    }
 
-    last_evaluated_key = scan.last_evaluated_key
+      last_evaluated_key = scan.last_evaluated_key
+    }
   } while (last_evaluated_key)
 
   result.sort(
