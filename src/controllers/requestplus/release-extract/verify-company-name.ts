@@ -1,17 +1,18 @@
-import { PersonRequest } from 'src/models/dynamo/request-person'
-import { VehicleRequest } from 'src/models/dynamo/request-vehicle'
-import { User, UserGroupEnum } from 'src/models/dynamo/user'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import { UserGroupEnum } from '~/models/dynamo/enums/user'
+import { RequestplusFinishedAnalysisPerson } from '~/models/dynamo/requestplus/finished-analysis-person/table'
+import { RequestplusFinishedAnalysisVehicle } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
+import { UserplusUser } from '~/models/dynamo/userplus/user'
+import NotFoundError from '~/utils/errors/404-not-found'
+import logger from '~/utils/logger'
 
-const verifyCompanyName = (user: User, analysis: PersonRequest | VehicleRequest) => {
+const verifyCompanyName = (user: UserplusUser, analysis: RequestplusFinishedAnalysisPerson | RequestplusFinishedAnalysisVehicle) => {
   if (user.user_type !== UserGroupEnum.ADMIN
     && user.company_name !== analysis.company_name
   ) {
     logger.warn({
       message: 'Analysis not belong to company',
     })
-    throw new ErrorHandler('Analysis not found', 404)
+    throw new NotFoundError('Análise não encontrado')
   }
 }
 
