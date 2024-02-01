@@ -1,19 +1,19 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
-import { User } from 'src/models/dynamo/user'
-import queryByEmail, { QueryByEmailQuery } from 'src/services/aws/dynamo/user/user/query-by-email'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import { UserplusUser } from '~/models/dynamo/userplus/user'
+import queryUserplusUserByEmail, { QueryByEmailQuery } from '~/services/aws/dynamo/user/user/query-by-email'
+import NotFoundError from '~/utils/errors/404-not-found'
+import logger from '~/utils/logger'
 
 const getUserByEmailAdapter = async (
   email: string,
   dynamodbClient: DynamoDBClient,
-): Promise<User> => {
+): Promise<UserplusUser> => {
   const query: QueryByEmailQuery = {
     email,
   }
 
-  const user = await queryByEmail(query, dynamodbClient)
+  const user = await queryUserplusUserByEmail(query, dynamodbClient)
 
   if (!user || !user[0]) {
     logger.warn({
@@ -21,7 +21,7 @@ const getUserByEmailAdapter = async (
       email,
     })
 
-    throw new ErrorHandler('Usuário não encontrado', 404)
+    throw new NotFoundError('Usuário não encontrado')
   }
 
   return user[0]
