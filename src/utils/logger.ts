@@ -1,5 +1,7 @@
 import pino from 'pino'
 
+import { UserFromJwt } from './extract-jwt-lambda'
+
 const LEVELS = ['debug', 'info', 'warn', 'error']
 
 class Logger {
@@ -37,8 +39,8 @@ class Logger {
     this.config.service = service
   }
 
-  setUser (user_id: string) {
-    this.config.user_id = user_id
+  setUser (user: UserFromJwt) {
+    this.config.user = user
   }
 
   setRequestId (request_id: string) {
