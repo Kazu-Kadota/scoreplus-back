@@ -3,31 +3,36 @@ import {
   PutItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall } from '@aws-sdk/util-dynamodb'
-import { Vehicle, VehicleBody, VehicleKey } from 'src/models/dynamo/vehicle'
+
+import {
+  AnalysisplusVehicles,
+  AnalysisplusVehiclesBody,
+  AnalysisplusVehiclesKey,
+} from '~/models/dynamo/analysisplus/vehicle/table'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_ANALYSISPLUS_VEHICLES = getStringEnv('DYNAMO_TABLE_ANALYSISPLUS_VEHICLES')
 
-const putVehicle = async (
-  key: VehicleKey,
-  data: VehicleBody,
+const putAnalysisplusVehicles = async (
+  key: AnalysisplusVehiclesKey,
+  data: AnalysisplusVehiclesBody,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   logger.debug({
-    message: 'Registering vehicle into table',
-    vehicle_id: key.vehicle_id,
-    plate: key.plate,
+    message: 'DYNAMODB: PutItem',
+    table: DYNAMO_TABLE_ANALYSISPLUS_VEHICLES,
+    ...key,
   })
 
   const now = new Date().toISOString()
 
-  const put: Vehicle = {
+  const put: AnalysisplusVehicles = {
     ...key,
     ...data,
     created_at: now,
@@ -45,4 +50,4 @@ const putVehicle = async (
   await dynamodbClient.send(command)
 }
 
-export default putVehicle
+export default putAnalysisplusVehicles

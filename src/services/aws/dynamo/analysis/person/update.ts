@@ -3,33 +3,38 @@ import {
   DynamoDBDocumentClient,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
-import { Person, PersonBody, PersonKey } from 'src/models/dynamo/person'
+
+import {
+  AnalysisplusPeople,
+  AnalysisplusPeopleBody,
+  AnalysisplusPeopleKey,
+} from '~/models/dynamo/analysisplus/people/table'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
   createUpdateExpression,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_ANALYSISPLUS_PEOPLE = getStringEnv('DYNAMO_TABLE_ANALYSISPLUS_PEOPLE')
 
-const updatePerson = async (
-  key: PersonKey,
-  body: Partial<PersonBody>,
+const updateAnalysisplusPeople = async (
+  key: AnalysisplusPeopleKey,
+  body: Partial<AnalysisplusPeopleBody>,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   const dynamoDocClient = DynamoDBDocumentClient.from(dynamodbClient)
   logger.debug({
-    message: 'Updating person info',
-    person_id: key.person_id,
-    document: key.document,
+    message: 'DYNAMODB: UpdateItem',
+    table: DYNAMO_TABLE_ANALYSISPLUS_PEOPLE,
+    ...key,
   })
 
   const now = new Date().toISOString()
 
-  const update: Partial<Person> = {
+  const update: Partial<AnalysisplusPeople> = {
     ...key,
     ...body,
     updated_at: now,
@@ -47,4 +52,4 @@ const updatePerson = async (
   await dynamoDocClient.send(command)
 }
 
-export default updatePerson
+export default updateAnalysisplusPeople

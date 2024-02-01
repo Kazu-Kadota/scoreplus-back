@@ -3,37 +3,40 @@ import {
   PutItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall } from '@aws-sdk/util-dynamodb'
+
 import {
-  PersonRequestKey,
-  PersonRequest,
-} from 'src/models/dynamo/request-person'
+  RequestplusFinishedAnalysisPerson,
+  RequestplusFinishedAnalysisPersonBody,
+  RequestplusFinishedAnalysisPersonKey,
+} from '~/models/dynamo/requestplus/finished-analysis-person/table'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON')
 
-const putFinishedRequestPerson = async (
-  key: PersonRequestKey,
-  body: PersonRequest,
+const putRequestplusFinishedAnalysisPerson = async (
+  key: RequestplusFinishedAnalysisPersonKey,
+  body: RequestplusFinishedAnalysisPersonBody,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   logger.debug({
-    message: 'Registering finished request person',
-    analysis_type: body.analysis_type,
-    name: body.name,
-    company_name: body.company_name,
+    message: 'DYNAMODB: PutItem',
+    table: DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON,
+    ...key,
   })
 
   const now = new Date().toISOString()
 
-  const put: PersonRequest = {
+  const put: RequestplusFinishedAnalysisPerson = {
     ...key,
     ...body,
+    created_at: now,
+    finished_at: now,
     updated_at: now,
   }
 
@@ -48,4 +51,4 @@ const putFinishedRequestPerson = async (
   await dynamodbClient.send(command)
 }
 
-export default putFinishedRequestPerson
+export default putRequestplusFinishedAnalysisPerson

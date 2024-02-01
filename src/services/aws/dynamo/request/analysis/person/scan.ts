@@ -4,53 +4,43 @@ import {
   AttributeValue,
 } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { PersonRequest } from 'src/models/dynamo/request-person'
-import base64ToString from 'src/utils/base64-to-string'
+
+import { RequestplusAnalysisPerson } from '~/models/dynamo/requestplus/analysis-person/table'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
-import stringToBase64 from 'src/utils/string-to-base64'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON')
 
-export interface ScanPeopleRequest {
+export type ScanRequestplusAnalysisPersonScan = {
   company_name?: string
 }
 
-export interface ScanPeopleResponse {
-  result: PersonRequest[],
-  last_evaluated_key?: string
+export type ScanPeopleResponse = {
+  result: RequestplusAnalysisPerson[],
+  last_evaluated_key?: Record<string, AttributeValue>
 }
 
-export interface ExclusiveStartKey {
-  value?: Record<string, AttributeValue>
-}
-
-const scanPeople = async (
-  scan: ScanPeopleRequest,
+const scanRequestplusAnalysisPerson = async (
+  scan: ScanRequestplusAnalysisPersonScan,
   dynamodbClient: DynamoDBClient,
-  last_evaluated_key?: string,
+  last_evaluated_key?: Record<string, AttributeValue>,
 ): Promise<ScanPeopleResponse | undefined> => {
   logger.debug({
-    message: 'Scanning people',
-    company_name: scan.company_name || 'admin',
+    message: 'DYNAMODB: Scan',
+    table: DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON,
+    ...scan,
   })
-
-  const exclusive_start_key = {} as ExclusiveStartKey
-
-  if (last_evaluated_key) {
-    exclusive_start_key.value = JSON.parse(base64ToString(last_evaluated_key))
-  }
 
   const command = new ScanCommand({
     TableName: DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON,
     ExpressionAttributeNames: createExpressionAttributeNames(scan),
     ExpressionAttributeValues: createExpressionAttributeValues(scan),
-    ExclusiveStartKey: exclusive_start_key.value,
+    ExclusiveStartKey: last_evaluated_key,
     FilterExpression: createConditionExpression(scan, true),
   })
 
@@ -60,18 +50,16 @@ const scanPeople = async (
     return undefined
   }
 
-  const result = Items.map((item) => (unmarshall(item) as PersonRequest))
-
-  let last_evaluated_key_base64
+  const result = Items.map((item) => (unmarshall(item) as RequestplusAnalysisPerson))
 
   if (LastEvaluatedKey) {
-    last_evaluated_key_base64 = stringToBase64(JSON.stringify(LastEvaluatedKey))
+    last_evaluated_key = LastEvaluatedKey
   }
 
   return {
     result,
-    last_evaluated_key: last_evaluated_key_base64,
+    last_evaluated_key,
   }
 }
 
-export default scanPeople
+export default scanRequestplusAnalysisPerson

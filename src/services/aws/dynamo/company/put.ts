@@ -3,34 +3,37 @@ import {
   PutItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall } from '@aws-sdk/util-dynamodb'
-import { Company, CompanyBody, CompanyKey } from 'src/models/dynamo/company'
+import { v4 as uuid } from 'uuid'
+
+import { UserplusCompany, UserplusCompanyBody, UserplusCompanyKey } from '~/models/dynamo/userplus/company'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
-import { v4 as uuid } from 'uuid'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_USERPLUS_COMPANY = getStringEnv('DYNAMO_TABLE_USERPLUS_COMPANY')
 
-const putCompany = async (
-  body: CompanyBody,
+const putUserplusCompany = async (
+  body: UserplusCompanyBody,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   logger.debug({
-    message: 'Registering company in table',
-    company: body.cnpj,
+    message: 'DYNAMODB: PutItem',
+    table: DYNAMO_TABLE_USERPLUS_COMPANY,
+    company_name: body.name,
+    cnpj: body.cnpj,
   })
 
   const now = new Date().toISOString()
 
-  const key: CompanyKey = {
+  const key: UserplusCompanyKey = {
     company_id: uuid(),
   }
 
-  const put: Company = {
+  const put: UserplusCompany = {
     ...key,
     ...body,
     created_at: now,
@@ -48,4 +51,4 @@ const putCompany = async (
   await dynamodbClient.send(command)
 }
 
-export default putCompany
+export default putUserplusCompany

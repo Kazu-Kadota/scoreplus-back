@@ -4,40 +4,30 @@ import {
   AttributeValue,
 } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { RecoveryPassword } from 'src/models/dynamo/users/recovery-password'
-import base64ToString from 'src/utils/base64-to-string'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
-import stringToBase64 from 'src/utils/string-to-base64'
+
+import { UserplusRecoveryPassword } from '~/models/dynamo/userplus/recovery-password'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD = getStringEnv('DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD')
 
-export interface ScanRecoveryPasswordResponse {
-  result: RecoveryPassword[],
-  last_evaluated_key?: string
+export type ScanRecoveryPasswordResponse = {
+  result: UserplusRecoveryPassword[],
+  last_evaluated_key?: Record<string, AttributeValue>
 }
 
-export interface ExclusiveStartKey {
-  value?: Record<string, AttributeValue>
-}
-
-const scanRecoveryPassword = async (
+const scanUserplusRecoveryPassword = async (
   dynamodbClient: DynamoDBClient,
-  last_evaluated_key?: string,
+  last_evaluated_key?: Record<string, AttributeValue>,
 ): Promise<ScanRecoveryPasswordResponse | undefined> => {
   logger.debug({
-    message: 'Scanning recovery password',
+    message: 'DYNAMODB: Scan',
+    table: DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD,
   })
-
-  const exclusive_start_key = {} as ExclusiveStartKey
-
-  if (last_evaluated_key) {
-    exclusive_start_key.value = JSON.parse(base64ToString(last_evaluated_key))
-  }
 
   const command = new ScanCommand({
     TableName: DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD,
-    ExclusiveStartKey: exclusive_start_key.value,
+    ExclusiveStartKey: last_evaluated_key,
   })
 
   const { Items, LastEvaluatedKey } = await dynamodbClient.send(command)
@@ -46,18 +36,16 @@ const scanRecoveryPassword = async (
     return undefined
   }
 
-  const result = Items.map((item) => (unmarshall(item) as RecoveryPassword))
-
-  let last_evaluated_key_base64
+  const result = Items.map((item) => (unmarshall(item) as UserplusRecoveryPassword))
 
   if (LastEvaluatedKey) {
-    last_evaluated_key_base64 = stringToBase64(JSON.stringify(LastEvaluatedKey))
+    last_evaluated_key = LastEvaluatedKey
   }
 
   return {
     result,
-    last_evaluated_key: last_evaluated_key_base64,
+    last_evaluated_key,
   }
 }
 
-export default scanRecoveryPassword
+export default scanUserplusRecoveryPassword

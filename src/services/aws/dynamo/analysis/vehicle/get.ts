@@ -3,33 +3,35 @@ import {
   GetItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
-import { Vehicle, VehicleKey } from 'src/models/dynamo/vehicle'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+
+import { AnalysisplusVehicles, AnalysisplusVehiclesKey } from '~/models/dynamo/analysisplus/vehicle/table'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_ANALYSISPLUS_VEHICLES = getStringEnv('DYNAMO_TABLE_ANALYSISPLUS_VEHICLES')
 
-const getVehicle = async (
-  key: VehicleKey,
+const getAnalysisplusVehicles = async (
+  key: AnalysisplusVehiclesKey,
   dynamodbClient: DynamoDBClient,
-): Promise<Vehicle | undefined> => {
+): Promise<AnalysisplusVehicles | undefined> => {
   logger.debug({
-    message: 'Getting vehicle by vehicle id',
-    vehicle_id: key.vehicle_id,
-    plate: key.plate,
+    message: 'DYNAMODB: GetItem',
+    table: DYNAMO_TABLE_ANALYSISPLUS_VEHICLES,
+    ...key,
   })
 
   const command = new GetItemCommand({
     TableName: DYNAMO_TABLE_ANALYSISPLUS_VEHICLES,
     Key: marshall(key),
   })
+
   const result = await dynamodbClient.send(command)
 
   if (!result.Item) {
     return undefined
   }
 
-  return unmarshall(result.Item) as Vehicle
+  return unmarshall(result.Item) as AnalysisplusVehicles
 }
 
-export default getVehicle
+export default getAnalysisplusVehicles

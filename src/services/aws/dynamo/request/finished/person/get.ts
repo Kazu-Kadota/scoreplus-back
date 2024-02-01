@@ -3,19 +3,24 @@ import {
   GetItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
-import { PersonRequestKey, PersonRequest } from 'src/models/dynamo/request-person'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+
+import {
+  RequestplusFinishedAnalysisPerson,
+  RequestplusFinishedAnalysisPersonKey,
+} from '~/models/dynamo/requestplus/finished-analysis-person/table'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON')
 
-const getFinishedRequestPerson = async (
-  key: PersonRequestKey,
+const getRequestplusFinishedAnalysisPerson = async (
+  key: RequestplusFinishedAnalysisPersonKey,
   dynamodbClient: DynamoDBClient,
-): Promise<PersonRequest | undefined> => {
+): Promise<RequestplusFinishedAnalysisPerson | undefined> => {
   logger.debug({
-    message: 'Getting finished person by person id',
-    person_id: key.person_id,
+    message: 'DYNAMODB: GetItem',
+    table: DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON,
+    ...key,
   })
 
   const command = new GetItemCommand({
@@ -29,7 +34,7 @@ const getFinishedRequestPerson = async (
     return undefined
   }
 
-  return unmarshall(result.Item) as PersonRequest
+  return unmarshall(result.Item) as RequestplusFinishedAnalysisPerson
 }
 
-export default getFinishedRequestPerson
+export default getRequestplusFinishedAnalysisPerson

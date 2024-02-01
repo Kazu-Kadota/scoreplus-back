@@ -3,30 +3,40 @@ import {
   PutItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall } from '@aws-sdk/util-dynamodb'
-import { RecoveryPasswordBody, RecoveryPasswordKey } from 'src/models/dynamo/users/recovery-password'
+
+import {
+  UserplusRecoveryPassword,
+  UserplusRecoveryPasswordBody,
+  UserplusRecoveryPasswordKey,
+} from '~/models/dynamo/userplus/recovery-password'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD = getStringEnv('DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD')
 
-const putRecoveryPassword = async (
-  key: RecoveryPasswordKey,
-  body: RecoveryPasswordBody,
+const putUserplusRecoveryPassword = async (
+  key: UserplusRecoveryPasswordKey,
+  body: UserplusRecoveryPasswordBody,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   logger.debug({
-    message: 'Putting recovery key in table',
-    user_id: body.user_id,
+    message: 'DYNAMODB: PutItem',
+    table: DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD,
+    ...key,
   })
 
-  const recovery_password = {
+  const now = new Date().toISOString()
+
+  const recovery_password: UserplusRecoveryPassword = {
     ...key,
     ...body,
+    created_at: now,
+    updated_at: now,
   }
 
   const command = new PutItemCommand({
@@ -40,4 +50,4 @@ const putRecoveryPassword = async (
   await dynamodbClient.send(command)
 }
 
-export default putRecoveryPassword
+export default putUserplusRecoveryPassword

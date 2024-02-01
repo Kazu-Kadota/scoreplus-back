@@ -4,53 +4,41 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { VehicleRequest } from 'src/models/dynamo/request-vehicle'
-import base64ToString from 'src/utils/base64-to-string'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
-import stringToBase64 from 'src/utils/string-to-base64'
+
+import { RequestplusAnalysisVehicle } from '~/models/dynamo/requestplus/analysis-vehicle/table'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE')
 
-export interface QueryRequestVehicleByCompany {
+export type QueryRequestVehicleByCompany = {
   start_date: string
   final_date: string
   company_name: string
 }
 
-export interface ExclusiveStartKey {
-  value?: Record<string, AttributeValue>
-}
-
-export interface QueryRequestVehicleByCompanyResponse {
-  result: VehicleRequest[]
-  last_evaluated_key?: string
+export type QueryRequestVehicleByCompanyResponse = {
+  result: RequestplusAnalysisVehicle[]
+  last_evaluated_key?: Record<string, AttributeValue>
   count: number
 }
 
-const queryRequestVehicleByCompany = async (
-  data: QueryRequestVehicleByCompany,
+const queryRequestplusAnalysisVehicleByCompany = async (
+  query: QueryRequestVehicleByCompany,
   dynamodbClient: DynamoDBClient,
-  last_evaluated_key?: string,
+  last_evaluated_key?: Record<string, AttributeValue>,
 ): Promise<QueryRequestVehicleByCompanyResponse | undefined> => {
+  logger.debug({
+    message: 'DYNAMODB: Query',
+    table: DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE,
+    ...query,
+  })
+
   const {
     start_date,
     final_date,
     company_name,
-  } = data
-
-  logger.debug({
-    message: 'Querying request vehicle by company name with date',
-    start_date,
-    final_date,
-    company_name,
-  })
-
-  const exclusive_start_key = {} as ExclusiveStartKey
-
-  if (last_evaluated_key) {
-    exclusive_start_key.value = JSON.parse(base64ToString(last_evaluated_key))
-  }
+  } = query
 
   const command = new QueryCommand({
     TableName: DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE,
@@ -65,7 +53,7 @@ const queryRequestVehicleByCompany = async (
       ':final_date': { S: final_date },
       ':company_name': { S: company_name },
     },
-    ExclusiveStartKey: exclusive_start_key.value,
+    ExclusiveStartKey: last_evaluated_key,
     FilterExpression: '#created_at BETWEEN :start_date AND :final_date',
   })
 
@@ -79,19 +67,13 @@ const queryRequestVehicleByCompany = async (
     return undefined
   }
 
-  const result = Items.map((item) => (unmarshall(item) as VehicleRequest))
-
-  let last_evaluated_key_base64
-
-  if (LastEvaluatedKey) {
-    last_evaluated_key_base64 = stringToBase64(JSON.stringify(LastEvaluatedKey))
-  }
+  const result = Items.map((item) => (unmarshall(item) as RequestplusAnalysisVehicle))
 
   return {
     result,
-    last_evaluated_key: last_evaluated_key_base64,
+    last_evaluated_key: LastEvaluatedKey,
     count: Count,
   }
 }
 
-export default queryRequestVehicleByCompany
+export default queryRequestplusAnalysisVehicleByCompany

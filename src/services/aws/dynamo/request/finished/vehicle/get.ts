@@ -3,20 +3,21 @@ import {
   GetItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
-import { VehicleRequest, VehicleRequestKey } from 'src/models/dynamo/request-vehicle'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+
+import { RequestplusFinishedAnalysisVehicle, RequestplusFinishedAnalysisVehicleKey } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE')
 
-const getFinishedRequestVehicle = async (
-  key: VehicleRequestKey,
+const getRequestplusFinishedAnalysisVehicle = async (
+  key: RequestplusFinishedAnalysisVehicleKey,
   dynamodbClient: DynamoDBClient,
-): Promise<VehicleRequest | undefined> => {
+): Promise<RequestplusFinishedAnalysisVehicle | undefined> => {
   logger.debug({
-    message: 'Getting finished vehicle',
-    request_id: key.request_id,
-    vehicle_id: key.vehicle_id,
+    message: 'DYNAMODB: GetItem',
+    table: DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE,
+    ...key,
   })
 
   const command = new GetItemCommand({
@@ -30,7 +31,7 @@ const getFinishedRequestVehicle = async (
     return undefined
   }
 
-  return unmarshall(result.Item) as VehicleRequest
+  return unmarshall(result.Item) as RequestplusFinishedAnalysisVehicle
 }
 
-export default getFinishedRequestVehicle
+export default getRequestplusFinishedAnalysisVehicle

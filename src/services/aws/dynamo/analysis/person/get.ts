@@ -3,33 +3,35 @@ import {
   GetItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
-import { Person, PersonKey } from 'src/models/dynamo/person'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+
+import { AnalysisplusPeople, AnalysisplusPeopleKey } from '~/models/dynamo/analysisplus/people/table'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_ANALYSISPLUS_PEOPLE = getStringEnv('DYNAMO_TABLE_ANALYSISPLUS_PEOPLE')
 
-const getPerson = async (
-  key: PersonKey,
+const getAnalysisplusPeople = async (
+  key: AnalysisplusPeopleKey,
   dynamodbClient: DynamoDBClient,
-): Promise<Person | undefined> => {
+): Promise<AnalysisplusPeople | undefined> => {
   logger.debug({
-    message: 'Getting person by person id',
-    person_id: key.person_id,
-    document: key.document,
+    message: 'DYNAMODB: GetItem',
+    table: DYNAMO_TABLE_ANALYSISPLUS_PEOPLE,
+    ...key,
   })
 
   const command = new GetItemCommand({
     TableName: DYNAMO_TABLE_ANALYSISPLUS_PEOPLE,
     Key: marshall(key),
   })
+
   const result = await dynamodbClient.send(command)
 
   if (!result.Item) {
     return undefined
   }
 
-  return unmarshall(result.Item) as Person
+  return unmarshall(result.Item) as AnalysisplusPeople
 }
 
-export default getPerson
+export default getAnalysisplusPeople

@@ -3,46 +3,49 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { Person } from 'src/models/dynamo/person'
+
+import { AnalysisplusPeople } from '~/models/dynamo/analysisplus/people/table'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_ANALYSISPLUS_PEOPLE = getStringEnv('DYNAMO_TABLE_ANALYSISPLUS_PEOPLE')
 
-const queryPersonByDocument = async (
-  document: string,
-  dynamodbClient: DynamoDBClient,
-): Promise<Person[] | undefined> => {
-  logger.debug({
-    message: 'Querying person by document',
-    document,
-  })
+export type QueryAnalysisplusPeopleByDocumentQuery = {
+  document: string
+}
 
-  const key = {
-    document,
-  }
+const queryAnalysisplusPeopleByDocument = async (
+  query: QueryAnalysisplusPeopleByDocumentQuery,
+  dynamodbClient: DynamoDBClient,
+): Promise<AnalysisplusPeople[] | undefined> => {
+  logger.debug({
+    message: 'DYNAMODB: Query',
+    table: DYNAMO_TABLE_ANALYSISPLUS_PEOPLE,
+    ...query,
+  })
 
   const command = new QueryCommand({
     TableName: DYNAMO_TABLE_ANALYSISPLUS_PEOPLE,
     IndexName: 'document-index',
-    KeyConditionExpression: createConditionExpression(key, true),
-    ExpressionAttributeNames: createExpressionAttributeNames(key),
-    ExpressionAttributeValues: createExpressionAttributeValues(key),
+    KeyConditionExpression: createConditionExpression(query, true),
+    ExpressionAttributeNames: createExpressionAttributeNames(query),
+    ExpressionAttributeValues: createExpressionAttributeValues(query),
   })
+
   const { Items } = await dynamodbClient.send(command)
 
   if (!Items) {
     return undefined
   }
 
-  const result = Items.map((item) => (unmarshall(item) as Person))
+  const result = Items.map((item) => (unmarshall(item) as AnalysisplusPeople))
 
   return result
 }
 
-export default queryPersonByDocument
+export default queryAnalysisplusPeopleByDocument

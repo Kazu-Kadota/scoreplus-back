@@ -3,31 +3,36 @@ import {
   PutItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall } from '@aws-sdk/util-dynamodb'
-import { Person, PersonBody, PersonKey } from 'src/models/dynamo/person'
+
+import {
+  AnalysisplusPeople,
+  AnalysisplusPeopleBody,
+  AnalysisplusPeopleKey,
+} from '~/models/dynamo/analysisplus/people/table'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_ANALYSISPLUS_PEOPLE = getStringEnv('DYNAMO_TABLE_ANALYSISPLUS_PEOPLE')
 
-const putPerson = async (
-  key: PersonKey,
-  data: PersonBody,
+const putAnalysisplusPeople = async (
+  key: AnalysisplusPeopleKey,
+  data: AnalysisplusPeopleBody,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   logger.debug({
-    message: 'Registering person into table',
-    person_id: key.person_id,
-    document: key.document,
+    message: 'DYNAMODB: PutItem',
+    table: DYNAMO_TABLE_ANALYSISPLUS_PEOPLE,
+    ...key,
   })
 
   const now = new Date().toISOString()
 
-  const put: Person = {
+  const put: AnalysisplusPeople = {
     ...key,
     ...data,
     created_at: now,
@@ -45,4 +50,4 @@ const putPerson = async (
   await dynamodbClient.send(command)
 }
 
-export default putPerson
+export default putAnalysisplusPeople

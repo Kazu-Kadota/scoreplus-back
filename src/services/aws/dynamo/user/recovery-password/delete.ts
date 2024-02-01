@@ -3,24 +3,26 @@ import {
   DeleteItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall } from '@aws-sdk/util-dynamodb'
-import { RecoveryPasswordKey } from 'src/models/dynamo/users/recovery-password'
+
+import { UserplusRecoveryPasswordKey } from '~/models/dynamo/userplus/recovery-password'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD = getStringEnv('DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD')
 
-const deleteRecoveryPassword = async (
-  key: RecoveryPasswordKey,
+const deleteUserplusRecoveryPassword = async (
+  key: UserplusRecoveryPasswordKey,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   logger.debug({
-    message: 'Deleting recovery password from id',
-    recovery_id: key.recovery_id,
+    message: 'DYNAMODB: DeleteItem',
+    table: DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD,
+    ...key,
   })
 
   const command = new DeleteItemCommand({
@@ -34,4 +36,4 @@ const deleteRecoveryPassword = async (
   await dynamodbClient.send(command)
 }
 
-export default deleteRecoveryPassword
+export default deleteUserplusRecoveryPassword
