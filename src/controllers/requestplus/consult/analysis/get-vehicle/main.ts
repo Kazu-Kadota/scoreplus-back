@@ -1,28 +1,38 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { APIGatewayProxyEvent } from 'aws-lambda'
-import { VehicleRequestKey } from 'src/models/dynamo/request-vehicle'
-import { ReturnResponse } from 'src/models/lambda'
-import { UserInfoFromJwt } from 'src/utils/extract-jwt-lambda'
 
-import getVehicleAdapter from './get-vehicle-adapter'
+import { Controller } from '~/models/lambda'
+import logger from '~/utils/logger'
+
+import getRequestVehicleAdapter, { GetRequestVehicleAdapterParams } from './get-request-vehicle-adapter'
 import validateVehicleParam from './validate-param'
 import validateVehicleQuery from './validate-query'
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
 
-const getVehicleByRequestIdController = async (
-  event: APIGatewayProxyEvent,
-  user_info: UserInfoFromJwt,
-): Promise<ReturnResponse<any>> => {
-  const { vehicle_id } = validateVehicleParam({ ...event.pathParameters })
-  const { request_id } = validateVehicleQuery({ ...event.queryStringParameters })
+const getVehicleController: Controller<true> = async (req) => {
+  logger.debug({
+    message: 'Start get vehicle request info',
+  })
 
-  const request_vehicle_key: VehicleRequestKey = {
-    vehicle_id,
+  const { vehicle_id } = validateVehicleParam({ ...req.pathParameters })
+  const { request_id } = validateVehicleQuery({ ...req.queryStringParameters })
+
+  const user_info = req.user
+
+  const get_request_person_adapter_params: GetRequestVehicleAdapterParams = {
+    dynamodbClient,
     request_id,
+    user_info,
+    vehicle_id,
   }
 
-  const request_vehicle = await getVehicleAdapter(request_vehicle_key, user_info, dynamodbClient)
+  const request_vehicle = await getRequestVehicleAdapter(get_request_person_adapter_params)
+
+  logger.info({
+    message: 'Finish on get vehicle request info',
+    request_id,
+    vehicle_id,
+  })
 
   return {
     body: {
@@ -32,4 +42,4 @@ const getVehicleByRequestIdController = async (
   }
 }
 
-export default getVehicleByRequestIdController
+export default getVehicleController
