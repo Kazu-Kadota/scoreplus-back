@@ -1,22 +1,22 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
-import { defaultHeaders } from 'src/constants/headers'
-import { UserGroupEnum } from 'src/models/dynamo/user'
-import { Controller, Request } from 'src/models/lambda'
-
 import catchError from '../catch-error'
-import ErrorHandler from '../error-handler'
+import UnauthorizedError from '../errors/401-unauthorized'
+import InternalServerError from '../errors/500-internal-server-error'
 import extractJwtLambda from '../extract-jwt-lambda'
 import logger from '../logger'
+import { defaultHeaders } from '~/constants/headers'
+import { UserGroupEnum } from '~/models/dynamo/enums/user'
+import { Controller, Request } from '~/models/lambda'
 
 namespace LambdaHandlerNameSpace {
   export interface UserAuthentication extends Record<UserGroupEnum, boolean> {}
 
   export class LambdaHandlerFunction {
-    controller: Controller
+    controller: Controller<unknown>
     authentication?: UserAuthentication
 
-    constructor (controller: Controller, authentication?: UserAuthentication) {
+    constructor (controller: Controller<unknown>, authentication?: UserAuthentication) {
       this.controller = controller
       this.authentication = authentication
     }
@@ -30,28 +30,28 @@ namespace LambdaHandlerNameSpace {
         }
 
         if (this.authentication) {
-          const user_info = extractJwtLambda(event)
+          const user = extractJwtLambda(event.headers)
 
-          if (!user_info) {
+          if (!user) {
             logger.error({
               message: 'User not authenticated',
             })
 
-            throw new ErrorHandler('Usuário não autenticado', 403)
+            throw new UnauthorizedError('User not authenticated')
           }
 
-          logger.setUser(user_info?.user_id)
+          logger.setUser(user)
 
-          if (!this.authentication[user_info.user_type]) {
+          if (!this.authentication[user.user_type]) {
             logger.error({
               message: 'User not authorized to execute this function',
-              user_type: user_info.user_type,
+              user_type: user.user_type,
             })
 
-            throw new ErrorHandler('Usuário não autorizado para executar este fluxo', 401)
+            throw new InternalServerError()
           }
 
-          request.user_info = user_info
+          (request as Request<true>).user = user
         }
 
         const result = await this.controller(request)
