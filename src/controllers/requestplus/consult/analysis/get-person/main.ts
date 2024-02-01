@@ -1,29 +1,32 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { APIGatewayProxyEvent } from 'aws-lambda'
-import { PersonRequestKey } from 'src/models/dynamo/request-person'
-import { ReturnResponse } from 'src/models/lambda'
-import { UserInfoFromJwt } from 'src/utils/extract-jwt-lambda'
-import logger from 'src/utils/logger'
 
-import getRequestPersonAdapter from './get-person-adapter'
+import { Controller } from '~/models/lambda'
+import logger from '~/utils/logger'
+
+import getRequestPersonAdapter, { GetRequestPersonAdapterParams } from './get-request-person-adapter'
 import validatePersonParam from './validate-param'
 import validatePersonQuery from './validate-query'
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
 
-const getPersonByRequestIdController = async (
-  event: APIGatewayProxyEvent,
-  user_info: UserInfoFromJwt,
-): Promise<ReturnResponse<any>> => {
-  const { person_id } = validatePersonParam({ ...event.pathParameters })
-  const { request_id } = validatePersonQuery({ ...event.queryStringParameters })
+const getPersonController: Controller<true> = async (req) => {
+  logger.debug({
+    message: 'Start get person request info',
+  })
 
-  const request_person_key: PersonRequestKey = {
+  const { person_id } = validatePersonParam({ ...req.pathParameters })
+  const { request_id } = validatePersonQuery({ ...req.queryStringParameters })
+
+  const user_info = req.user
+
+  const get_request_person_adapter_params: GetRequestPersonAdapterParams = {
+    dynamodbClient,
     person_id,
     request_id,
+    user_info,
   }
 
-  const request_person = await getRequestPersonAdapter(request_person_key, user_info, dynamodbClient)
+  const request_person = await getRequestPersonAdapter(get_request_person_adapter_params)
 
   logger.info({
     message: 'Finish on get person request info',
@@ -39,4 +42,4 @@ const getPersonByRequestIdController = async (
   }
 }
 
-export default getPersonByRequestIdController
+export default getPersonController
