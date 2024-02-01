@@ -1,14 +1,15 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { PersonRequest, PersonRequestKey } from 'src/models/dynamo/request-person'
-import getRequestPerson from 'src/services/aws/dynamo/request/analysis/person/get'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+
+import { RequestplusAnalysisPerson, RequestplusAnalysisPersonKey } from '~/models/dynamo/requestplus/analysis-person/table'
+import getRequestplusAnalysisPerson from '~/services/aws/dynamo/request/analysis/person/get'
+import NotFoundError from '~/utils/errors/404-not-found'
+import logger from '~/utils/logger'
 
 const getRequestPersonAdapter = async (
-  request_person_key: PersonRequestKey,
+  request_person_key: RequestplusAnalysisPersonKey,
   dynamodbClient: DynamoDBClient,
-): Promise<PersonRequest> => {
-  const request_person = await getRequestPerson(request_person_key, dynamodbClient)
+): Promise<RequestplusAnalysisPerson> => {
+  const request_person = await getRequestplusAnalysisPerson(request_person_key, dynamodbClient)
 
   if (!request_person) {
     logger.warn({
@@ -16,7 +17,7 @@ const getRequestPersonAdapter = async (
       person_id: request_person_key.person_id,
     })
 
-    throw new ErrorHandler('Pessoa não existe', 404)
+    throw new NotFoundError('Pessoa não existe')
   }
 
   return request_person

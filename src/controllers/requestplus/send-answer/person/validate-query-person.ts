@@ -1,13 +1,13 @@
 import Joi from 'joi'
 
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
-export interface ValidateQueryPerson {
+export type ValidateQueryPerson = {
   person_id: string
 }
 
-const schema = Joi.object({
+const schema = Joi.object<ValidateQueryPerson, true>({
   person_id: Joi
     .string()
     .uuid()
@@ -15,16 +15,18 @@ const schema = Joi.object({
 }).required()
 
 const validateQueryPerson = (
-  data: Partial<ValidateQueryPerson | undefined>,
+  data: Partial<ValidateQueryPerson>,
 ): ValidateQueryPerson => {
   const { value, error } = schema.validate(data, {
     abortEarly: true,
   })
 
   if (error) {
-    logger.error('Error on validate answer person query')
+    logger.error({
+      message: 'Error on validate "send answer person" query',
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new BadRequestError('Erro na validação do query para envio da resposta da análise de pessoas', error.stack as string)
   }
 
   return value
