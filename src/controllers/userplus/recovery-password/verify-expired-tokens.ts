@@ -1,15 +1,16 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { RecoveryPassword } from 'src/models/dynamo/users/recovery-password'
-import deleteRecoveryPassword from 'src/services/aws/dynamo/user/recovery-password/delete'
-import scanRecoveryPassword, { ScanRecoveryPasswordResponse } from 'src/services/aws/dynamo/user/recovery-password/scan'
+
+import { UserplusRecoveryPassword } from '~/models/dynamo/userplus/recovery-password'
+import deleteUserplusRecoveryPassword from '~/services/aws/dynamo/user/recovery-password/delete'
+import scanUserplusRecoveryPassword, { ScanRecoveryPasswordResponse } from '~/services/aws/dynamo/user/recovery-password/scan'
 
 const verifyExpiredTokens = async (dynamodbClient: DynamoDBClient) => {
-  const recovery_password: RecoveryPassword[] = []
+  const recovery_password: UserplusRecoveryPassword[] = []
   let last_evaluated_key
 
   const now = new Date().toISOString()
   do {
-    const scan_recovery: ScanRecoveryPasswordResponse | undefined = await scanRecoveryPassword(dynamodbClient, last_evaluated_key)
+    const scan_recovery: ScanRecoveryPasswordResponse | undefined = await scanUserplusRecoveryPassword(dynamodbClient, last_evaluated_key)
 
     if (scan_recovery?.result) {
       for (const item of scan_recovery.result) {
@@ -22,7 +23,7 @@ const verifyExpiredTokens = async (dynamodbClient: DynamoDBClient) => {
 
   for (const item of recovery_password) {
     if (item.expires_at < now) {
-      await deleteRecoveryPassword({ recovery_id: item.recovery_id }, dynamodbClient)
+      await deleteUserplusRecoveryPassword({ recovery_id: item.recovery_id }, dynamodbClient)
     }
   }
 }
