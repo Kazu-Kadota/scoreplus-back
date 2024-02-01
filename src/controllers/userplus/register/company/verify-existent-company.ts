@@ -1,10 +1,14 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import queryByCnpj from 'src/services/aws/dynamo/company/query-by-cnpj'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+
+import queryUserplusCompanyByCnpj, { QueryUserplusCompanyByCnpj } from '~/services/aws/dynamo/company/query-by-cnpj'
+import ConflictError from '~/utils/errors/409-conflict'
+import logger from '~/utils/logger'
 
 const verifyExistentCompany = async (cnpj:string, dynamodbClient: DynamoDBClient): Promise<void> => {
-  const companyExist = await queryByCnpj(cnpj, dynamodbClient)
+  const query: QueryUserplusCompanyByCnpj = {
+    cnpj,
+  }
+  const companyExist = await queryUserplusCompanyByCnpj(query, dynamodbClient)
 
   if (companyExist && companyExist[0]) {
     logger.warn({
@@ -12,7 +16,7 @@ const verifyExistentCompany = async (cnpj:string, dynamodbClient: DynamoDBClient
       cnpj,
     })
 
-    throw new ErrorHandler('Empresa já existe com este cnpj', 409)
+    throw new ConflictError('Empresa já existe com este cnpj', cnpj)
   }
 }
 
