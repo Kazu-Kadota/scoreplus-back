@@ -1,30 +1,33 @@
 import Joi from 'joi'
 
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import { RequestplusFinishedAnalysisPersonKey } from '~/models/dynamo/requestplus/finished-analysis-person/table'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
-export interface ValidatePersonReleaseExtractParams {
-  release_extract_id: string
-}
-
-const schema = Joi.object<ValidatePersonReleaseExtractParams>({
-  release_extract_id: Joi
+const schema = Joi.object<RequestplusFinishedAnalysisPersonKey, true>({
+  person_id: Joi
+    .string()
+    .uuid()
+    .required(),
+  request_id: Joi
     .string()
     .uuid()
     .required(),
 }).required()
 
 const validatePersonReleaseExtract = (
-  data: Partial<ValidatePersonReleaseExtractParams>,
-): ValidatePersonReleaseExtractParams => {
+  data: Partial<RequestplusFinishedAnalysisPersonKey>,
+): RequestplusFinishedAnalysisPersonKey => {
   const { value, error } = schema.validate(data, {
     abortEarly: true,
   })
 
   if (error) {
-    logger.error('Error on validate "person release extract" body')
+    logger.error({
+      message: 'Error on validate person release extract body',
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new BadRequestError('Erro na validação do body para solicitação do extrato de liberação de pessoa', error.stack as string)
   }
 
   return value
