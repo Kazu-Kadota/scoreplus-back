@@ -1,16 +1,14 @@
-import { Company } from 'src/models/dynamo/company'
-
-import { User } from 'src/models/dynamo/user'
-
 import PdfLayout from '../pdf-components/pdf-layout'
 
 import { PdfPersonRequest } from '../person/format-person-analysis'
 import { PdfVehicleRequest } from '../vehicle/format-vehicle-analysis'
+import { UserplusCompany } from '~/models/dynamo/userplus/company'
+import { UserplusUser } from '~/models/dynamo/userplus/user'
 
-export interface ComboPdfData {
-  company: Company;
-  user: User;
-  verification_code: string;
+export type ComboPdfData = {
+  company: UserplusCompany
+  user: UserplusUser
+  verification_code: string
   person_analysis: PdfPersonRequest
   vehicles_analysis: PdfVehicleRequest[]
 }
@@ -38,7 +36,7 @@ const generateComboPdf = async ({
         items: [{
           finished_at: person_analysis.finished_at,
           validity: person_analysis.validity,
-          analysis_result: person_analysis.analysis_result,
+          analysis_result: person_analysis.result,
           values: [
             { label: 'Nome', text: person_analysis.name },
             { label: 'CPF', text: person_analysis.document },
@@ -52,7 +50,7 @@ const generateComboPdf = async ({
         items: vehicles_analysis.map(analysis => ({
           finished_at: analysis.finished_at,
           validity: analysis.validity,
-          analysis_result: analysis.analysis_result,
+          analysis_result: analysis.result,
           values: [
             { label: 'Placa', text: analysis.plate },
             { label: 'CPF/CNPJ', text: analysis.owner_document },
