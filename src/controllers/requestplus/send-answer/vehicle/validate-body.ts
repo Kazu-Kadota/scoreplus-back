@@ -6,8 +6,10 @@ import { SendAnswerVehicleBody } from '~/models/dynamo/requestplus/finished-anal
 import BadRequestError from '~/utils/errors/400-bad-request'
 import logger from '~/utils/logger'
 
-const schema = Joi.array<SendAnswerVehicleBody[]>().items(
-  Joi.object<SendAnswerVehicleBody, true>({
+export type ValidateSendAnswerVehicleBody = Omit<SendAnswerVehicleBody, 'answered_at'>
+
+const schema = Joi.array<ValidateSendAnswerVehicleBody[]>().items(
+  Joi.object<ValidateSendAnswerVehicleBody, true>({
     reason: Joi
       .string()
       .when('result', {
@@ -26,8 +28,8 @@ const schema = Joi.array<SendAnswerVehicleBody[]>().items(
   }).required())
 
 const validateBody = (
-  data: Partial<SendAnswerVehicleBody[]>,
-): SendAnswerVehicleBody[] => {
+  data: Partial<ValidateSendAnswerVehicleBody[]>,
+): ValidateSendAnswerVehicleBody[] => {
   const { value, error } = schema.validate(data, {
     abortEarly: true,
   })

@@ -23,6 +23,10 @@ const personConstructor = ({
 }: PeopleConstructor): AnalysisplusPeople => {
   const company_constructor = {} as PeopleAnalysisCompanyOptions
   const validated_constructor = {} as PeopleAnalysisValidatedOptions
+  if (person_analysis_options.history) {
+    company_constructor.history = []
+    validated_constructor.history = []
+  }
 
   for (const [analysis, value] of Object.entries(person_analysis_options)) {
     const person_analysis = analysis as CompanyRequestPersonConfigEnum

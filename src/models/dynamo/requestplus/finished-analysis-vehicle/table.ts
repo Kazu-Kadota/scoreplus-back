@@ -6,7 +6,7 @@ import { VehicleAnalysisOptionsRequest, VehicleAnalysisOptionsRequestValueAnswer
 import { VehicleAnalysisType } from '../analysis-vehicle/vehicle-analysis-type'
 
 export type SendAnswerVehiclePath = {
-  id: string
+  vehicle_id: string
 }
 
 export type SendAnswerVehicleBody = VehicleAnalysisOptionsRequestValueAnswer & {}

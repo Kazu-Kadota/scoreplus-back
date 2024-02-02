@@ -41,6 +41,10 @@ const login: Controller<false> = async (req) => {
   expires_date.setSeconds(expires_date.getSeconds() + expires_seconds)
 
   const payload: Without<UserFromJwt, 'user_id'> = {
+    api: user.api,
+    email: user.email,
+    user_first_name: user.user_first_name,
+    user_last_name: user.user_last_name,
     user_type: user.user_type,
     company_name: user.company_name,
     company_id: user.company_id,
@@ -70,9 +74,13 @@ const login: Controller<false> = async (req) => {
     body: {
       message: 'User logged successfully',
       user: {
-        company_name: user.company_name,
+        api: user.api,
         email: user.email,
+        user_first_name: user.user_first_name,
+        user_last_name: user.user_last_name,
         user_type: user.user_type,
+        company_name: user.company_name,
+        company_id: user.company_id,
       },
       jwtToken,
       expires_date,

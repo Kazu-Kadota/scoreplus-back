@@ -2,6 +2,7 @@ import { CompanyRequestVehicleConfigEnum } from '../../enums/company'
 import { AnalysisResultEnum } from '../../enums/request'
 
 export type VehicleAnalysisOptionsRequestValueAnswer = {
+  answered_at: string
   reason?: string
   result: AnalysisResultEnum
   type: CompanyRequestVehicleConfigEnum

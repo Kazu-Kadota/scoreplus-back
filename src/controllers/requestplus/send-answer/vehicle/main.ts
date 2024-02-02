@@ -16,11 +16,11 @@ const sendAnswerVehicleController: Controller<true> = async (req) => {
   })
 
   const body = validateBody(JSON.parse(req.body as string))
-  const { id } = validatePath({ ...req.pathParameters })
-  const { vehicle_id } = validateQueryVehicle({ ...req.queryStringParameters })
+  const { vehicle_id } = validatePath({ ...req.pathParameters })
+  const { request_id } = validateQueryVehicle({ ...req.queryStringParameters })
 
   const data: SendVehicleAnswer = {
-    request_id: id,
+    request_id,
     answers_body: body,
     dynamodbClient,
     vehicle_id,

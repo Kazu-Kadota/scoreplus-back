@@ -19,9 +19,8 @@ const vehicleAnalysisOptionsConstructor = (
     }
   }
 
-  const invalid_request = Array(invalid_request_set)
-
-  if (invalid_request.length !== 0) {
+  if (invalid_request_set.size !== 0) {
+    const invalid_request = Array.from(invalid_request_set)
     logger.warn({
       message: 'Company not allowed to request analysis to the selected options',
       invalid_request,

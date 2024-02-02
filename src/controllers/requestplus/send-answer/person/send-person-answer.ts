@@ -2,7 +2,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 import { AnalysisplusPeopleKey } from '~/models/dynamo/analysisplus/people/table'
 import { RequestplusAnalysisPersonBody, RequestplusAnalysisPersonKey } from '~/models/dynamo/requestplus/analysis-person/table'
-import { RequestplusFinishedAnalysisPersonBody, RequestplusFinishedAnalysisPersonKey, SendAnswerPersonBody } from '~/models/dynamo/requestplus/finished-analysis-person/table'
+import { RequestplusFinishedAnalysisPersonBody, RequestplusFinishedAnalysisPersonKey } from '~/models/dynamo/requestplus/finished-analysis-person/table'
 import getAnalysisplusPeople from '~/services/aws/dynamo/analysis/person/get'
 import putAnalysisplusPeople from '~/services/aws/dynamo/analysis/person/put'
 import updateAnalysisplusPeople from '~/services/aws/dynamo/analysis/person/update'
@@ -14,10 +14,11 @@ import removeEmpty from '~/utils/remove-empty'
 import getRequestPersonAdapter from './get-request-person-adapter'
 import personConstructor from './person-constructor'
 import updatePersonConstructor from './update-person-constructor'
+import { ValidateSendAnswerPersonBody } from './validate-body'
 import verifyRequestStatus, { VerifyPersonRequestStatusParams } from './verify-request-status'
 
 export type SendPersonAnswerParams = {
-  answers_body: SendAnswerPersonBody[]
+  answers_body: ValidateSendAnswerPersonBody[]
   request_id: string
   person_id: string
   dynamodbClient: DynamoDBClient
@@ -54,24 +55,6 @@ const sendPersonAnswer = async ({
   const now = new Date().toISOString()
 
   if (is_finished) {
-    const finished_request_key: RequestplusFinishedAnalysisPersonKey = {
-      person_id,
-      request_id,
-    }
-
-    const finished_request_body: RequestplusFinishedAnalysisPersonBody = removeEmpty({
-      ...request_person,
-      person_analysis_options,
-      status,
-      result: is_all_approved,
-    })
-
-    await putRequestplusFinishedAnalysisPerson(
-      finished_request_key,
-      finished_request_body,
-      dynamodbClient,
-    )
-
     const person_key: AnalysisplusPeopleKey = {
       person_id: request_person.person_id,
       document: request_person.document,
@@ -98,13 +81,30 @@ const sendPersonAnswer = async ({
         ...person_body
       } = person_constructor
 
+      const finished_request_key: RequestplusFinishedAnalysisPersonKey = {
+        person_id,
+        request_id,
+      }
+
+      const finished_request_body: RequestplusFinishedAnalysisPersonBody = removeEmpty({
+        ...request_person,
+        person_analysis_options,
+        status,
+        result: is_all_approved,
+      })
+
+      await putRequestplusFinishedAnalysisPerson(
+        finished_request_key,
+        finished_request_body,
+        dynamodbClient,
+      )
+
       await updateAnalysisplusPeople(person_key, person_body, dynamodbClient)
 
       await deleteRequestplusAnalysisPerson(person_request_key, dynamodbClient)
 
       return
     }
-
     const person_constructor = personConstructor({
       now,
       person_analysis_options,
@@ -116,6 +116,24 @@ const sendPersonAnswer = async ({
       document,
       ...person_body
     } = person_constructor
+
+    const finished_request_key: RequestplusFinishedAnalysisPersonKey = {
+      person_id,
+      request_id,
+    }
+
+    const finished_request_body: RequestplusFinishedAnalysisPersonBody = removeEmpty({
+      ...request_person,
+      person_analysis_options,
+      status,
+      result: is_all_approved,
+    })
+
+    await putRequestplusFinishedAnalysisPerson(
+      finished_request_key,
+      finished_request_body,
+      dynamodbClient,
+    )
 
     await putAnalysisplusPeople(person_key, person_body, dynamodbClient)
 

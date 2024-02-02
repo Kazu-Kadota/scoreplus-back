@@ -268,12 +268,12 @@ functions:
             type: "request"
 
   requestplus-answer-person:
-    handler: src/controllers/requestplus/send-answer/person/index.ts
+    handler: src/controllers/requestplus/send-answer/person/index.handler
     timeout: 600
     events:
       - http:
           method: post
-          path: /analysis/person/{id}/answer
+          path: /analysis/person/{person_id}/answer
           authorizer:
             type: CUSTOM
             authorizerId: abcjfk
@@ -287,7 +287,7 @@ functions:
     events:
       - http:
           method: post
-          path: /analysis/vehicle/{id}/answer
+          path: /analysis/vehicle/{vehicle_id}/answer
           authorizer:
             type: CUSTOM
             authorizerId: abcjfk

@@ -16,11 +16,11 @@ const sendAnswerPersonController: Controller<true> = async (req) => {
   })
 
   const body = validateBody(JSON.parse(req.body as string))
-  const { id } = validatePath({ ...req.pathParameters })
-  const { person_id } = validateQueryPerson({ ...req.queryStringParameters })
+  const { person_id } = validatePath({ ...req.pathParameters })
+  const { request_id } = validateQueryPerson({ ...req.queryStringParameters })
 
   const data: SendPersonAnswerParams = {
-    request_id: id,
+    request_id,
     answers_body: body,
     dynamodbClient,
     person_id,

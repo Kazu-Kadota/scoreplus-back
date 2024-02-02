@@ -4,7 +4,7 @@ import { SNSClient } from '@aws-sdk/client-sns'
 import getCompanyAdapter from '../get-company-adapter'
 import { AnalysisTypeEnum } from '~/models/dynamo/enums/request'
 import { Controller } from '~/models/lambda'
-import useCaseRequestVehicleAnalysis, { UseCaseRequestVehicleAnalysis } from '~/use-cases/request-vehicle-analysis.ts'
+import useCaseRequestVehicleAnalysis, { UseCaseRequestVehicleAnalysis } from '~/use-cases/request-vehicle-analysis'
 import BadRequestError from '~/utils/errors/400-bad-request'
 import logger from '~/utils/logger'
 

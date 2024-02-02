@@ -1,26 +1,26 @@
 import Joi from 'joi'
 
-import { SendAnswerPersonPath } from '~/models/dynamo/requestplus/finished-analysis-person/table'
+import { SendAnswerVehiclePath } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
 import BadRequestError from '~/utils/errors/400-bad-request'
 import logger from '~/utils/logger'
 
-const schema = Joi.object<SendAnswerPersonPath, true>({
-  id: Joi
+const schema = Joi.object<SendAnswerVehiclePath, true>({
+  vehicle_id: Joi
     .string()
     .uuid()
     .required(),
 }).required()
 
 const validatePath = (
-  data: Partial<SendAnswerPersonPath | undefined>,
-): SendAnswerPersonPath => {
+  data: Partial<SendAnswerVehiclePath | undefined>,
+): SendAnswerVehiclePath => {
   const { value, error } = schema.validate(data, {
     abortEarly: true,
   })
 
   if (error) {
     logger.error({
-      message: 'Error on validate "send answer person" path',
+      message: 'Error on validate "send answer vehicle" path',
     })
 
     throw new BadRequestError('Erro na validação do path para envio da resposta da análise de veículos', error.stack as string)

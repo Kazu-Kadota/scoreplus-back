@@ -6,6 +6,8 @@ import { UserplusCompany } from '~/models/dynamo/userplus/company'
 import { UserFromJwt } from '~/utils/extract-jwt-lambda'
 import logger from '~/utils/logger'
 
+import removeEmpty from '~/utils/remove-empty'
+
 import { VehicleReportResponse } from './vehicle-report'
 
 export type ConvertCsvParams = {
@@ -56,7 +58,7 @@ const convertCsv = ({
     vehicle_analysis_options[config] = companyRequestVehicleConfigEnum[config]
   }
 
-  const columns: VehicleReportCSVHeader = {
+  const columns: VehicleReportCSVHeader = removeEmpty({
     company_name: 'Nome da empresa',
     request_id: 'ID da requisição',
     vehicle_id: 'ID do veículo',
@@ -64,10 +66,14 @@ const convertCsv = ({
     vehicle_type: 'Tipo do veículo',
     owner_name: 'Nome do dono',
     owner_document: 'Documento do dono',
+    ethical: vehicle_analysis_options.ethical,
+    'plate-history': vehicle_analysis_options['plate-history'],
+    antt: vehicle_analysis_options.antt,
+    cronotacografo: vehicle_analysis_options.cronotacografo,
     combo_number: 'Número de requisições dentro do combo',
     created_at: 'Data de criação da análise',
     finished_at: 'Data de resposta da análise',
-  }
+  })
 
   if (user.user_type === 'admin') {
     columns.result = 'Resposta da análise'

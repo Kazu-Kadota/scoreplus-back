@@ -59,6 +59,7 @@ const reportPersonAnalysis: Controller<true> = async (req) => {
     },
     statusCode: 200,
     body: csv,
+    notJsonBody: true,
   }
 }
 

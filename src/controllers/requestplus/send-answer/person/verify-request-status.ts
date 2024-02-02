@@ -3,14 +3,15 @@ import { AnalysisResultEnum, PersonStateEnum, RequestStatusEnum } from '~/models
 import { PersonAnalysisOptionsRequest, PersonAnalysisOptionsRequestValueAnswer, PersonAnalysisOptionsRequestValueHistory } from '~/models/dynamo/requestplus/analysis-person/person-analysis-options'
 import { PersonAnalysisStatus, PersonAnalysisStatusHistory } from '~/models/dynamo/requestplus/analysis-person/status'
 import { RequestplusAnalysisPersonKey } from '~/models/dynamo/requestplus/analysis-person/table'
-import { SendAnswerPersonBody } from '~/models/dynamo/requestplus/finished-analysis-person/table'
 import ForbiddenError from '~/utils/errors/403-forbidden'
 import InternalServerError from '~/utils/errors/500-internal-server-error'
 import logger from '~/utils/logger'
 
+import { ValidateSendAnswerPersonBody } from './validate-body'
+
 export type VerifyPersonRequestStatusParams = RequestplusAnalysisPersonKey & {
   request_person_status: PersonAnalysisStatus<false>
-  answers_body: SendAnswerPersonBody[]
+  answers_body: ValidateSendAnswerPersonBody[]
   person_analysis_options: Partial<PersonAnalysisOptionsRequest<false>>
 }
 
@@ -42,6 +43,8 @@ const verifyRequestStatus = ({
 
     throw new ForbiddenError('Análise de pessoas não autorizado a ser respondido')
   }
+
+  const now = new Date().toISOString()
 
   const mount_person_analysis_options: Partial<PersonAnalysisOptionsRequest<false>> | Partial<PersonAnalysisOptionsRequest<true>> = {
     ...person_analysis_options,
@@ -114,11 +117,13 @@ const verifyRequestStatus = ({
 
       const historical_analysis = mount_person_analysis_options.history as PersonAnalysisOptionsRequestValueHistory<false>
 
-      const index_find_historical_region = historical_analysis.regions.findIndex((object) => region in object) as number
+      const index_find_historical_region = historical_analysis.regions
+        .findIndex((object) => region === object.region) as number
 
       historical_analysis.regions[index_find_historical_region] = {
         ...answer,
         region,
+        answered_at: now,
       }
     } else if (answer.type === CompanyRequestPersonConfigEnum.ETHICAL) {
       const ethical_status = request_person_status[answer.type]
@@ -150,6 +155,7 @@ const verifyRequestStatus = ({
 
       mount_person_analysis_options[answer.type] = {
         ...answer,
+        answered_at: now,
       }
     } else {
       logger.warn({

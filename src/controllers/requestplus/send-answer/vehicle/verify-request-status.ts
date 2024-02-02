@@ -3,14 +3,15 @@ import { AnalysisResultEnum, RequestStatusEnum } from '~/models/dynamo/enums/req
 import { VehicleAnalysisStatus } from '~/models/dynamo/requestplus/analysis-vehicle/status'
 import { RequestplusAnalysisVehicleKey } from '~/models/dynamo/requestplus/analysis-vehicle/table'
 import { VehicleAnalysisOptionsRequest } from '~/models/dynamo/requestplus/analysis-vehicle/vehicle-analysis-options'
-import { SendAnswerVehicleBody } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
 import ForbiddenError from '~/utils/errors/403-forbidden'
 import InternalServerError from '~/utils/errors/500-internal-server-error'
 import logger from '~/utils/logger'
 
+import { ValidateSendAnswerVehicleBody } from './validate-body'
+
 export type VerifyVehicleRequestStatusParams = RequestplusAnalysisVehicleKey & {
   request_vehicle_status: VehicleAnalysisStatus<false>
-  answers_body: SendAnswerVehicleBody[]
+  answers_body: ValidateSendAnswerVehicleBody[]
   vehicle_analysis_options: Partial<VehicleAnalysisOptionsRequest<false>>
 }
 

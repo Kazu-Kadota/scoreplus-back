@@ -5,7 +5,7 @@ import BadRequestError from '~/utils/errors/400-bad-request'
 import logger from '~/utils/logger'
 
 const schema = Joi.object<SendAnswerPersonPath, true>({
-  id: Joi
+  person_id: Joi
     .string()
     .uuid()
     .required(),

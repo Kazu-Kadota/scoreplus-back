@@ -1,5 +1,3 @@
-import removeEmpty from 'src/utils/remove-empty'
-
 import { AnalysisplusPeople } from '~/models/dynamo/analysisplus/people/table'
 import { CompanyRequestPersonConfigEnum } from '~/models/dynamo/enums/company'
 import {
@@ -8,6 +6,7 @@ import {
   PersonAnalysisOptionsRequestValueHistory,
 } from '~/models/dynamo/requestplus/analysis-person/person-analysis-options'
 import { RequestplusAnalysisPerson } from '~/models/dynamo/requestplus/analysis-person/table'
+import removeEmpty from '~/utils/remove-empty'
 
 export type UpdatePersonConstructor = {
   person: AnalysisplusPeople

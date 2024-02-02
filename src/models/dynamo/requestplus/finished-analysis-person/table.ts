@@ -6,7 +6,7 @@ import { PersonAnalysisType } from '../analysis-person/person-analysis-type'
 import { PersonAnalysisStatus } from '../analysis-person/status'
 
 export type SendAnswerPersonPath = {
-  id: string
+  person_id: string
 }
 
 export type SendAnswerPersonBody = PersonAnalysisOptionsRequestValueAnswer & {

@@ -4,11 +4,11 @@ import BadRequestError from '~/utils/errors/400-bad-request'
 import logger from '~/utils/logger'
 
 export type ValidateQueryPerson = {
-  person_id: string
+  request_id: string
 }
 
 const schema = Joi.object<ValidateQueryPerson, true>({
-  person_id: Joi
+  request_id: Joi
     .string()
     .uuid()
     .required(),

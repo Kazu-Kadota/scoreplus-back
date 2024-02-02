@@ -2,7 +2,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 import { AnalysisplusVehiclesKey } from '~/models/dynamo/analysisplus/vehicle/table'
 import { RequestplusAnalysisVehicleBody, RequestplusAnalysisVehicleKey } from '~/models/dynamo/requestplus/analysis-vehicle/table'
-import { RequestplusFinishedAnalysisVehicleBody, SendAnswerVehicleBody } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
+import { RequestplusFinishedAnalysisVehicleBody } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
 import getAnalysisplusVehicles from '~/services/aws/dynamo/analysis/vehicle/get'
 import putAnalysisplusVehicles from '~/services/aws/dynamo/analysis/vehicle/put'
 import updateAnalysisplusVehicles from '~/services/aws/dynamo/analysis/vehicle/update'
@@ -13,11 +13,12 @@ import removeEmpty from '~/utils/remove-empty'
 
 import getRequestVehicleAdapter from './get-request-vehicle-adapter'
 import updateVehicleConstructor from './update-vehicle-constructor'
+import { ValidateSendAnswerVehicleBody } from './validate-body'
 import vehiclesConstructor from './vehicle-constructor'
 import verifyRequestStatus, { VerifyVehicleRequestStatusParams } from './verify-request-status'
 
 export type SendVehicleAnswer = {
-  answers_body: SendAnswerVehicleBody[]
+  answers_body: ValidateSendAnswerVehicleBody[]
   dynamodbClient: DynamoDBClient
   request_id: string
   vehicle_id: string
@@ -54,24 +55,6 @@ const sendVehicleAnswer = async ({
   const now = new Date().toISOString()
 
   if (is_finished) {
-    const finished_request_key: RequestplusAnalysisVehicleKey = {
-      request_id: request_vehicle.request_id,
-      vehicle_id,
-    }
-
-    const finished_request_body: RequestplusFinishedAnalysisVehicleBody = removeEmpty({
-      ...request_vehicle,
-      vehicle_analysis_options,
-      status,
-      result: is_all_approved,
-    })
-
-    await putRequestplusFinishedAnalysisVehicle(
-      finished_request_key,
-      finished_request_body,
-      dynamodbClient,
-    )
-
     const vehicle_key: AnalysisplusVehiclesKey = {
       vehicle_id: request_vehicle.vehicle_id,
       plate: request_vehicle.plate,
@@ -92,6 +75,24 @@ const sendVehicleAnswer = async ({
         plate,
         ...vehicle_body
       } = vehicle_constructor
+
+      const finished_request_key: RequestplusAnalysisVehicleKey = {
+        request_id: request_vehicle.request_id,
+        vehicle_id,
+      }
+
+      const finished_request_body: RequestplusFinishedAnalysisVehicleBody = removeEmpty({
+        ...request_vehicle,
+        vehicle_analysis_options,
+        status,
+        result: is_all_approved,
+      })
+
+      await putRequestplusFinishedAnalysisVehicle(
+        finished_request_key,
+        finished_request_body,
+        dynamodbClient,
+      )
 
       await updateAnalysisplusVehicles(vehicle_key, vehicle_body, dynamodbClient)
 
@@ -115,9 +116,29 @@ const sendVehicleAnswer = async ({
       ...vehicle_body
     } = vehicle_constructor
 
+    const finished_request_key: RequestplusAnalysisVehicleKey = {
+      request_id: request_vehicle.request_id,
+      vehicle_id,
+    }
+
+    const finished_request_body: RequestplusFinishedAnalysisVehicleBody = removeEmpty({
+      ...request_vehicle,
+      vehicle_analysis_options,
+      status,
+      result: is_all_approved,
+    })
+
+    await putRequestplusFinishedAnalysisVehicle(
+      finished_request_key,
+      finished_request_body,
+      dynamodbClient,
+    )
+
     await putAnalysisplusVehicles(vehicle_key, vehicle_body, dynamodbClient)
 
     await deleteRequestplusAnalysisVehicle(request_vehicle_key, dynamodbClient)
+
+    return
   }
 
   const update_body: Partial<RequestplusAnalysisVehicleBody> = {

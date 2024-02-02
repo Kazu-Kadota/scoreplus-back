@@ -68,6 +68,7 @@ const reportVehicleAnalysis: Controller<true> = async (req) => {
     },
     statusCode: 200,
     body: csv,
+    notJsonBody: true,
   }
 }
 

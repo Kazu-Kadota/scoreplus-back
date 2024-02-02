@@ -6,6 +6,8 @@ import { UserplusCompany } from '~/models/dynamo/userplus/company'
 import { UserFromJwt } from '~/utils/extract-jwt-lambda'
 import logger from '~/utils/logger'
 
+import removeEmpty from '~/utils/remove-empty'
+
 import { PersonReportResponse } from './person-report'
 
 export type ConvertCsvParams = {
@@ -55,18 +57,23 @@ const convertCsv = ({
     person_analysis_options[config] = companyRequestPersonConfigEnum[config]
   }
 
-  const columns: PersonReportCSVHeader = {
+  const columns: PersonReportCSVHeader = removeEmpty({
     company_name: 'Nome da empresa',
     request_id: 'ID da requisição',
     person_id: 'ID da pessoa',
     name: 'Nome',
     document: 'Documento',
     analysis_type: 'Tipo de análise da pessoa',
-    ...person_analysis_options,
+    ethical: person_analysis_options.ethical,
+    history: person_analysis_options.history,
+    biometry: person_analysis_options.biometry,
+    'cnh-advanced': person_analysis_options['cnh-advanced'],
+    'cnh-medium': person_analysis_options['cnh-medium'],
+    'cnh-simple': person_analysis_options['cnh-simple'],
     combo_number: 'Número de requisições dentro do combo',
     created_at: 'Data de criação da análise',
     finished_at: 'Data de resposta da análise',
-  }
+  })
 
   if (user.user_type === 'admin') {
     columns.result = 'Resposta da análise'

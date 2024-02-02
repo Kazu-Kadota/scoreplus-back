@@ -8,11 +8,15 @@ import InvalidTokenError from './errors/498-invalid-token'
 
 const AUTH_ES256_PRIVATE_KEY = getStringEnv('AUTH_ES256_PRIVATE_KEY')
 
-export interface UserFromJwt {
-  user_type: UserGroupEnum,
-  user_id: string,
+export type UserFromJwt = {
+  api: boolean
+  email: string
   company_id: string
   company_name: string
+  user_first_name: string
+  user_id: string,
+  user_last_name: string
+  user_type: UserGroupEnum,
 }
 
 const extractJwtLambda = (headers: APIGatewayProxyEventHeaders): UserFromJwt | undefined => {
@@ -37,12 +41,20 @@ const extractJwtLambda = (headers: APIGatewayProxyEventHeaders): UserFromJwt | u
       options,
     ) as JwtPayload
 
+    const api = verify.api
+    const email = verify.email
+    const user_first_name = verify.user_first_name
+    const user_last_name = verify.user_last_name
     const user_type = verify.user_type as UserGroupEnum
     const user_id = verify.sub as string
     const company_name = verify.company_name as string
     const company_id = verify.company_id as string
 
     return {
+      api,
+      email,
+      user_first_name,
+      user_last_name,
       user_type,
       user_id,
       company_name,
