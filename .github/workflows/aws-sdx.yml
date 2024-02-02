@@ -25,6 +25,7 @@ jobs:
       - run: npm run lint
       - run: npm run clean
       - run: npm run tsc
+      - run: npm run tsc-alias
       - run: npm run prune
       - run: npm run mv:node_modules
       - run: npm run cp:templates
