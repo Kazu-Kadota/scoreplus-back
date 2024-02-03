@@ -1,9 +1,9 @@
 import Joi from 'joi'
 
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
-export interface ValidatePersonParam {
+export type ValidatePersonParam = {
   person_id: string
 }
 
@@ -22,9 +22,11 @@ const validatePersonParam = (
   })
 
   if (error) {
-    logger.error('Error on validate "request person" query')
+    logger.error({
+      message: 'Error on validate "get person" path parameter',
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new BadRequestError('Erro na validação do path parameter para obter pessoa', error.stack as string)
   }
 
   return value

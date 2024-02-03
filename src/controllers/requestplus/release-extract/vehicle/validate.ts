@@ -1,10 +1,10 @@
 import Joi from 'joi'
-import { VehicleRequestKey } from 'src/models/dynamo/request-vehicle'
 
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import { RequestplusFinishedAnalysisVehicleKey } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
-const schema = Joi.object<VehicleRequestKey>({
+const schema = Joi.object<RequestplusFinishedAnalysisVehicleKey>({
   vehicle_id: Joi
     .string()
     .uuid()
@@ -16,16 +16,18 @@ const schema = Joi.object<VehicleRequestKey>({
 }).required()
 
 const validateVehicleReleaseExtract = (
-  data: Partial<VehicleRequestKey>,
-): VehicleRequestKey => {
+  data: Partial<RequestplusFinishedAnalysisVehicleKey>,
+): RequestplusFinishedAnalysisVehicleKey => {
   const { value, error } = schema.validate(data, {
     abortEarly: true,
   })
 
   if (error) {
-    logger.error('Error on validate "vehicle release extract" body')
+    logger.error({
+      message: 'Error on validate vehicle release extract body',
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new BadRequestError('Erro na validação do body para solicitação do extrato de liberação de veículo', error.stack as string)
   }
 
   return value

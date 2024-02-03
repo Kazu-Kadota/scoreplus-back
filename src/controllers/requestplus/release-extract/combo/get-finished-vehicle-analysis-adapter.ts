@@ -1,15 +1,18 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { ComboReleaseExtractKey } from 'src/models/dynamo/combo'
-import { VehicleRequest } from 'src/models/dynamo/request-vehicle'
-import queryFinishedRequestVehicleByComboId from 'src/services/aws/dynamo/request/finished/vehicle/query-by-combo-id'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+
+import { RequestStatusEnum } from '~/models/dynamo/enums/request'
+import { ComboReleaseExtractKey } from '~/models/dynamo/requestplus/combo'
+import { RequestplusFinishedAnalysisVehicle } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
+import queryRequestplusFinishedAnalysisVehicleByComboId from '~/services/aws/dynamo/request/finished/vehicle/query-by-combo-id'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import NotFoundError from '~/utils/errors/404-not-found'
+import logger from '~/utils/logger'
 
 const getFinishedVehicleAnalysisAdapter = async (
   combo_key: ComboReleaseExtractKey,
   dynamodbClient: DynamoDBClient,
-): Promise<VehicleRequest[]> => {
-  const finished_vehicle = await queryFinishedRequestVehicleByComboId(combo_key, dynamodbClient)
+): Promise<RequestplusFinishedAnalysisVehicle[]> => {
+  const finished_vehicle = await queryRequestplusFinishedAnalysisVehicleByComboId(combo_key, dynamodbClient)
 
   if (!finished_vehicle || !finished_vehicle[0]) {
     logger.warn({
@@ -17,7 +20,16 @@ const getFinishedVehicleAnalysisAdapter = async (
       combo_id: combo_key.combo_id,
     })
 
-    throw new ErrorHandler('Combo não existe', 404)
+    throw new NotFoundError('Combo não existe', 404)
+  }
+
+  if (finished_vehicle[0].status.general !== RequestStatusEnum.FINISHED) {
+    logger.warn({
+      message: 'Vehicle analysis not finished',
+      ...combo_key,
+    })
+
+    throw new BadRequestError('Análise de veículo ainda não finalizada e não é possível gerar o extrato de liberação')
   }
 
   return finished_vehicle

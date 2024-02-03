@@ -1,14 +1,12 @@
-import { Company } from 'src/models/dynamo/company'
-
-import { User } from 'src/models/dynamo/user'
-
 import PdfLayout from '../pdf-components/pdf-layout'
+import { UserplusCompany } from '~/models/dynamo/userplus/company'
+import { UserplusUser } from '~/models/dynamo/userplus/user'
 
 import { PdfVehicleRequest } from './format-vehicle-analysis'
 
-export interface VehiclePdfData {
-  company: Company;
-  user: User;
+export type VehiclePdfData = {
+  company: UserplusCompany;
+  user: UserplusUser;
   verification_code: string;
   vehicle_analysis: PdfVehicleRequest
 }
@@ -34,7 +32,7 @@ const generateVehiclePdf = async ({
       items: [{
         finished_at: vehicle_analysis.finished_at,
         validity: vehicle_analysis.validity,
-        analysis_result: vehicle_analysis.analysis_result,
+        analysis_result: vehicle_analysis.result,
         values: [
           { label: 'Placa', text: vehicle_analysis.plate },
           { label: 'CPF/CNPJ', text: vehicle_analysis.owner_document },

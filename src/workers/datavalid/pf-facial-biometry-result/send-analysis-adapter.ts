@@ -1,8 +1,9 @@
 import { LRUCache } from 'lru-cache'
-import { AnalysisResultEnum } from 'src/models/dynamo/answer'
-import invokeSendAnswer, { InvokeSendAnswerParams } from 'src/services/requestplus/send-answer/person/invoke'
-import invokeLogin, { InvokeLoginResponse } from 'src/services/userplus/login/invoke'
-import getStringEnv from 'src/utils/get-string-env'
+
+import { AnalysisResultEnum } from '~/models/dynamo/enums/request'
+import invokeSendAnswer, { InvokeSendAnswerParams } from '~/services/requestplus/send-answer/person/invoke'
+import invokeLogin, { InvokeLoginResponse } from '~/services/userplus/login/invoke'
+import getStringEnv from '~/utils/get-string-env'
 
 export interface sendAnalysisAdapterParams {
   person_id: string

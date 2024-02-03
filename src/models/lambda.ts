@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
-import { UserInfoFromJwt } from 'src/utils/extract-jwt-lambda'
+import { UserFromJwt } from 'src/utils/extract-jwt-lambda'
 
 export interface ReturnResponse<T> {
   body: T
@@ -21,8 +21,16 @@ export interface Response<T = any> extends ReturnResponse<T> {
   notJsonBody?: boolean
 }
 
-export interface Request extends APIGatewayProxyEvent {
-  user_info?: UserInfoFromJwt
-}
+export type RequestUserInfo<U extends unknown> = U extends true
+  ? { user: UserFromJwt}
+  : {}
 
-export type Controller<T = any> = (req: Request) => Promise<Response<T>>
+export type Request<U extends unknown = false> = APIGatewayProxyEvent & RequestUserInfo<U>
+
+/**
+ * Generic type to lambda using APIGateway
+ *
+ * @template U - (required) Verify if the lambda needs authentication
+ * @template T - (optional) Typing the return of body
+ */
+export type Controller<U extends unknown, T = any> = (req: Request<U>) => Promise<Response<T>>

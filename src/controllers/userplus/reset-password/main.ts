@@ -1,12 +1,12 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { APIGatewayProxyEvent } from 'aws-lambda'
-import { UserBody, UserKey } from 'src/models/dynamo/user'
-import { PasswordHistoryBody, PasswordHistoryKey } from 'src/models/dynamo/users/password-history'
-import { ReturnResponse } from 'src/models/lambda'
-import putPasswordHistory from 'src/services/aws/dynamo/user/password-history/put'
-import updateUser from 'src/services/aws/dynamo/user/user/update'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+
+import { UserplusPasswordHistoryBody, UserplusPasswordHistoryKey } from '~/models/dynamo/userplus/password-history'
+import { UserplusUserBody, UserplusUserKey } from '~/models/dynamo/userplus/user'
+import { Controller } from '~/models/lambda'
+import putPasswordHistory from '~/services/aws/dynamo/user/password-history/put'
+import updateUserplusUser from '~/services/aws/dynamo/user/user/update'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
 import getUserByEmailAdapter from './get-user-by-email-adapter'
 import hashPassword from './hash-password'
@@ -16,21 +16,21 @@ import validateRecoveryId from './validate-recovery-id'
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
 
-const resetPasswordController = async (event: APIGatewayProxyEvent): Promise<ReturnResponse<any>> => {
+const resetPasswordController: Controller<false> = async (req) => {
   logger.debug({
     message: 'Start reset password path',
   })
 
-  const body = validateBody(JSON.parse(event.body ?? ''))
+  const body = validateBody(JSON.parse(req.body ?? ''))
 
-  const query = validateQuery({ ...event.queryStringParameters })
+  const query = validateQuery({ ...req.queryStringParameters })
 
   if (body.password !== body.confirm_password) {
     logger.warn({
       message: 'Password and confirm password is different',
     })
 
-    throw new ErrorHandler('A confirmação de senha está incorreta', 400)
+    throw new BadRequestError('A confirmação de senha está incorreta', 400)
   }
 
   const user = await getUserByEmailAdapter(query.email, dynamodbClient)
@@ -39,27 +39,27 @@ const resetPasswordController = async (event: APIGatewayProxyEvent): Promise<Ret
 
   const new_password = hashPassword(body.password)
 
-  const password_history_key: PasswordHistoryKey = {
+  const password_history_key: UserplusPasswordHistoryKey = {
     user_id: user.user_id,
     created_at: new Date().toISOString(),
   }
 
-  const password_history_body: PasswordHistoryBody = {
+  const password_history_body: UserplusPasswordHistoryBody = {
     old_password: user.password,
     new_password,
   }
 
   await putPasswordHistory(password_history_key, password_history_body, dynamodbClient)
 
-  const update_user_key: UserKey = {
+  const update_user_key: UserplusUserKey = {
     user_id: user.user_id,
   }
 
-  const update_user_body: Partial<UserBody> = {
+  const update_user_body: Partial<UserplusUserBody> = {
     password: new_password,
   }
 
-  await updateUser(update_user_key, update_user_body, dynamodbClient)
+  await updateUserplusUser(update_user_key, update_user_body, dynamodbClient)
 
   logger.info({
     message: 'Users password reset successfully',

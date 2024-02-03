@@ -1,9 +1,9 @@
 import Joi from 'joi'
 
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
-export interface RequestVehicleByRequestId {
+export type RequestVehicleByRequestId = {
   vehicle_id: string
 }
 
@@ -22,9 +22,11 @@ const validateVehicleParam = (
   })
 
   if (error) {
-    logger.error('Error on validate "request vehicle" request')
+    logger.error({
+      message: 'Error on validate "get vehicle" path parameter',
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new BadRequestError('Erro na validação do path parameter para obter veículo', error.stack as string)
   }
 
   return value

@@ -59,7 +59,7 @@ functions:
           method: post
           path: /auth
 
-  controllers-userplus-login:
+  userplus-login:
     handler: src/controllers/userplus/login/index.handler
     timeout: 600
     events:
@@ -67,7 +67,7 @@ functions:
           method: post
           path: /login
 
-  controllers-userplus-register-user:
+  userplus-register-user:
     handler: src/controllers/userplus/register/user/index.handler
     timeout: 600
     events:
@@ -81,7 +81,7 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-userplus-register-company:
+  userplus-register-company:
     handler: src/controllers/userplus/register/company/index.handler
     timeout: 600
     events:
@@ -95,7 +95,7 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-userplus-change-password:
+  userplus-change-password:
     handler: src/controllers/userplus/change-password/index.handler
     timeout: 600
     events:
@@ -109,7 +109,7 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-userplus-company:
+  userplus-company:
     handler: src/controllers/userplus/my-company/index.handler
     timeout: 600
     events:
@@ -117,7 +117,7 @@ functions:
           method: get
           path: /my-company
 
-  controllers-userplus-recovery-password:
+  userplus-recovery-password:
     handler: src/controllers/userplus/recovery-password/index.handler
     timeout: 600
     events:
@@ -131,7 +131,7 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-userplus-reset-password:
+  userplus-reset-password:
     handler: src/controllers/userplus/reset-password/index.handler
     timeout: 600
     events:
@@ -145,7 +145,7 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-userplus-list-companies:
+  userplus-list-companies:
     handler: src/controllers/userplus/list-companies/index.handler
     timeout: 600
     events:
@@ -159,7 +159,7 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-requestplus-analysis-person:
+  requestplus-analysis-person:
     handler: src/controllers/requestplus/send-request-analysis/person/index.handler
     timeout: 600
     events:
@@ -167,7 +167,7 @@ functions:
           method: post
           path: /analysis/person
 
-  controllers-requestplus-analysis-combo:
+  requestplus-analysis-combo:
     handler: src/controllers/requestplus/send-request-analysis/combo/index.handler
     timeout: 600
     events:
@@ -175,23 +175,15 @@ functions:
           method: post
           path: /analysis/combo
 
-  controllers-requestplus-analysis-vehicle-default:
-    handler: src/controllers/requestplus/send-request-analysis/vehicle/default/index.handler
+  requestplus-analysis-vehicle:
+    handler: src/controllers/requestplus/send-request-analysis/vehicle/index.handler
     timeout: 600
     events:
       - http:
           method: post
           path: /analysis/vehicle
 
-  controllers-requestplus-analysis-vehicle-plate-history:
-    handler: src/controllers/requestplus/send-request-analysis/vehicle/plate-history/index.handler
-    timeout: 600
-    events:
-      - http:
-          method: post
-          path: /analysis/vehicle/plate-history
-
-  controllers-requestplus-people:
+  requestplus-list-people:
     handler: src/controllers/requestplus/consult/analysis/list-people/index.handler
     timeout: 600
     events:
@@ -205,7 +197,7 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-requestplus-vehicles:
+  requestplus-list-vehicles:
     handler: src/controllers/requestplus/consult/analysis/list-vehicles/index.handler
     timeout: 600
     events:
@@ -219,7 +211,7 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-requestplus-person:
+  requestplus-get-person:
     handler: src/controllers/requestplus/consult/analysis/get-person/index.handler
     timeout: 600
     events:
@@ -233,7 +225,7 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-requestplus-vehicle:
+  requestplus-get-vehicle:
     handler: src/controllers/requestplus/consult/analysis/get-vehicle/index.handler
     timeout: 600
     events:
@@ -247,13 +239,13 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-requestplus-analysis-by-document-plate:
-    handler: src/controllers/requestplus/consult/query-analysis-by-document-plate/index.handler
+  requestplus-query-person-by-document:
+    handler: src/controllers/requestplus/consult/analysis/query-person-by-document/index.handler
     timeout: 600
     events:
       - http:
           method: get
-          path: /{path_type}
+          path: /analysis/person
           authorizer:
             type: CUSTOM
             authorizerId: abcjfk
@@ -261,7 +253,49 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-requestplus-release-extract-person:
+  requestplus-query-vehicle-by-plate:
+    handler: src/controllers/requestplus/consult/analysis/query-vehicle-by-plate/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /analysis/vehicle
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  requestplus-answer-person:
+    handler: src/controllers/requestplus/send-answer/person/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /analysis/person/{person_id}/answer
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  requestplus-answer-vehicle:
+    handler: src/controllers/requestplus/send-answer/vehicle/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /analysis/vehicle/{vehicle_id}/answer
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  requestplus-release-extract-person:
     handler: src/controllers/requestplus/release-extract/person/index.handler
     timeout: 600
     events:
@@ -269,7 +303,7 @@ functions:
           method: get
           path: /release-extract/person
 
-  controllers-requestplus-release-extract-vehicle:
+  requestplus-release-extract-vehicle:
     handler: src/controllers/requestplus/release-extract/vehicle/index.handler
     timeout: 600
     events:
@@ -277,7 +311,7 @@ functions:
           method: get
           path: /release-extract/vehicle
 
-  controllers-requestplus-release-extract-combo:
+  requestplus-release-extract-combo:
     handler: src/controllers/requestplus/release-extract/combo/index.handler
     timeout: 600
     events:
@@ -285,13 +319,13 @@ functions:
           method: get
           path: /release-extract/combo
 
-  controllers-requestplus-answer:
-    handler: src/controllers/requestplus/send-answer/index.handler
+  reportplus-generate-analysis-person:
+    handler: src/controllers/reportplus/generate-analysis/person/index.handler
     timeout: 600
     events:
       - http:
           method: post
-          path: /analysis/{analysis_type}/{id}/answer
+          path: /report/analysis/person
           authorizer:
             type: CUSTOM
             authorizerId: abcjfk
@@ -299,13 +333,13 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  controllers-reportplus-analysis:
-    handler: src/controllers/reportplus/generate-analysis-request/index.handler
+  reportplus-generate-analysis-vehicle:
+    handler: src/controllers/reportplus/generate-analysis/vehicle/index.handler
     timeout: 600
     events:
       - http:
           method: post
-          path: /report/analysis/{path_type}
+          path: /report/analysis/vehicle
           authorizer:
             type: CUSTOM
             authorizerId: abcjfk

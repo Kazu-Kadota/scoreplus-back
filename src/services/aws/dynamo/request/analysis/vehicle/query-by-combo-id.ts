@@ -3,25 +3,27 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { ComboReleaseExtractKey } from 'src/models/dynamo/combo'
-import { VehicleRequest } from 'src/models/dynamo/request-vehicle'
+
+import { RequestplusAnalysisVehicle } from '~/models/dynamo/requestplus/analysis-vehicle/table'
+import { ComboReleaseExtractKey } from '~/models/dynamo/requestplus/combo'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE')
 
-const queryRequestVehicleByComboId = async (
+const queryRequestplusAnalysisVehicleByComboId = async (
   query: ComboReleaseExtractKey,
   dynamodbClient: DynamoDBClient,
-): Promise<VehicleRequest[] | undefined> => {
+): Promise<RequestplusAnalysisVehicle[] | undefined> => {
   logger.debug({
-    message: 'Querying requested vehicle by combo id',
-    combo_id: query.combo_id,
+    message: 'DYNAMODB: Query',
+    table: DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE,
+    ...query,
   })
 
   const command = new QueryCommand({
@@ -38,9 +40,9 @@ const queryRequestVehicleByComboId = async (
     return undefined
   }
 
-  const result = Items.map((item) => (unmarshall(item) as VehicleRequest))
+  const result = Items.map((item) => (unmarshall(item) as RequestplusAnalysisVehicle))
 
   return result
 }
 
-export default queryRequestVehicleByComboId
+export default queryRequestplusAnalysisVehicleByComboId

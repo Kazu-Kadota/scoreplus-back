@@ -1,48 +1,54 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { VehicleRequest } from 'src/models/dynamo/request-vehicle'
-import { ReturnResponse } from 'src/models/lambda'
-import queryVehicleByStatusProcessingWaiting, { QueryVehicleByStatusResponse, ScanVehicleRequest } from 'src/services/aws/dynamo/request/analysis/vehicle/scan'
-import { UserInfoFromJwt } from 'src/utils/extract-jwt-lambda'
-import logger from 'src/utils/logger'
+import { AttributeValue, DynamoDBClient } from '@aws-sdk/client-dynamodb'
+
+import { RequestplusAnalysisVehicle } from '~/models/dynamo/requestplus/analysis-vehicle/table'
+import { Controller } from '~/models/lambda'
+import scanRequestplusAnalysisVehicle, { ScanRequestplusAnalysisVehicleScan } from '~/services/aws/dynamo/request/analysis/vehicle/scan'
+import logger from '~/utils/logger'
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
 
-const requestVehicles = async (user_info: UserInfoFromJwt): Promise<ReturnResponse<any>> => {
-  let last_evaluated_key
-  const scan: ScanVehicleRequest = {}
-  const vehicles: VehicleRequest[] = []
+const requestVehicles: Controller<true> = async (req) => {
+  logger.debug({
+    message: 'Start list vehicles',
+  })
+
+  const user_info = req.user
+
+  let last_evaluated_key: Record<string, AttributeValue> | undefined
+  const scan: ScanRequestplusAnalysisVehicleScan = {}
+  const vehicles: RequestplusAnalysisVehicle[] = []
 
   if (user_info.user_type === 'client') {
     scan.company_name = user_info.company_name
   }
 
   do {
-    const query_result: QueryVehicleByStatusResponse | undefined = await queryVehicleByStatusProcessingWaiting(
+    const scan_result = await scanRequestplusAnalysisVehicle(
       scan,
       dynamodbClient,
       last_evaluated_key,
     )
 
-    if (!query_result) {
+    if (!scan_result) {
       logger.info({
-        message: 'Finish on get vehicles request info',
+        message: 'Finish on list vehicles requests',
       })
 
       return {
         body: {
-          message: 'Finish on query analysis vehicles',
+          message: 'Finish on list vehicles requests',
           vehicles,
         },
       }
     }
 
-    if (query_result?.result) {
-      for (const item of query_result.result) {
+    if (scan_result?.result) {
+      for (const item of scan_result.result) {
         vehicles.push(item)
       }
     }
 
-    last_evaluated_key = query_result.last_evaluated_key
+    last_evaluated_key = scan_result.last_evaluated_key
   } while (last_evaluated_key)
 
   vehicles.sort(
@@ -54,12 +60,12 @@ const requestVehicles = async (user_info: UserInfoFromJwt): Promise<ReturnRespon
   )
 
   logger.info({
-    message: 'Finish on get vehicles request info',
+    message: 'Finish on list vehicles requests',
   })
 
   return {
     body: {
-      message: 'Finish on query analysis vehicles',
+      message: 'Finish on list vehicles requests',
       vehicles,
     },
   }

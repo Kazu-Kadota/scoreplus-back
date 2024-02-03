@@ -3,30 +3,32 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { PlateStateEnum } from 'src/models/dynamo/request-enum'
-import { VehicleRequest } from 'src/models/dynamo/request-vehicle'
+
+import { PlateStateEnum } from '~/models/dynamo/enums/request'
+import { RequestplusAnalysisVehicle } from '~/models/dynamo/requestplus/analysis-vehicle/table'
 import {
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE')
 
-export interface QueryRequestVehicleByPlateQuery {
+export type QueryRequestplusAnalysisVehicleByPlateQuery = {
   plate: string
   plate_state: PlateStateEnum
   company_name?: string
 }
 
-const queryRequestVehicleByPlate = async (
-  query: QueryRequestVehicleByPlateQuery,
+const queryRequestplusAnalysisVehicleByPlate = async (
+  query: QueryRequestplusAnalysisVehicleByPlateQuery,
   dynamodbClient: DynamoDBClient,
-): Promise<VehicleRequest[] | undefined> => {
+): Promise<RequestplusAnalysisVehicle[] | undefined> => {
   logger.debug({
-    message: 'Querying request vehicle by plate',
-    plate: query.plate,
+    message: 'DYNAMODB: Query',
+    table: DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE,
+    ...query,
   })
 
   let filterExpression
@@ -50,9 +52,9 @@ const queryRequestVehicleByPlate = async (
     return undefined
   }
 
-  const result = Items.map((item) => (unmarshall(item) as VehicleRequest))
+  const result = Items.map((item) => (unmarshall(item) as RequestplusAnalysisVehicle))
 
   return result
 }
 
-export default queryRequestVehicleByPlate
+export default queryRequestplusAnalysisVehicleByPlate

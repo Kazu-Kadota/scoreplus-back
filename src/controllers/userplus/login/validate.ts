@@ -1,7 +1,7 @@
 import Joi from 'joi'
 
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
 const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/
 
@@ -10,7 +10,7 @@ export interface LoginRequest {
   password: string
 }
 
-const schema = Joi.object({
+const schema = Joi.object<LoginRequest, true>({
   email: Joi
     .string()
     .email()
@@ -29,9 +29,12 @@ const validateLogin = (
   })
 
   if (error) {
-    logger.error('Error on validate login request')
+    const message = 'Error on validate login request'
+    logger.error({
+      message,
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new BadRequestError(message, error.stack as string)
   }
 
   return value

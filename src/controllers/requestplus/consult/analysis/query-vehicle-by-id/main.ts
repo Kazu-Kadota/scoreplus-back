@@ -1,19 +1,21 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { APIGatewayProxyEvent } from 'aws-lambda'
-import { ReturnResponse } from 'src/models/lambda'
-import { UserInfoFromJwt } from 'src/utils/extract-jwt-lambda'
+
+import { Controller } from '~/models/lambda'
+import logger from '~/utils/logger'
 
 import queryRequestVehicleByIdAdapter from './query-request-vehicle-by-id-adapter'
-
-import validateVehicleParam from './validate-request-vehicle'
+import validateParam from './validate-param'
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
 
-const queryVehicleByIdController = async (
-  event: APIGatewayProxyEvent,
-  user_info: UserInfoFromJwt,
-): Promise<ReturnResponse<any>> => {
-  const { vehicle_id } = validateVehicleParam({ ...event.pathParameters })
+const queryVehicleByIdController: Controller<true> = async (req) => {
+  logger.debug({
+    message: 'Start query vehicle by id',
+  })
+
+  const user_info = req.user
+
+  const { vehicle_id } = validateParam({ ...req.pathParameters })
 
   const request_vehicle = await queryRequestVehicleByIdAdapter(
     vehicle_id,
@@ -21,9 +23,14 @@ const queryVehicleByIdController = async (
     dynamodbClient,
   )
 
+  logger.info({
+    message: 'Finish on query vehicle by id',
+    vehicle: request_vehicle,
+  })
+
   return {
     body: {
-      message: 'Finish on get vehicle request info',
+      message: 'Finish on query vehicle by id',
       vehicle: request_vehicle,
     },
   }

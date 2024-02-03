@@ -1,12 +1,15 @@
 import Joi from 'joi'
-import { UserBody, UserGroupEnum } from 'src/models/dynamo/user'
 
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import { UserGroupEnum } from '~/models/dynamo/enums/user'
+import { UserplusUserBody } from '~/models/dynamo/userplus/user'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
 const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/
 
-const schema = Joi.object({
+export type ValidateRegisterParams = Omit<UserplusUserBody, 'company_id'>
+
+const schema = Joi.object<ValidateRegisterParams, true>({
   user_first_name: Joi
     .string()
     .min(3)
@@ -39,16 +42,19 @@ const schema = Joi.object({
 }).required()
 
 const validateRegister = (
-  data: Partial<UserBody>,
-): UserBody => {
+  data: Partial<ValidateRegisterParams>,
+): ValidateRegisterParams => {
   const { value, error } = schema.validate(data, {
     abortEarly: true,
   })
 
   if (error) {
-    logger.error('Error on validate register request')
+    const message = 'Error on validate register user request'
+    logger.error({
+      message,
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new BadRequestError(message, error.stack as string)
   }
 
   return value

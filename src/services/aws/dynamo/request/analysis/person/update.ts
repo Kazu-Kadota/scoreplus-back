@@ -3,31 +3,33 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall } from '@aws-sdk/util-dynamodb'
-import { PersonRequestKey, PersonRequest, PersonRequestBody } from 'src/models/dynamo/request-person'
+
+import { RequestplusAnalysisPerson, RequestplusAnalysisPersonBody, RequestplusAnalysisPersonKey } from '~/models/dynamo/requestplus/analysis-person/table'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
   createUpdateExpression,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON')
 
 const updateRequestPerson = async (
-  key: PersonRequestKey,
-  body: Partial<PersonRequestBody>,
+  key: RequestplusAnalysisPersonKey,
+  body: Partial<RequestplusAnalysisPersonBody>,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   logger.debug({
-    message: 'Updating request person',
+    message: 'DYNAMODB: UpdateItem',
+    table: DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON,
     ...key,
   })
 
   const now = new Date().toISOString()
 
-  const update: Partial<PersonRequest> = {
+  const update: Partial<RequestplusAnalysisPerson> = {
     ...key,
     ...body,
     updated_at: now,

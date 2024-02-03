@@ -1,29 +1,24 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { SESClient } from '@aws-sdk/client-ses'
-import { APIGatewayProxyEvent } from 'aws-lambda'
-import fsPromises from 'fs/promises'
-import mustache from 'mustache'
-import path from 'path'
-import { ReturnResponse } from 'src/models/lambda'
-import { SESSendEmailOptions } from 'src/models/ses'
-import putRecoveryPassword from 'src/services/aws/dynamo/user/recovery-password/put'
-import sendEmail from 'src/services/aws/ses/text-send'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+
+import { Controller } from '~/models/lambda'
+import putUserplusRecoveryPassword from '~/services/aws/dynamo/user/recovery-password/put'
+import logger from '~/utils/logger'
 
 import createResetToken from './create-reset-token'
 import queryUserByEmailAdapter from './get-user-by-email-adapter'
+import sendRecoveryEmail from './send-recovery-email'
 import validateBody from './validate'
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
 const sesClient = new SESClient({ region: 'us-east-1' })
 
-const recoveryPasswordController = async (event: APIGatewayProxyEvent): Promise<ReturnResponse<any>> => {
+const recoveryPasswordController: Controller<false> = async (req) => {
   logger.debug({
     message: 'Start recovery password path',
   })
 
-  const { email } = validateBody(JSON.parse(event.body ?? ''))
+  const { email } = validateBody(JSON.parse(req.body ?? ''))
 
   const user = await queryUserByEmailAdapter(email, dynamodbClient)
 
@@ -42,34 +37,18 @@ const recoveryPasswordController = async (event: APIGatewayProxyEvent): Promise<
 
   const recovery_token = createResetToken()
 
-  await putRecoveryPassword(
+  await putUserplusRecoveryPassword(
     { recovery_id: recovery_token },
     { expires_at: expires_date, user_id: user.user_id },
     dynamodbClient,
   )
 
-  const url = `${getStringEnv('USER_RECOVERY_KEY_URL')}?recovery_id=${recovery_token}&email=${email}`
-
-  const email_data = {
-    url,
-    expires_date: date.toLocaleString(),
-    destination: email,
-  }
-
-  const file_path = path.join(__dirname, '..', '..', '..', 'templates', 'recovery-password.mustache')
-
-  const template = await fsPromises.readFile(file_path, 'utf-8')
-
-  const body_html = mustache.render(template.toString(), email_data)
-
-  const send_email: SESSendEmailOptions = {
-    destination: email,
-    from: getStringEnv('SCOREPLUS_EMAIL'),
-    subject: 'Recuperação de Senha - System Score Plus',
-    html: body_html,
-  }
-
-  await sendEmail(send_email, sesClient)
+  await sendRecoveryEmail({
+    date,
+    email,
+    recovery_token,
+    sesClient,
+  })
 
   logger.info({
     message: 'Recovery password email send',

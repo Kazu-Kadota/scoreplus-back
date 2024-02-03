@@ -1,16 +1,24 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { User } from 'src/models/dynamo/user'
-import deleteRecoveryPassword from 'src/services/aws/dynamo/user/recovery-password/delete'
-import getRecoveryPassword from 'src/services/aws/dynamo/user/recovery-password/get'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+
+import { UserplusRecoveryPasswordKey } from '~/models/dynamo/userplus/recovery-password'
+import { UserplusUser } from '~/models/dynamo/userplus/user'
+import deleteUserplusRecoveryPassword from '~/services/aws/dynamo/user/recovery-password/delete'
+import getUserplusRecoveryPassword from '~/services/aws/dynamo/user/recovery-password/get'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import ForbiddenError from '~/utils/errors/403-forbidden'
+import NotFoundError from '~/utils/errors/404-not-found'
+import logger from '~/utils/logger'
 
 const validateRecoveryId = async (
   recovery_id: string,
-  user: User,
+  user: UserplusUser,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
-  const recovery_password = await getRecoveryPassword({ recovery_id }, dynamodbClient)
+  const recovery_password_key: UserplusRecoveryPasswordKey = {
+    recovery_id,
+  }
+
+  const recovery_password = await getUserplusRecoveryPassword({ recovery_id }, dynamodbClient)
 
   if (!recovery_password) {
     logger.warn({
@@ -18,13 +26,13 @@ const validateRecoveryId = async (
       recovery_id,
     })
 
-    throw new ErrorHandler('Restauração de senha não encontrada', 404)
+    throw new NotFoundError('Restauração de senha não encontrada')
   }
 
   const now = new Date().toISOString()
 
   if (now > recovery_password.expires_at) {
-    await deleteRecoveryPassword({ recovery_id }, dynamodbClient)
+    await deleteUserplusRecoveryPassword(recovery_password_key, dynamodbClient)
 
     logger.warn({
       message: 'Expired recovery password',
@@ -32,11 +40,11 @@ const validateRecoveryId = async (
       expires_at: recovery_password.expires_at,
     })
 
-    throw new ErrorHandler('Solicitação de troca de senha expirada', 403)
+    throw new ForbiddenError('Solicitação de troca de senha expirada')
   }
 
   if (recovery_password.user_id !== user.user_id) {
-    await deleteRecoveryPassword({ recovery_id }, dynamodbClient)
+    await deleteUserplusRecoveryPassword(recovery_password_key, dynamodbClient)
 
     logger.warn({
       message: 'User is not the same requested to recovery password',
@@ -45,7 +53,7 @@ const validateRecoveryId = async (
       email_user_id: user.user_id,
     })
 
-    throw new ErrorHandler('Usuário do email não é o mesmo solicitado para recuperar a senha', 400)
+    throw new BadRequestError('Usuário do email não é o mesmo solicitado para recuperar a senha')
   }
 }
 

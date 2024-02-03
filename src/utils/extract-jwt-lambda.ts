@@ -1,21 +1,27 @@
-import { APIGatewayProxyEvent } from 'aws-lambda'
+import { APIGatewayProxyEventHeaders } from 'aws-lambda'
 import jwt, { JwtPayload, VerifyOptions } from 'jsonwebtoken'
-import { UserGroupEnum } from 'src/models/dynamo/user'
-import getStringEnv from 'src/utils/get-string-env'
 
-import ErrorHandler from './error-handler'
+import { UserGroupEnum } from '~/models/dynamo/enums/user'
+import getStringEnv from '~/utils/get-string-env'
+
+import InvalidTokenError from './errors/498-invalid-token'
 
 const AUTH_ES256_PRIVATE_KEY = getStringEnv('AUTH_ES256_PRIVATE_KEY')
 
-export interface UserInfoFromJwt {
-  user_type: UserGroupEnum,
-  user_id: string,
+export type UserFromJwt = {
+  api: boolean
+  email: string
+  company_id: string
   company_name: string
+  user_first_name: string
+  user_id: string,
+  user_last_name: string
+  user_type: UserGroupEnum,
 }
 
-const extractJwtLambda = (event: APIGatewayProxyEvent): UserInfoFromJwt | undefined => {
+const extractJwtLambda = (headers: APIGatewayProxyEventHeaders): UserFromJwt | undefined => {
   try {
-    const { Authorization } = event.headers
+    const { Authorization } = headers
 
     if (!Authorization) {
       return
@@ -35,17 +41,27 @@ const extractJwtLambda = (event: APIGatewayProxyEvent): UserInfoFromJwt | undefi
       options,
     ) as JwtPayload
 
+    const api = verify.api
+    const email = verify.email
+    const user_first_name = verify.user_first_name
+    const user_last_name = verify.user_last_name
     const user_type = verify.user_type as UserGroupEnum
     const user_id = verify.sub as string
     const company_name = verify.company_name as string
+    const company_id = verify.company_id as string
 
     return {
+      api,
+      email,
+      user_first_name,
+      user_last_name,
       user_type,
       user_id,
       company_name,
+      company_id,
     }
   } catch {
-    throw new ErrorHandler('Error on verify token', 498)
+    throw new InvalidTokenError('Error on verify token')
   }
 }
 

@@ -1,13 +1,14 @@
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses'
-import { SESSendEmailOptions } from 'src/models/ses'
-import logger from 'src/utils/logger'
+
+import { SESSendEmailOptions } from '~/models/ses'
+import logger from '~/utils/logger'
 
 const sendEmail = async (
   options: SESSendEmailOptions,
   sesClient: SESClient,
 ): Promise<undefined> => {
   logger.debug({
-    message: 'Sending email using SES',
+    message: 'SES: SendingEmail',
     email: options.destination,
   })
 

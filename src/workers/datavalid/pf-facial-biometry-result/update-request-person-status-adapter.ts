@@ -1,11 +1,13 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { CompanySystemConfigEnum } from 'src/models/dynamo/company'
-import { RequestStatusEnum } from 'src/models/dynamo/request-enum'
-import { PersonAnalysisStatus, PersonAnalysisStatusGeneralEnum, PersonRequestBody, PersonRequestKey } from 'src/models/dynamo/request-person'
-import getRequestPerson from 'src/services/aws/dynamo/request/analysis/person/get'
-import updateRequestPerson from 'src/services/aws/dynamo/request/analysis/person/update'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+
+import { CompanyRequestPersonConfigEnum } from '~/models/dynamo/enums/company'
+import { GeneralAnalysisStatusEnum, RequestStatusEnum } from '~/models/dynamo/enums/request'
+import { PersonAnalysisStatus } from '~/models/dynamo/requestplus/analysis-person/status'
+import { RequestplusAnalysisPersonBody, RequestplusAnalysisPersonKey } from '~/models/dynamo/requestplus/analysis-person/table'
+import getRequestplusAnalysisPerson from '~/services/aws/dynamo/request/analysis/person/get'
+import updateRequestPerson from '~/services/aws/dynamo/request/analysis/person/update'
+import ErrorHandler from '~/utils/error-handler'
+import logger from '~/utils/logger'
 
 const updateRequestPersonStatusAdapter = async (
   person_id: string,
@@ -13,12 +15,12 @@ const updateRequestPersonStatusAdapter = async (
   approved: boolean,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
-  const person_request_key: PersonRequestKey = {
+  const person_request_key: RequestplusAnalysisPersonKey = {
     person_id,
     request_id,
   }
 
-  const analysis = await getRequestPerson(person_request_key, dynamodbClient)
+  const analysis = await getRequestplusAnalysisPerson(person_request_key, dynamodbClient)
 
   if (!analysis) {
     logger.warn({
@@ -41,7 +43,7 @@ const updateRequestPersonStatusAdapter = async (
 
   let update_general: boolean = true
 
-  const update_body: Partial<PersonRequestBody> = {
+  const update_body: Partial<RequestplusAnalysisPersonBody> = {
     status: {
       ...analysis.status,
       biometry: RequestStatusEnum.FINISHED,
@@ -50,10 +52,11 @@ const updateRequestPersonStatusAdapter = async (
 
   if (!approved) {
     for (const status of Object.entries(analysis.status)) {
-      const key = status[0] as keyof PersonAnalysisStatus
+      const key = status[0] as keyof PersonAnalysisStatus<false>
 
-      if (key !== CompanySystemConfigEnum.BIOMETRY
-        && key !== PersonAnalysisStatusGeneralEnum.GENERAL) {
+      if (key !== CompanyRequestPersonConfigEnum.BIOMETRY
+        && key !== GeneralAnalysisStatusEnum.GENERAL) {
+          // @ts-ignore
           update_body.status![key] = RequestStatusEnum.CANCELED
       }
     }
@@ -63,8 +66,8 @@ const updateRequestPersonStatusAdapter = async (
     for (const [key, value] of Object.entries(analysis.status)) {
       const company_system_config_value = value as RequestStatusEnum
 
-      if (key !== CompanySystemConfigEnum.BIOMETRY
-        && key !== PersonAnalysisStatusGeneralEnum.GENERAL
+      if (key !== CompanyRequestPersonConfigEnum.BIOMETRY
+        && key !== GeneralAnalysisStatusEnum.GENERAL
         && company_system_config_value !== RequestStatusEnum.FINISHED) {
         update_general = false
         break

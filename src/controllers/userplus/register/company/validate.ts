@@ -1,16 +1,21 @@
 import Joi from 'joi'
+
 import {
-  CompanyBody,
-  CompanyPersonAnalysisConfig,
   CompanyAnalysisConfigNumberEnum,
-  CompanySystemConfig,
-} from 'src/models/dynamo/company'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+} from '~/models/dynamo/enums/company'
+import { PersonStateEnum } from '~/models/dynamo/enums/request'
+import {
+  UserplusCompanyBody,
+  CompanyPersonAnalysisConfig,
+  CompanyRequestVehicleConfig,
+  CompanyRequestPersonConfig,
+} from '~/models/dynamo/userplus/company'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
 const cnpjRegex = /^([0-9]{2}\.?[0-9]{3}\.?[0-9]{3}\/?[0-9]{4}\-?[0-9]{2})$/
 
-const analysis_config_schema = Joi.object<CompanyPersonAnalysisConfig>({
+const analysis_config_schema = Joi.object<CompanyPersonAnalysisConfig, true>({
   hr: Joi
     .number()
     .default(CompanyAnalysisConfigNumberEnum.HR)
@@ -37,21 +42,52 @@ const analysis_config_schema = Joi.object<CompanyPersonAnalysisConfig>({
     .optional(),
 })
 
-const system_config_schema = Joi.object<CompanySystemConfig>({
+const company_config_vehicle_schema = Joi.object<CompanyRequestVehicleConfig, true>({
   antt: Joi
-    .bool()
-    .default(false)
-    .optional(),
-  biometry: Joi
-    .bool()
+    .boolean()
     .required(),
-  serasa: Joi
-    .bool()
-    .default(false)
-    .optional(),
+  ethical: Joi
+    .boolean()
+    .required(),
+  cronotacografo: Joi
+    .boolean()
+    .required(),
+  'plate-history': Joi
+    .boolean()
+    .required(),
 })
 
-const schema = Joi.object<CompanyBody>({
+const company_config_person_schema = Joi.object<CompanyRequestPersonConfig, true>({
+  biometry: Joi
+    .boolean()
+    .required(),
+  'cnh-simple': Joi
+    .boolean()
+    .required(),
+  'cnh-medium': Joi
+    .boolean()
+    .required(),
+  'cnh-advanced': Joi
+    .boolean()
+    .required(),
+  ethical: Joi
+    .boolean()
+    .required(),
+  history: Joi
+    .object<Record<PersonStateEnum, boolean>>()
+    .default({
+      SP: true,
+      BA: true,
+      MG: true,
+      GO: true,
+      SC: true,
+      PR: true,
+      RJ: true,
+    })
+    .required(),
+})
+
+const schema = Joi.object<UserplusCompanyBody, true>({
   cnpj: Joi
     .string()
     .regex(cnpjRegex)
@@ -61,20 +97,24 @@ const schema = Joi.object<CompanyBody>({
     .max(255)
     .required(),
   analysis_config: analysis_config_schema.required(),
-  system_config: system_config_schema.required(),
+  request_vehicle_config: company_config_vehicle_schema.required(),
+  request_person_config: company_config_person_schema.required(),
 }).required()
 
 const validateRegisterCompany = (
-  data: Partial<CompanyBody>,
-): CompanyBody => {
+  data: Partial<UserplusCompanyBody>,
+): UserplusCompanyBody => {
   const { value, error } = schema.validate(data, {
     abortEarly: true,
   })
 
   if (error) {
-    logger.error('Error on validate register request')
+    const message = 'Error on validate register company request'
+    logger.error({
+      message,
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new BadRequestError(message, error.stack as string)
   }
 
   return value

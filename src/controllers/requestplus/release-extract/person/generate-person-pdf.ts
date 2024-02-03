@@ -1,14 +1,13 @@
-import { Company } from 'src/models/dynamo/company'
-import { User } from 'src/models/dynamo/user'
-
 import PdfLayout from '../pdf-components/pdf-layout'
+import { UserplusCompany } from '~/models/dynamo/userplus/company'
+import { UserplusUser } from '~/models/dynamo/userplus/user'
 
 import { PdfPersonRequest } from './format-person-analysis'
 
-export interface PersonPdfData {
-  company: Company;
-  user: User;
-  verification_code: string;
+export type PersonPdfData = {
+  company: UserplusCompany
+  user: UserplusUser
+  verification_code: string
   person_analysis: PdfPersonRequest
 }
 
@@ -33,7 +32,7 @@ const generatePersonPdf = async ({
       items: [{
         finished_at: person_analysis.finished_at,
         validity: person_analysis.validity,
-        analysis_result: person_analysis.analysis_result,
+        analysis_result: person_analysis.result,
         values: [
           { label: 'Nome', text: person_analysis.name },
           { label: 'CPF', text: person_analysis.document },

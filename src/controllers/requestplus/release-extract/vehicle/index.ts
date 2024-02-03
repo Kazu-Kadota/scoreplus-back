@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
-import LambdaHandlerNameSpace from 'src/utils/lambda/handler'
-import logger from 'src/utils/logger'
+
+import LambdaHandlerNameSpace from '~/utils/lambda/handler'
+import logger from '~/utils/logger'
 
 import vehicleReleaseExtractController from './main'
 

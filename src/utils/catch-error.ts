@@ -1,5 +1,6 @@
 import { APIGatewayProxyResult } from 'aws-lambda'
-import { defaultHeaders } from 'src/constants/headers'
+
+import { defaultHeaders } from '~/constants/headers'
 
 import logger from './logger'
 

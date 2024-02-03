@@ -1,11 +1,12 @@
 import { MessageAttributeValue, SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs'
-import ErrorHandler from 'src/utils/error-handler'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+
+import ErrorHandler from '~/utils/error-handler'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const SQS_DATAVALID_FACIAL = getStringEnv('SQS_DATAVALID_FACIAL')
 
-export interface sendMessageParams {
+export type sendMessageParams = {
   message: string
   message_attributes: Record<string, MessageAttributeValue>
   message_group_id: string
@@ -13,7 +14,7 @@ export interface sendMessageParams {
 
 const sendMessage = async (params: sendMessageParams, sqsClient: SQSClient) => {
   logger.debug({
-    message: 'Sending data to SQS',
+    message: 'SQS: SendMessage',
     message_group_id: params.message_group_id,
   })
 

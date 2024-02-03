@@ -1,6 +1,7 @@
 import { MessageAttributeValue, PublishCommand, SNSClient } from '@aws-sdk/client-sns'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const SNS_REQUESTPLUS_THIRD_PARTY_WORKERS_ARN = getStringEnv('SNS_REQUESTPLUS_THIRD_PARTY_WORKERS_ARN')
 
@@ -9,7 +10,7 @@ const publishThirdPartySns = async (
   sns_message_attributes: Record<string, MessageAttributeValue>,
   sns_client: SNSClient) => {
   logger.debug({
-    message: 'Sending message to SNS',
+    message: 'SNS: Publish',
   })
 
   const command = new PublishCommand({

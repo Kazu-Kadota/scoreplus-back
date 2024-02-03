@@ -1,31 +1,31 @@
-import {
-  DynamoDBClient,
-} from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import {
   DynamoDBDocumentClient,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
-import { UserBody, UserKey } from 'src/models/dynamo/user'
+
+import { UserplusUserBody, UserplusUserKey } from '~/models/dynamo/userplus/user'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
   createUpdateExpression,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_USERPLUS_USER = getStringEnv('DYNAMO_TABLE_USERPLUS_USER')
 
-const updateUser = async (
-  key: UserKey,
-  body: Partial<UserBody>,
+const updateUserplusUser = async (
+  key: UserplusUserKey,
+  body: Partial<UserplusUserBody>,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   const dynamoDocClient = DynamoDBDocumentClient.from(dynamodbClient)
   logger.debug({
-    message: 'Updating user in table',
-    user_id: key.user_id,
+    message: 'DYNAMODB: UpdateItem',
+    table: DYNAMO_TABLE_USERPLUS_USER,
+    ...key,
   })
 
   const now = new Date().toISOString()
@@ -48,4 +48,4 @@ const updateUser = async (
   await dynamoDocClient.send(command)
 }
 
-export default updateUser
+export default updateUserplusUser

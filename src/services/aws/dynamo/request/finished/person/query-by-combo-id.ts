@@ -3,25 +3,27 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { ComboReleaseExtractKey } from 'src/models/dynamo/combo'
-import { PersonRequest } from 'src/models/dynamo/request-person'
+
+import { ComboReleaseExtractKey } from '~/models/dynamo/requestplus/combo'
+import { RequestplusFinishedAnalysisPerson } from '~/models/dynamo/requestplus/finished-analysis-person/table'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON')
 
-const queryFinishedRequestPersonByComboId = async (
+const queryRequestplusFinishedAnalysisPersonByComboId = async (
   query: ComboReleaseExtractKey,
   dynamodbClient: DynamoDBClient,
-): Promise<PersonRequest[] | undefined> => {
+): Promise<RequestplusFinishedAnalysisPerson[] | undefined> => {
   logger.debug({
-    message: 'Querying finished request person by combo id',
-    combo_id: query.combo_id,
+    message: 'DYNAMODB: Query',
+    table: DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON,
+    ...query,
   })
 
   const command = new QueryCommand({
@@ -38,9 +40,9 @@ const queryFinishedRequestPersonByComboId = async (
     return undefined
   }
 
-  const result = Items.map((item) => (unmarshall(item) as PersonRequest))
+  const result = Items.map((item) => (unmarshall(item) as RequestplusFinishedAnalysisPerson))
 
   return result
 }
 
-export default queryFinishedRequestPersonByComboId
+export default queryRequestplusFinishedAnalysisPersonByComboId

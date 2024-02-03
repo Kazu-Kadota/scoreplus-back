@@ -1,30 +1,32 @@
 import Joi from 'joi'
 
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
-export interface ValidateAnswerVehicleQuery {
-  vehicle_id: string
+export type ValidateQueryVehicle = {
+  request_id: string
 }
 
-const schema = Joi.object({
-  vehicle_id: Joi
+const schema = Joi.object<ValidateQueryVehicle, true>({
+  request_id: Joi
     .string()
     .uuid()
     .required(),
 }).required()
 
 const validateQueryVehicle = (
-  data: Partial<ValidateAnswerVehicleQuery | undefined>,
-): ValidateAnswerVehicleQuery => {
+  data: Partial<ValidateQueryVehicle>,
+): ValidateQueryVehicle => {
   const { value, error } = schema.validate(data, {
     abortEarly: true,
   })
 
   if (error) {
-    logger.error('Error on validate answer analysis')
+    logger.error({
+      message: 'Error on validate "send answer vehicle" query',
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new BadRequestError('Erro na validação do query para envio da resposta da análise de veículo', error.stack as string)
   }
 
   return value

@@ -1,8 +1,9 @@
 import axios from 'axios'
-import { User } from 'src/models/dynamo/user'
-import ErrorHandler from 'src/utils/error-handler'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+
+import { UserplusUser } from '~/models/dynamo/userplus/user'
+import ErrorHandler from '~/utils/error-handler'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 export interface InvokeLoginParams {
   email: string
@@ -11,7 +12,7 @@ export interface InvokeLoginParams {
 
 export interface InvokeLoginResponse {
   message: string
-  user: User
+  user: UserplusUser
   jwtToken: string
   expires_date: string
 }
@@ -24,6 +25,7 @@ const invokeLogin = async ({
 }: InvokeLoginParams): Promise<InvokeLoginResponse> => {
   logger.debug({
     message: 'SCOREPLUS: Request to login',
+    service: 'userplus',
     password,
     email,
   })

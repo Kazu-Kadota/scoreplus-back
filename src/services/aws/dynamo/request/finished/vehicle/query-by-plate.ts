@@ -3,30 +3,32 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { PlateStateEnum } from 'src/models/dynamo/request-enum'
-import { VehicleRequest } from 'src/models/dynamo/request-vehicle'
+
+import { PlateStateEnum } from '~/models/dynamo/enums/request'
+import { RequestplusFinishedAnalysisVehicle } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
 import {
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE')
 
-export interface QueryFinishedRequestVehicleByPlateQuery {
+export type QueryFinishedRequestVehicleByPlateQuery = {
   plate: string
   plate_state: PlateStateEnum
   company_name?: string
 }
 
-const queryFinishedRequestVehicleByPlate = async (
+const queryRequestplusFinishedAnalysisVehicleByPlate = async (
   query: QueryFinishedRequestVehicleByPlateQuery,
   dynamodbClient: DynamoDBClient,
-): Promise<VehicleRequest[] | undefined> => {
+): Promise<RequestplusFinishedAnalysisVehicle[] | undefined> => {
   logger.debug({
-    message: 'Querying finished request vehicle by plate',
-    plate: query.plate,
+    message: 'DYNAMODB: Query',
+    table: DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE,
+    ...query,
   })
 
   let filterExpression
@@ -50,9 +52,9 @@ const queryFinishedRequestVehicleByPlate = async (
     return undefined
   }
 
-  const result = Items.map((item) => (unmarshall(item) as VehicleRequest))
+  const result = Items.map((item) => (unmarshall(item) as RequestplusFinishedAnalysisVehicle))
 
   return result
 }
 
-export default queryFinishedRequestVehicleByPlate
+export default queryRequestplusFinishedAnalysisVehicleByPlate

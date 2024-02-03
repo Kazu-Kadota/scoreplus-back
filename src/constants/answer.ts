@@ -1,4 +1,4 @@
-import { AnalysisResultEnum } from 'src/models/dynamo/answer'
+import { AnalysisResultEnum } from '~/models/dynamo/enums/request'
 
 export const analysisResultStrings = {
   [AnalysisResultEnum.APPROVED]: 'adequado ao risco',

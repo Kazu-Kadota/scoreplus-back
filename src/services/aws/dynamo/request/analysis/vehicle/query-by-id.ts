@@ -3,28 +3,30 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { VehicleRequest } from 'src/models/dynamo/request-vehicle'
+
+import { RequestplusAnalysisVehicle } from '~/models/dynamo/requestplus/analysis-vehicle/table'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE')
 
-export interface QueryRequestVehicleByIdQuery {
+export type QueryRequestplusAnalysisVehicleByIdQuery = {
   vehicle_id: string
 }
 
-const queryRequestVehicleById = async (
-  query: QueryRequestVehicleByIdQuery,
+const queryRequestplusAnalysisVehicleById = async (
+  query: QueryRequestplusAnalysisVehicleByIdQuery,
   dynamodbClient: DynamoDBClient,
-): Promise<VehicleRequest[] | undefined> => {
+): Promise<RequestplusAnalysisVehicle[] | undefined> => {
   logger.debug({
-    message: 'Querying request vehicle by vehicle_id',
-    vehicle_id: query.vehicle_id,
+    message: 'DYNAMODB: Query',
+    table: DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE,
+    ...query,
   })
 
   const command = new QueryCommand({
@@ -41,9 +43,9 @@ const queryRequestVehicleById = async (
     return undefined
   }
 
-  const result = Items.map((item) => (unmarshall(item) as VehicleRequest))
+  const result = Items.map((item) => (unmarshall(item) as RequestplusAnalysisVehicle))
 
   return result
 }
 
-export default queryRequestVehicleById
+export default queryRequestplusAnalysisVehicleById

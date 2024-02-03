@@ -3,32 +3,35 @@ import {
   GetItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
-import { RecoveryPasswordKey, RecoveryPassword } from 'src/models/dynamo/users/recovery-password'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+
+import { UserplusRecoveryPassword, UserplusRecoveryPasswordKey } from '~/models/dynamo/userplus/recovery-password'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD = getStringEnv('DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD')
 
-const getRecoveryPassword = async (
-  key: RecoveryPasswordKey,
+const getUserplusRecoveryPassword = async (
+  key: UserplusRecoveryPasswordKey,
   dynamodbClient: DynamoDBClient,
-): Promise<RecoveryPassword | undefined> => {
+): Promise<UserplusRecoveryPassword | undefined> => {
   logger.debug({
-    message: 'Getting recovery password by id',
-    recovery_id: key.recovery_id,
+    message: 'DYNAMODB: GetItem',
+    table: DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD,
+    ...key,
   })
 
   const command = new GetItemCommand({
     TableName: DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD,
     Key: marshall(key),
   })
+
   const result = await dynamodbClient.send(command)
 
   if (!result.Item) {
     return undefined
   }
 
-  return unmarshall(result.Item) as RecoveryPassword
+  return unmarshall(result.Item) as UserplusRecoveryPassword
 }
 
-export default getRecoveryPassword
+export default getUserplusRecoveryPassword

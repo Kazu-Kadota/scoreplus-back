@@ -1,8 +1,8 @@
 import dayjs from 'dayjs'
 import pdf from 'pdfjs'
 
-import { analysisResultStrings } from 'src/constants/answer'
-import { AnalysisResultEnum } from 'src/models/dynamo/answer'
+import { analysisResultStrings } from '~/constants/answer'
+import { AnalysisResultEnum } from '~/models/dynamo/enums/request'
 
 import PdfBoxInfo, { PdfBoxInfoData, PdfBoxInfoSize } from './pdf-box-info'
 import PdfBoxTitle from './pdf-box-title'

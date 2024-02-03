@@ -3,46 +3,49 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { Company } from 'src/models/dynamo/company'
+
+import { UserplusCompany } from '~/models/dynamo/userplus/company'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_USERPLUS_COMPANY = getStringEnv('DYNAMO_TABLE_USERPLUS_COMPANY')
 
-const queryCompanyByName = async (
-  name: string,
-  dynamodbClient: DynamoDBClient,
-): Promise<Company[] | undefined> => {
-  logger.debug({
-    message: 'Querying company by name',
-    name,
-  })
+export type QueryUserplusCompanyByName = {
+  name: string
+}
 
-  const key = {
-    name,
-  }
+const queryUserplusCompanyByName = async (
+  query: QueryUserplusCompanyByName,
+  dynamodbClient: DynamoDBClient,
+): Promise<UserplusCompany[] | undefined> => {
+  logger.debug({
+    message: 'DYNAMODB: Query',
+    table: DYNAMO_TABLE_USERPLUS_COMPANY,
+    ...query,
+  })
 
   const command = new QueryCommand({
     TableName: DYNAMO_TABLE_USERPLUS_COMPANY,
     IndexName: 'name-index',
-    KeyConditionExpression: createConditionExpression(key, true),
-    ExpressionAttributeNames: createExpressionAttributeNames(key),
-    ExpressionAttributeValues: createExpressionAttributeValues(key),
+    KeyConditionExpression: createConditionExpression(query, true),
+    ExpressionAttributeNames: createExpressionAttributeNames(query),
+    ExpressionAttributeValues: createExpressionAttributeValues(query),
   })
+
   const { Items } = await dynamodbClient.send(command)
 
   if (!Items) {
     return undefined
   }
 
-  const result = Items.map((item) => (unmarshall(item) as Company))
+  const result = Items.map((item) => (unmarshall(item) as UserplusCompany))
 
   return result
 }
 
-export default queryCompanyByName
+export default queryUserplusCompanyByName

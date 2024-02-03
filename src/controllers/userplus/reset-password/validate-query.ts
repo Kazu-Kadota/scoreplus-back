@@ -1,14 +1,14 @@
 import Joi from 'joi'
 
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
-export interface ResetPasswordQueryRequest {
+export type ResetPasswordQueryRequest = {
   email: string
   recovery_id: string
 }
 
-const schema = Joi.object({
+const schema = Joi.object<ResetPasswordQueryRequest, true>({
   email: Joi
     .string()
     .email()
@@ -26,9 +26,12 @@ const validateQuery = (
   })
 
   if (error) {
-    logger.error('Error on validate login request')
+    const message = 'Error on validate reset password query request'
+    logger.error({
+      message,
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new BadRequestError(message, error.stack as string)
   }
 
   return value

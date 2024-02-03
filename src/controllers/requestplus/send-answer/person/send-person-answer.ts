@@ -1,144 +1,153 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { AnalysisResultEnum } from 'src/models/dynamo/answer'
-import { PersonKey } from 'src/models/dynamo/person'
-import { RequestStatusEnum } from 'src/models/dynamo/request-enum'
-import { PersonRequest, PersonRequestKey } from 'src/models/dynamo/request-person'
-import getPerson from 'src/services/aws/dynamo/analysis/person/get'
-import putPerson from 'src/services/aws/dynamo/analysis/person/put'
-import updatePerson from 'src/services/aws/dynamo/analysis/person/update'
-import deleteRequestPerson from 'src/services/aws/dynamo/request/analysis/person/delete'
-import putFinishedRequestPerson from 'src/services/aws/dynamo/request/finished/person/put'
-import removeEmpty from 'src/utils/remove-empty'
+
+import { AnalysisplusPeopleKey } from '~/models/dynamo/analysisplus/people/table'
+import { RequestplusAnalysisPersonBody, RequestplusAnalysisPersonKey } from '~/models/dynamo/requestplus/analysis-person/table'
+import { RequestplusFinishedAnalysisPersonBody, RequestplusFinishedAnalysisPersonKey } from '~/models/dynamo/requestplus/finished-analysis-person/table'
+import getAnalysisplusPeople from '~/services/aws/dynamo/analysis/person/get'
+import putAnalysisplusPeople from '~/services/aws/dynamo/analysis/person/put'
+import updateAnalysisplusPeople from '~/services/aws/dynamo/analysis/person/update'
+import deleteRequestplusAnalysisPerson from '~/services/aws/dynamo/request/analysis/person/delete'
+import updateRequestPerson from '~/services/aws/dynamo/request/analysis/person/update'
+import putRequestplusFinishedAnalysisPerson from '~/services/aws/dynamo/request/finished/person/put'
+import removeEmpty from '~/utils/remove-empty'
 
 import getRequestPersonAdapter from './get-request-person-adapter'
 import personConstructor from './person-constructor'
 import updatePersonConstructor from './update-person-constructor'
-import verifyRequestStatus from './verify-request-status'
+import { ValidateSendAnswerPersonBody } from './validate-body'
+import verifyRequestStatus, { VerifyPersonRequestStatusParams } from './verify-request-status'
 
-export interface SendPersonAnswer {
+export type SendPersonAnswerParams = {
+  answers_body: ValidateSendAnswerPersonBody[]
   request_id: string
-  analysis_info?: string
-  analysis_result: AnalysisResultEnum
   person_id: string
+  dynamodbClient: DynamoDBClient
 }
 
-const sendPersonAnswer = async (
-  data: SendPersonAnswer,
-  dynamodbClient: DynamoDBClient,
-): Promise<void> => {
-  const {
-    request_id,
-    analysis_info,
-    analysis_result,
-    person_id,
-  } = data
-
-  const request_person_key: PersonRequestKey = {
+const sendPersonAnswer = async ({
+  dynamodbClient,
+  person_id,
+  request_id,
+  answers_body,
+}: SendPersonAnswerParams): Promise<void> => {
+  const request_person_key: RequestplusAnalysisPersonKey = {
     person_id,
     request_id,
   }
 
   const request_person = await getRequestPersonAdapter(request_person_key, dynamodbClient)
 
-  verifyRequestStatus(request_person)
+  const verify_request_status_params: VerifyPersonRequestStatusParams = {
+    answers_body,
+    person_id: request_person.person_id,
+    request_id: request_person.request_id,
+    request_person_status: request_person.status,
+    person_analysis_options: request_person.person_analysis_options,
+  }
 
   const {
-    company_name,
-    person_analysis_type,
-    region_type,
-    region,
-  } = request_person
+    is_finished,
+    status,
+    person_analysis_options,
+    is_all_approved,
+  } = verifyRequestStatus(verify_request_status_params)
 
   const now = new Date().toISOString()
 
-  const finished_request: PersonRequest = removeEmpty({
-    ...request_person,
-    finished_at: now,
-    status: {
-      general: RequestStatusEnum.FINISHED,
-    },
-    analysis_info,
-    analysis_result,
-  })
-
-  const finished_request_key: PersonRequestKey = {
-    person_id,
-    request_id,
-  }
-
-  await putFinishedRequestPerson(finished_request_key, finished_request, dynamodbClient)
-
-  const get_person_key: PersonKey = {
-    person_id: request_person.person_id,
-    document: request_person.document,
-  }
-
-  const person = await getPerson(get_person_key, dynamodbClient)
-
-  const isApproved = analysis_result === AnalysisResultEnum.APPROVED
-
-  if (person) {
-    const person_constructor = updatePersonConstructor({
-      company_name,
-      isApproved,
-      now,
-      person,
-      person_analysis_type,
-      region_type,
-      request_person,
-      analysis_info,
-      region,
-    })
-
-    const { person_id, document, ...person_body } = person_constructor
-
-    const person_key: PersonKey = {
-      person_id,
-      document,
+  if (is_finished) {
+    const person_key: AnalysisplusPeopleKey = {
+      person_id: request_person.person_id,
+      document: request_person.document,
     }
 
-    await updatePerson(person_key, person_body, dynamodbClient)
+    const person = await getAnalysisplusPeople(person_key, dynamodbClient)
 
-    const person_request_key: PersonRequestKey = {
+    const person_request_key: RequestplusAnalysisPersonKey = {
       request_id: request_person.request_id,
       person_id: request_person.person_id,
     }
 
-    await deleteRequestPerson(person_request_key, dynamodbClient)
+    if (person) {
+      const person_constructor = updatePersonConstructor({
+        now,
+        person_analysis_options,
+        request_person,
+        person,
+      })
+
+      const {
+        person_id: person_id_constructor,
+        document,
+        ...person_body
+      } = person_constructor
+
+      const finished_request_key: RequestplusFinishedAnalysisPersonKey = {
+        person_id,
+        request_id,
+      }
+
+      const finished_request_body: RequestplusFinishedAnalysisPersonBody = removeEmpty({
+        ...request_person,
+        person_analysis_options,
+        status,
+        result: is_all_approved,
+      })
+
+      await putRequestplusFinishedAnalysisPerson(
+        finished_request_key,
+        finished_request_body,
+        dynamodbClient,
+      )
+
+      await updateAnalysisplusPeople(person_key, person_body, dynamodbClient)
+
+      await deleteRequestplusAnalysisPerson(person_request_key, dynamodbClient)
+
+      return
+    }
+    const person_constructor = personConstructor({
+      now,
+      person_analysis_options,
+      request_person,
+    })
+
+    const {
+      person_id: person_id_constructor,
+      document,
+      ...person_body
+    } = person_constructor
+
+    const finished_request_key: RequestplusFinishedAnalysisPersonKey = {
+      person_id,
+      request_id,
+    }
+
+    const finished_request_body: RequestplusFinishedAnalysisPersonBody = removeEmpty({
+      ...request_person,
+      person_analysis_options,
+      status,
+      result: is_all_approved,
+    })
+
+    await putRequestplusFinishedAnalysisPerson(
+      finished_request_key,
+      finished_request_body,
+      dynamodbClient,
+    )
+
+    await putAnalysisplusPeople(person_key, person_body, dynamodbClient)
+
+    await deleteRequestplusAnalysisPerson(person_request_key, dynamodbClient)
 
     return
   }
 
-  const person_constructor = personConstructor({
-    analysis_info,
-    company_name,
-    isApproved,
-    now,
-    person_analysis_type,
-    region_type,
-    request_person,
-    region,
-  })
-
-  const {
-    person_id: person_id_constructor,
-    document,
-    ...person_body
-  } = person_constructor
-
-  const person_key: PersonKey = {
-    person_id: person_id_constructor,
-    document,
+  const update_body: Partial<RequestplusAnalysisPersonBody> = {
+    status,
+    person_analysis_options,
   }
 
-  await putPerson(person_key, person_body, dynamodbClient)
-
-  const person_request_key: PersonRequestKey = {
-    request_id: request_person.request_id,
-    person_id: request_person.person_id,
-  }
-
-  await deleteRequestPerson(person_request_key, dynamodbClient)
+  await updateRequestPerson(request_person_key, update_body, dynamodbClient)
 }
 
 export default sendPersonAnswer

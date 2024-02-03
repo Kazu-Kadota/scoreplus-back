@@ -1,48 +1,54 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { PersonRequest } from 'src/models/dynamo/request-person'
-import { ReturnResponse } from 'src/models/lambda'
-import scanPeople, { ScanPeopleRequest, ScanPeopleResponse } from 'src/services/aws/dynamo/request/analysis/person/scan'
-import { UserInfoFromJwt } from 'src/utils/extract-jwt-lambda'
-import logger from 'src/utils/logger'
+import { AttributeValue, DynamoDBClient } from '@aws-sdk/client-dynamodb'
+
+import { RequestplusAnalysisPerson } from '~/models/dynamo/requestplus/analysis-person/table'
+import { Controller } from '~/models/lambda'
+import scanRequestplusAnalysisPerson, { ScanRequestplusAnalysisPersonScan } from '~/services/aws/dynamo/request/analysis/person/scan'
+import logger from '~/utils/logger'
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
 
-const listPeopleController = async (user_info: UserInfoFromJwt): Promise<ReturnResponse<any>> => {
-  let last_evaluated_key
-  const scan: ScanPeopleRequest = {}
-  const people: PersonRequest[] = []
+const listPeopleController: Controller<true> = async (req) => {
+  logger.debug({
+    message: 'Start list people requests',
+  })
+
+  const user_info = req.user
+
+  let last_evaluated_key: Record<string, AttributeValue> | undefined
+  const scan: ScanRequestplusAnalysisPersonScan = {}
+  const people: RequestplusAnalysisPerson[] = []
 
   if (user_info.user_type === 'client') {
     scan.company_name = user_info.company_name
   }
 
   do {
-    const query_result: ScanPeopleResponse | undefined = await scanPeople(
+    const scan_result = await scanRequestplusAnalysisPerson(
       scan,
       dynamodbClient,
       last_evaluated_key,
     )
 
-    if (!query_result) {
+    if (!scan_result) {
       logger.info({
-        message: 'Finish on get people request info',
+        message: 'Finish on list people requests',
       })
 
       return {
         body: {
-          message: 'Finish on query analysis people',
+          message: 'Finish on list people requests',
           people,
         },
       }
     }
 
-    if (query_result?.result) {
-      for (const item of query_result.result) {
+    if (scan_result.result) {
+      for (const item of scan_result.result) {
         people.push(item)
       }
     }
 
-    last_evaluated_key = query_result.last_evaluated_key
+    last_evaluated_key = scan_result.last_evaluated_key
   } while (last_evaluated_key)
 
   people.sort(
@@ -54,12 +60,12 @@ const listPeopleController = async (user_info: UserInfoFromJwt): Promise<ReturnR
   )
 
   logger.info({
-    message: 'Finish on get people request info',
+    message: 'Finish on list people requests',
   })
 
   return {
     body: {
-      message: 'Finish on query analysis people',
+      message: 'Finish on list people requests',
       people,
     },
   }

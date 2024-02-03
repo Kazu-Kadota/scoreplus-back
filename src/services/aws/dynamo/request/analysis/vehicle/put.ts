@@ -3,31 +3,36 @@ import {
   PutItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall } from '@aws-sdk/util-dynamodb'
-import { VehicleRequest, VehicleRequestBody, VehicleRequestKey } from 'src/models/dynamo/request-vehicle'
+
+import {
+  RequestplusAnalysisVehicle,
+  RequestplusAnalysisVehicleBody,
+  RequestplusAnalysisVehicleKey,
+} from '~/models/dynamo/requestplus/analysis-vehicle/table'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE = getStringEnv('DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE')
 
-const putRequestVehicle = async (
-  key: VehicleRequestKey,
-  body: VehicleRequestBody,
+const putRequestplusAnalysisVehicle = async (
+  key: RequestplusAnalysisVehicleKey,
+  body: RequestplusAnalysisVehicleBody,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   logger.debug({
-    message: 'Registering request vehicle',
-    company_name: body.company_name,
-    plate: body.plate,
+    message: 'DYNAMODB: PutItem',
+    table: DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE,
+    ...key,
   })
 
   const now = new Date().toISOString()
 
-  const put: VehicleRequest = {
+  const put: RequestplusAnalysisVehicle = {
     ...key,
     ...body,
     created_at: now,
@@ -45,4 +50,4 @@ const putRequestVehicle = async (
   await dynamodbClient.send(command)
 }
 
-export default putRequestVehicle
+export default putRequestplusAnalysisVehicle

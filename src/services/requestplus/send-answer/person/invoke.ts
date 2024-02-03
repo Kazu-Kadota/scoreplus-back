@@ -1,12 +1,13 @@
 import axios from 'axios'
-import { AnalysisResultEnum } from 'src/models/dynamo/answer'
-import ErrorHandler from 'src/utils/error-handler'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+
+import { AnalysisResultEnum } from '~/models/dynamo/enums/request'
+import ErrorHandler from '~/utils/error-handler'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 import sendAnswerHeaders from './formater/headers'
 
-export interface InvokeSendAnswerParams {
+export type InvokeSendAnswerParams = {
   analysis_info: string
   analysis_result: AnalysisResultEnum
   person_id: string
@@ -25,6 +26,7 @@ const invokeSendAnswer = async ({
 }: InvokeSendAnswerParams) => {
   logger.debug({
     message: 'SCOREPLUS: Request to send answer',
+    service: 'requestplus',
     request_id,
     person_id,
   })

@@ -1,26 +1,27 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { User, UserKey } from 'src/models/dynamo/user'
-import getUser from 'src/services/aws/dynamo/user/user/get'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+
+import { UserplusUser, UserplusUserKey } from '~/models/dynamo/userplus/user'
+import getUserplusUser from '~/services/aws/dynamo/user/user/get'
+import NotFoundError from '~/utils/errors/404-not-found'
+import logger from '~/utils/logger'
 
 const getUserAdapter = async (
   user_id: string,
   dynamodbClient: DynamoDBClient,
-): Promise<User> => {
-  const user_key: UserKey = {
+): Promise<UserplusUser> => {
+  const user_key: UserplusUserKey = {
     user_id,
   }
 
-  const user = await getUser(user_key, dynamodbClient)
+  const user = await getUserplusUser(user_key, dynamodbClient)
 
   if (!user) {
     logger.warn({
       message: 'User not found',
-      user_id: user_key.user_id,
+      user_id,
     })
 
-    throw new ErrorHandler('Usuário não encontrado', 404)
+    throw new NotFoundError('Usuário não encontrado')
   }
 
   return user

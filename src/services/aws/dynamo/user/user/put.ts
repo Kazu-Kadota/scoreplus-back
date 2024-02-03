@@ -3,30 +3,36 @@ import {
   PutItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall } from '@aws-sdk/util-dynamodb'
-import { UserBody, UserKey } from 'src/models/dynamo/user'
+
+import {
+  UserplusUser,
+  UserplusUserBody,
+  UserplusUserKey,
+} from '~/models/dynamo/userplus/user'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_USERPLUS_USER = getStringEnv('DYNAMO_TABLE_USERPLUS_USER')
 
-const putUser = async (
-  key: UserKey,
-  body: UserBody,
+const putUserplusUser = async (
+  key: UserplusUserKey,
+  body: UserplusUserBody,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   logger.debug({
-    message: 'Putting user in table',
-    email: body.email,
+    message: 'DYNAMODB: PutItem',
+    table: DYNAMO_TABLE_USERPLUS_USER,
+    ...key,
   })
 
   const now = new Date().toISOString()
 
-  const user = {
+  const user: UserplusUser = {
     ...key,
     ...body,
     created_at: now,
@@ -44,4 +50,4 @@ const putUser = async (
   await dynamodbClient.send(command)
 }
 
-export default putUser
+export default putUserplusUser

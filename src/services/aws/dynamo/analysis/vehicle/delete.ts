@@ -3,25 +3,26 @@ import {
   DeleteItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall } from '@aws-sdk/util-dynamodb'
-import { VehicleKey } from 'src/models/dynamo/vehicle'
+
+import { AnalysisplusVehiclesKey } from '~/models/dynamo/analysisplus/vehicle/table'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
   createExpressionAttributeValues,
-} from 'src/utils/dynamo/expression'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+} from '~/utils/dynamo/expression'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_ANALYSISPLUS_VEHICLES = getStringEnv('DYNAMO_TABLE_ANALYSISPLUS_VEHICLES')
 
-const deleteVehicle = async (
-  key: VehicleKey,
+const deleteAnalysisplusVehicles = async (
+  key: AnalysisplusVehiclesKey,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   logger.debug({
-    message: 'Deleting vehicle from vehicle',
-    vehicle_id: key.vehicle_id,
-    plate: key.plate,
+    message: 'DYNAMODB: DeleteItem',
+    table: DYNAMO_TABLE_ANALYSISPLUS_VEHICLES,
+    ...key,
   })
 
   const command = new DeleteItemCommand({
@@ -35,4 +36,4 @@ const deleteVehicle = async (
   await dynamodbClient.send(command)
 }
 
-export default deleteVehicle
+export default deleteAnalysisplusVehicles

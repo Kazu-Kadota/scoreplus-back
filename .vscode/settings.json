@@ -12,20 +12,21 @@
     ],
     "editor.defaultFormatter": null,
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
+      "source.fixAll.eslint": "explicit"
     }
   },
   "editor.defaultFormatter": null,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
+    "source.fixAll.eslint": "explicit"
   },
   "editor.tabSize": 2,
   "cSpell.words": [
     "analysisplus",
     "infraplus",
+    "renavam",
     "reportplus",
     "requestplus",
-    "userplus",
-    "scoreplus"
+    "scoreplus",
+    "userplus"
   ],
 }

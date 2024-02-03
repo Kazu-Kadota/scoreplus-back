@@ -3,32 +3,35 @@ import {
   GetItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
-import { Company, CompanyKey } from 'src/models/dynamo/company'
-import getStringEnv from 'src/utils/get-string-env'
-import logger from 'src/utils/logger'
+
+import { UserplusCompany, UserplusCompanyKey } from '~/models/dynamo/userplus/company'
+import getStringEnv from '~/utils/get-string-env'
+import logger from '~/utils/logger'
 
 const DYNAMO_TABLE_USERPLUS_COMPANY = getStringEnv('DYNAMO_TABLE_USERPLUS_COMPANY')
 
-const getCompany = async (
-  key: CompanyKey,
+const getUserplusCompany = async (
+  key: UserplusCompanyKey,
   dynamodbClient: DynamoDBClient,
-): Promise<Company | undefined> => {
+): Promise<UserplusCompany | undefined> => {
   logger.debug({
-    message: 'Getting company by user id',
-    company_id: key.company_id,
+    message: 'DYNAMODB: GetItem',
+    table: DYNAMO_TABLE_USERPLUS_COMPANY,
+    ...key,
   })
 
   const command = new GetItemCommand({
     TableName: DYNAMO_TABLE_USERPLUS_COMPANY,
     Key: marshall(key),
   })
+
   const result = await dynamodbClient.send(command)
 
   if (!result.Item) {
     return undefined
   }
 
-  return unmarshall(result.Item) as Company
+  return unmarshall(result.Item) as UserplusCompany
 }
 
-export default getCompany
+export default getUserplusCompany

@@ -1,10 +1,11 @@
 import { compareSync } from 'bcryptjs'
-import { User } from 'src/models/dynamo/user'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+
+import { UserplusUser } from '~/models/dynamo/userplus/user'
+import ErrorHandler from '~/utils/error-handler'
+import logger from '~/utils/logger'
 
 const validatePassword = (
-  user: User,
+  user: UserplusUser,
   password: string,
 ): void => {
   logger.debug({

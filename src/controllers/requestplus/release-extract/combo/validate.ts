@@ -1,10 +1,10 @@
 import Joi from 'joi'
-import { ComboReleaseExtractKey } from 'src/models/dynamo/combo'
 
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import { ComboReleaseExtractKey } from '~/models/dynamo/requestplus/combo'
+import BadRequestError from '~/utils/errors/400-bad-request'
+import logger from '~/utils/logger'
 
-const schema = Joi.object<ComboReleaseExtractKey>({
+const schema = Joi.object<ComboReleaseExtractKey, true>({
   combo_id: Joi
     .string()
     .uuid()
@@ -19,9 +19,11 @@ const validateComboReleaseExtract = (
   })
 
   if (error) {
-    logger.error('Error on validate "person release extract" body')
+    logger.error({
+      message: 'Error on validate combo release extract body',
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new BadRequestError('Erro na validação do body para solicitação do extrato de liberação de combo', error.stack as string)
   }
 
   return value
