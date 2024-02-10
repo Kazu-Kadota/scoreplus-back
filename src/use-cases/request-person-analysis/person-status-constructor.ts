@@ -31,8 +31,10 @@ const personStatusConstructor = (
           },
         )
       }
-    } else {
+    } else if (analysis_key === CompanyRequestPersonConfigEnum.ETHICAL) {
       status[analysis_key] = RequestStatusEnum.WAITING
+    } else {
+      status[analysis_key] = RequestStatusEnum.PROCESSING
     }
   }
 

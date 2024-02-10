@@ -12,7 +12,15 @@ const vehicleStatusConstructor = (
 
   for (const analysis of Object.keys(vehicle_analysis_options)) {
     const analysis_key = analysis as CompanyRequestVehicleConfigEnum
-    status[analysis_key] = RequestStatusEnum.WAITING
+
+    const is_manual_response = analysis_key === CompanyRequestVehicleConfigEnum.ETHICAL
+    || analysis_key === CompanyRequestVehicleConfigEnum.PLATE_HISTORY
+
+    if (is_manual_response) {
+      status[analysis_key] = RequestStatusEnum.WAITING
+    } else {
+      status[analysis_key] = RequestStatusEnum.PROCESSING
+    }
   }
 
   return status
