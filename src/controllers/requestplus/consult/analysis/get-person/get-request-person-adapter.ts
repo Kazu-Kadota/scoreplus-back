@@ -1,5 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
+import { UserGroupEnum } from '~/models/dynamo/enums/user'
+
 import {
   RequestplusAnalysisPerson,
   RequestplusAnalysisPersonKey,
@@ -37,8 +39,8 @@ const getRequestPersonAdapter = async ({
   const request_person = await getRequestplusAnalysisPerson(key, dynamodbClient)
 
   if (request_person) {
-    const is_admin_request = user_info.user_type === 'admin'
-    if (!is_admin_request && user_info.company_name === request_person.company_name) {
+    const is_client_request = user_info.user_type === UserGroupEnum.CLIENT
+    if (is_client_request && user_info.company_name !== request_person.company_name) {
       logger.warn({
         message: 'Person not requested by company to be analyzed',
         company_name: user_info,
@@ -55,8 +57,8 @@ const getRequestPersonAdapter = async ({
   const finished_person = await getRequestplusFinishedAnalysisPerson(key, dynamodbClient)
 
   if (finished_person) {
-    const is_admin_request = user_info.user_type === 'admin'
-    if (!is_admin_request && user_info.company_name === finished_person.company_name) {
+    const is_client_request = user_info.user_type === UserGroupEnum.CLIENT
+    if (is_client_request && user_info.company_name !== finished_person.company_name) {
       logger.warn({
         message: 'Person not requested by company to be analyzed',
         company_name: user_info,
