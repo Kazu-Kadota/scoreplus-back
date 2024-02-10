@@ -1,5 +1,6 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
+import { UserGroupEnum } from '~/models/dynamo/enums/user'
 import { RequestplusAnalysisVehicle, RequestplusAnalysisVehicleKey } from '~/models/dynamo/requestplus/analysis-vehicle/table'
 import { RequestplusFinishedAnalysisVehicle, RequestplusFinishedAnalysisVehicleKey } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
 import getRequestplusAnalysisVehicle from '~/services/aws/dynamo/request/analysis/vehicle/get'
@@ -31,8 +32,8 @@ const getRequestVehicleAdapter = async ({
   const request_vehicle = await getRequestplusAnalysisVehicle(key, dynamodbClient)
 
   if (request_vehicle) {
-    const is_admin_request = user_info.user_type === 'admin'
-    if (!is_admin_request && user_info.company_name === request_vehicle.company_name) {
+    const is_client_request = user_info.user_type === UserGroupEnum.CLIENT
+    if (is_client_request && user_info.company_name !== request_vehicle.company_name) {
       logger.warn({
         message: 'Vehicle not requested by company to be analyzed',
         request_id: key.request_id,
@@ -48,8 +49,8 @@ const getRequestVehicleAdapter = async ({
   const finished_vehicle = await getRequestplusFinishedAnalysisVehicle(key, dynamodbClient)
 
   if (finished_vehicle) {
-    const is_admin_request = user_info.user_type === 'admin'
-    if (!is_admin_request && user_info.company_name === finished_vehicle.company_name) {
+    const is_client_request = user_info.user_type === UserGroupEnum.CLIENT
+    if (is_client_request && user_info.company_name !== finished_vehicle.company_name) {
       logger.warn({
         message: 'Vehicle not requested by company to be analyzed',
         request_id: key.request_id,
