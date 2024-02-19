@@ -12,6 +12,7 @@ import generateComboPdf from './generate-combo-pdf'
 import getFinishedPersonAnalysisAdapter from './get-finished-person-analysis-adapter'
 import getFinishedVehicleAnalysisAdapter from './get-finished-vehicle-analysis-adapter'
 import validateComboReleaseExtract from './validate'
+import verifyIsFinishedAnalysis from './verify-is-finished-analysis'
 
 const dynamodbClient = new DynamoDBClient({
   region: 'us-east-1',
@@ -24,6 +25,8 @@ const comboReleaseExtractController: Controller<true> = async (req) => {
   })
 
   const params = validateComboReleaseExtract({ ...req.queryStringParameters })
+
+  await verifyIsFinishedAnalysis(params, dynamodbClient)
 
   const person_analysis = await getFinishedPersonAnalysisAdapter(params, dynamodbClient)
   const vehicle_analysis = await getFinishedVehicleAnalysisAdapter(params, dynamodbClient)
