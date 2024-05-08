@@ -1,10 +1,10 @@
 import { StateEnum } from '../../dynamo/enums/request'
 
-export interface PFKey {
+export type PFBasicKey = {
   cpf: string
 }
 
-export interface CNHAnswer {
+export type CNHAnswer = {
   numero_registro: string
   categoria: string
   codigo_situacao: '2' | '3' | 'A' // 2 - em emissão, 3 - emitida, A - cancelada
@@ -16,19 +16,19 @@ export interface CNHAnswer {
   observacoes: string
 }
 
-export interface FiliacaoAnswer {
+export type FiliacaoAnswer = {
   nome_mae: string
   nome_pai: string
 }
 
-export interface DocumentoAnswer {
+export type DocumentoAnswer = {
   tipo: 1 | 2 | 3 | 4 // 1 - carteira de identidade, 2 - carteira profissional, 3 - passaporte, 4 - carteira de reservista
   numero: string
   orgao_expedidor: string
   uf_expedidor: StateEnum
 }
 
-export interface EnderecoAnswer {
+export type EnderecoAnswer = {
   logradouro: string
   numero: string
   complemento: string
@@ -38,13 +38,7 @@ export interface EnderecoAnswer {
   uf: StateEnum
 }
 
-export interface FaceAnswer {
-  description: string
-  formato: 'JPG' | 'PDF' | 'PNG'
-  base64: string // Encoded in base64 without line breaks
-}
-
-export interface PFFacialAnswer {
+export type PFBasicAnswer = {
   nome: string
   data_nascimento: string // Format: yyyy-mm-dd
   situacao_cpf: 'regular' | 'suspensa' | 'titular falecido' | 'pendente de regularização' | 'cancelada por multiplicidade' | 'nula' | 'cancelada de oficio'
@@ -54,10 +48,9 @@ export interface PFFacialAnswer {
   filiacao: Partial<FiliacaoAnswer>
   documento: Partial<DocumentoAnswer>
   endereco: Partial<EnderecoAnswer>
-  biometria_face: Partial<FaceAnswer>
 }
 
-export interface PFFacialBiometryBody {
-  key: PFKey
-  answer: Partial<PFFacialAnswer>
+export type PFBasicBiometryBody = {
+  key: PFBasicKey
+  answer: Partial<PFBasicAnswer>
 }

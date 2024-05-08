@@ -1,4 +1,4 @@
-export interface CNHResult {
+export type CNHResult = {
   nome: boolean;
   nome_similaridade: number;
   numero_registro: boolean;
@@ -13,14 +13,14 @@ export interface CNHResult {
   observacoes_similaridade: number;
 }
 
-export interface FiliacaoResult {
+export type FiliacaoResult = {
   nome_mae: boolean;
   nome_mae_similaridade: number;
   nome_pai: boolean;
   nome_pai_similaridade: number;
 }
 
-export interface DocumentoResult {
+export type DocumentoResult = {
   tipo: boolean;
   numero: boolean;
   numero_similaridade: number;
@@ -28,7 +28,7 @@ export interface DocumentoResult {
   uf_expedidor: boolean;
 }
 
-export interface EnderecoResult {
+export type EnderecoResult = {
   logradouro: boolean;
   logradouro_similaridade: number;
   complemento: boolean;
@@ -43,13 +43,7 @@ export interface EnderecoResult {
   uf: boolean;
 }
 
-export interface FaceResult {
-  disponivel: boolean;
-  probabilidade: 'Altíssima probabilidade' | 'Alta probabilidade' | 'Baixa probabilidade' | 'Baixíssima probabilidade';
-  similaridade: number;
-}
-
-export interface PFFacialResult {
+export type PFBasicResult = {
   cpf_disponivel: boolean;
   nome?: boolean;
   nome_similaridade?: number;
@@ -62,5 +56,4 @@ export interface PFFacialResult {
   filiacao: Partial<FiliacaoResult>;
   documento: Partial<DocumentoResult>;
   endereco: Partial<EnderecoResult>;
-  biometria_face: Partial<FaceResult>;
 }
