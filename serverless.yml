@@ -3,12 +3,13 @@ service: scoreplus-back
 provider:
   name: aws
   region: us-east-1
-  runtime: nodejs16.x
+  runtime: nodejs20.x
   stage: stage
   environment:
     AWS_REGION: us-east-1
     WORKSPACE: prd
     AUTH_ES256_PRIVATE_KEY: ${ssm:/prd/auth-key/ecdsa/private}
+    DATAVALID_ENDPOINT: https://gateway.apiserpro.serpro.gov.br/datavalid/v3
     DYNAMO_TABLE_USERPLUS_ACCESS_TOKEN: userplus-access-token-prd
     DYNAMO_TABLE_USERPLUS_COMPANY: userplus-company-prd
     DYNAMO_TABLE_USERPLUS_USER: userplus-users-prd
@@ -22,6 +23,10 @@ provider:
     DYNAMO_TABLE_ANALYSISPLUS_VEHICLES: analysisplus-vehicles-prd
     STAGE: local
     USER_RECOVERY_KEY_URL: https://user.api.systemscoreplus.com.br/reset-password
+    S3_BUCKET_REQUESTPLUS_ANALYSIS_PERSON_BIOMETRY: requestplus-analysis-person-biometry-prd
+    SERPRO_ENDPOINT: https://gateway.apiserpro.serpro.gov.br
+    SERPRO_CONSUMER_KEY: ${ssm:/prd/serpro-consumer-key}
+    SERPRO_CONSUMER_SECRET: ${ssm:/prd/serpro-consumer-secret}
     SCOREPLUS_EMAIL: prd.no-reply@systemscoreplus.com.br
     SCOREPLUS_DATAVALID_USER_ACCOUNT: ${ssm:/prd/lambda/worker/datavalid/user}
     SCOREPLUS_DATAVALID_USER_PASSWORD: ${ssm:/prd/lambda/worker/datavalid/password}
@@ -159,13 +164,37 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  requestplus-analysis-person:
-    handler: src/controllers/requestplus/send-request-analysis/person/index.handler
+  requestplus-analysis-person-default:
+    handler: src/controllers/requestplus/send-request-analysis/person/default/index.handler
     timeout: 600
     events:
       - http:
           method: post
           path: /analysis/person
+
+  requestplus-analysis-person-biometry-basic:
+    handler: src/controllers/requestplus/send-request-analysis/person/biometry/basic/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /binary/analysis/person/biometry/basic
+
+  requestplus-analysis-person-biometry-cnh:
+    handler: src/controllers/requestplus/send-request-analysis/person/biometry/cnh/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /binary/analysis/person/biometry/cnh
+
+  requestplus-analysis-person-biometry-facial:
+    handler: src/controllers/requestplus/send-request-analysis/person/biometry/facial/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: /binary/analysis/person/biometry/facial
 
   requestplus-analysis-combo:
     handler: src/controllers/requestplus/send-request-analysis/combo/index.handler
@@ -301,7 +330,7 @@ functions:
     events:
       - http:
           method: get
-          path: /release-extract/person
+          path: /binary/release-extract/person
 
   requestplus-release-extract-vehicle:
     handler: src/controllers/requestplus/release-extract/vehicle/index.handler
@@ -309,7 +338,7 @@ functions:
     events:
       - http:
           method: get
-          path: /release-extract/vehicle
+          path: /binary/release-extract/vehicle
 
   requestplus-release-extract-combo:
     handler: src/controllers/requestplus/release-extract/combo/index.handler
@@ -317,7 +346,7 @@ functions:
     events:
       - http:
           method: get
-          path: /release-extract/combo
+          path: /binary/release-extract/combo
 
   reportplus-generate-analysis-person:
     handler: src/controllers/reportplus/generate-analysis/person/index.handler
@@ -347,5 +376,20 @@ functions:
             name: "mylocalAuthProxyFn"
             type: "request"
 
-  worker-datavalid-pf-facial-biometry-result:
-    handler: src/workers/datavalid/pf-facial-biometry-result/index.handler
+  worker-datavalid-pf-basic:
+    handler: src/workers/datavalid/pf-basic/index.handler
+
+  worker-datavalid-pf-facial:
+    handler: src/workers/datavalid/pf-facial/index.handler
+
+  worker-datavalid-pf-facial-cdv:
+    handler: src/workers/datavalid/pf-facial-cdv/index.handler
+
+  # worker-datavalid-verify-result-pf-basic:
+  #   handler: src/workers/datavalid/verify-result/pf-basic/index.handler
+
+  # worker-datavalid-verify-result-pf-facial:
+  #   handler: src/workers/datavalid/verify-result/pf-facial/index.handler
+
+  # worker-datavalid-verify-result-pf-facial-cdv:
+  #   handler: src/workers/datavalid/verify-result/pf-facial-cdv/index.handler
