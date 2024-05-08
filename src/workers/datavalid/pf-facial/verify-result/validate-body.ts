@@ -1,10 +1,17 @@
 import Joi from 'joi'
 
-import { PFFacialResult } from 'src/models/datavalid/pf-facial-biometry/result'
-import ErrorHandler from 'src/utils/error-handler'
-import logger from 'src/utils/logger'
+import { FaceResult } from '~/models/datavalid/face-result'
+import {
+  CNHResult,
+  DocumentoResult,
+  EnderecoResult,
+  FiliacaoResult,
+} from '~/models/datavalid/pf-basic/result'
+import { PFFacialResult } from '~/models/datavalid/pf-facial/result'
+import InternalServerError from '~/utils/errors/500-internal-server-error'
+import logger from '~/utils/logger'
 
-const CNHResultSchema = Joi.object({
+const CNHResultSchema = Joi.object<CNHResult, true>({
   nome: Joi
     .bool()
     .optional(),
@@ -47,7 +54,7 @@ const CNHResultSchema = Joi.object({
     .optional(),
 })
 
-const FiliacaoResultSchema = Joi.object({
+const FiliacaoResultSchema = Joi.object<FiliacaoResult, true>({
   nome_mae: Joi
     .bool()
     .optional(),
@@ -66,7 +73,7 @@ const FiliacaoResultSchema = Joi.object({
     .optional(),
 })
 
-const DocumentoResultSchema = Joi.object({
+const DocumentoResultSchema = Joi.object<DocumentoResult, true>({
   tipo: Joi
     .bool()
     .optional(),
@@ -86,7 +93,7 @@ const DocumentoResultSchema = Joi.object({
     .optional(),
 })
 
-const EnderecoResultSchema = Joi.object({
+const EnderecoResultSchema = Joi.object<EnderecoResult, true>({
   logradouro: Joi
     .bool()
     .optional(),
@@ -114,7 +121,7 @@ const EnderecoResultSchema = Joi.object({
   bairro: Joi
     .bool()
     .optional(),
-  nairro_similaridade: Joi
+  bairro_similaridade: Joi
     .number()
     .min(0)
     .max(1)
@@ -135,7 +142,7 @@ const EnderecoResultSchema = Joi.object({
     .optional(),
 })
 
-const FaceResultSchema = Joi.object({
+const FaceResultSchema = Joi.object<FaceResult, true>({
   disponivel: Joi
     .bool()
     .optional(),
@@ -155,7 +162,7 @@ const FaceResultSchema = Joi.object({
     .optional(),
 })
 
-const PFFacialResultSchema = Joi.object({
+const PFFacialResultSchema = Joi.object<PFFacialResult, true>({
   cpf_disponivel: Joi
     .bool()
     .required(),
@@ -191,7 +198,7 @@ const PFFacialResultSchema = Joi.object({
 
 const schema = PFFacialResultSchema
 
-const validatePFFacialBiometryResult = (
+const validateBody = (
   data: Partial<PFFacialResult>,
 ): PFFacialResult => {
   const { value, error } = schema.validate(data, {
@@ -199,12 +206,14 @@ const validatePFFacialBiometryResult = (
   })
 
   if (error) {
-    logger.error('Error on validate facial biometry result')
+    logger.error({
+      message: 'Error on validate facial biometry result body',
+    })
 
-    throw new ErrorHandler(error.stack as string, 400)
+    throw new InternalServerError('Erro na validação do body para análise do resultado da biometria facial', error.stack as string)
   }
 
   return value
 }
 
-export default validatePFFacialBiometryResult
+export default validateBody
