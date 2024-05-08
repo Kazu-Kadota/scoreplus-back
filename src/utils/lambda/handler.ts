@@ -1,13 +1,14 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { APIGatewayProxyEvent, APIGatewayProxyResult, SQSEvent, SQSMessageAttributes } from 'aws-lambda'
+import { getBoundary, parse } from 'parse-multipart-data'
 
-import catchError from '../catch-error'
+import catchError, { catchErrorWorker } from '../catch-error'
 import UnauthorizedError from '../errors/401-unauthorized'
 import InternalServerError from '../errors/500-internal-server-error'
 import extractJwtLambda from '../extract-jwt-lambda'
 import logger from '../logger'
 import { defaultHeaders } from '~/constants/headers'
 import { UserGroupEnum } from '~/models/dynamo/enums/user'
-import { Controller, Request } from '~/models/lambda'
+import { BinaryController, BinaryRequest, Controller, Input, Request, SQSController, SQSControllerMessageAttributes, SQSControllerResponse } from '~/models/lambda'
 
 namespace LambdaHandlerNameSpace {
   export interface UserAuthentication extends Record<UserGroupEnum, boolean> {}
@@ -68,6 +69,135 @@ namespace LambdaHandlerNameSpace {
         }
       } catch (err: any) {
         return catchError(err)
+      }
+    }
+  }
+
+  export class BinaryLambdaHandlerFunction {
+    controller: BinaryController<unknown>
+    authentication?: UserAuthentication
+
+    constructor (controller: BinaryController<unknown>, authentication?: UserAuthentication) {
+      this.controller = controller
+      this.authentication = authentication
+    }
+
+    async handler (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+      try {
+        logger.setRequestId(event.requestContext.requestId)
+
+        const request: BinaryRequest = {
+          ...event,
+          parsed_body: {},
+        }
+
+        if (this.authentication) {
+          const user = extractJwtLambda(event.headers)
+
+          if (!user) {
+            logger.error({
+              message: 'User not authenticated',
+            })
+
+            throw new UnauthorizedError('User not authenticated')
+          }
+
+          logger.setUser(user)
+
+          if (!this.authentication[user.user_type]) {
+            logger.error({
+              message: 'User not authorized to execute this function',
+              user_type: user.user_type,
+            })
+
+            throw new InternalServerError()
+          }
+
+          (request as BinaryRequest<true>).user = user
+        }
+
+        const body_buffer = Buffer.from((event.body as string).toString(), 'binary')
+
+        const content_type = event.headers['Content-Type'] || event.headers['content-type'] as string
+        const boundary = getBoundary(content_type)
+
+        const binary_body = parse(body_buffer, boundary)
+
+        request.parsed_body = binary_body.reduce<Record<string, Input>>((prev, curr) => ({
+          ...prev,
+          [curr.name as string]: curr,
+        }), {})
+
+        const result = await this.controller(request)
+
+        return {
+          headers: {
+            ...defaultHeaders,
+            ...result.headers,
+          },
+          multiValueHeaders: result.multiValueHeaders,
+          statusCode: result.statusCode ?? 200,
+          body: result.notJsonBody === true ? result.body : JSON.stringify(result.body),
+          isBase64Encoded: result.isBase64Encoded,
+        }
+      } catch (err: any) {
+        return catchError(err)
+      }
+    }
+  }
+
+  /**
+   * This class will handle just one message for each lambda invoke, not a batch
+   * of messages. Make sure that in Terraform is set only 1 batch_size
+   */
+  export class LambdaSQSHandlerFunction<T = SQSMessageAttributes> {
+    controller: SQSController<T>
+
+    constructor (controller: SQSController<T>) {
+      this.controller = controller
+    }
+
+    async handler (event: SQSEvent): Promise<SQSControllerResponse> {
+      try {
+        for (const record of event.Records) {
+          const message_attributes = record.messageAttributes as T & SQSControllerMessageAttributes
+
+          if (!message_attributes.requestId?.stringValue) {
+            logger.error({
+              message: 'Lambda requestId is not set from message sender',
+            })
+
+            throw new InternalServerError('Lambda requestId is not set from message sender')
+          }
+
+          if (!message_attributes.origin?.stringValue) {
+            logger.error({
+              message: 'Lambda origin is not set from message sender',
+            })
+
+            throw new InternalServerError('Lambda origin is not set from message sender')
+          }
+
+          logger.setRequestId(message_attributes.requestId.stringValue)
+
+          logger.debug({
+            message: 'SQS-LAMBDA: Handling message',
+          })
+
+          await this.controller({
+            attributes: record.attributes,
+            body: JSON.parse(record.body) as unknown,
+            message_attributes,
+            message_id: record.messageId,
+          })
+        }
+
+        return {
+          success: true,
+          statusCode: 200,
+        }
+      } catch (err: any) {
+        return catchErrorWorker(err)
       }
     }
   }
