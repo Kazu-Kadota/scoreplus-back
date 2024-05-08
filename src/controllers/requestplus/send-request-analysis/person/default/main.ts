@@ -1,7 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { SNSClient } from '@aws-sdk/client-sns'
 
-import getCompanyAdapter from '../get-company-adapter'
+import getCompanyAdapter from '../../get-company-adapter'
 import { AnalysisTypeEnum } from '~/models/dynamo/enums/request'
 import { Controller } from '~/models/lambda'
 import useCaseRequestPersonAnalysis, { UseCaseRequestPersonAnalysis } from '~/use-cases/request-person-analysis'

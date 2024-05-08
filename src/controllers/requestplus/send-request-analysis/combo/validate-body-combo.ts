@@ -5,7 +5,7 @@ import {
   person_analysis_options_to_request_schema,
   person_analysis_type_schema,
   person_schema,
-} from '../person/validate-body-person'
+} from '../person/default/validate-body-person'
 import {
   ValidateBodyVehicle,
   vehicle_analysis_options_to_request_schema,
