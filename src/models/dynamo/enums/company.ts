@@ -12,8 +12,16 @@ export enum CompanyPersonAnalysisConfigEnum {
   HR = 'hr',
 }
 
+export enum CompanyRequestPersonBiometryConfigEnum {
+  BIOMETRY_FACIAL = 'biometry-facial',
+  BIOMETRY_BASIC = 'biometry-basic',
+  BIOMETRY_CNH = 'biometry-cnh',
+}
+
 export enum CompanyRequestPersonConfigEnum {
-  BIOMETRY = 'biometry',
+  BIOMETRY_FACIAL = 'biometry-facial',
+  BIOMETRY_BASIC = 'biometry-basic',
+  BIOMETRY_CNH = 'biometry-cnh',
   CNH_SIMPLE = 'cnh-simple',
   CNH_MEDIUM = 'cnh-medium',
   CNH_ADVANCED = 'cnh-advanced',
