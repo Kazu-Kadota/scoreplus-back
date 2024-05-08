@@ -5,7 +5,6 @@ import { CompanyRequestPersonConfigEnum } from '~/models/dynamo/enums/company'
 import { UserplusCompany } from '~/models/dynamo/userplus/company'
 import { UserFromJwt } from '~/utils/extract-jwt-lambda'
 import logger from '~/utils/logger'
-
 import removeEmpty from '~/utils/remove-empty'
 
 import { PersonReportResponse } from './person-report'
@@ -66,7 +65,9 @@ const convertCsv = ({
     analysis_type: 'Tipo de análise da pessoa',
     ethical: person_analysis_options.ethical,
     history: person_analysis_options.history,
-    biometry: person_analysis_options.biometry,
+    'biometry-basic': person_analysis_options['biometry-basic'],
+    'biometry-cnh': person_analysis_options['biometry-cnh'],
+    'biometry-facial': person_analysis_options['biometry-facial'],
     'cnh-advanced': person_analysis_options['cnh-advanced'],
     'cnh-medium': person_analysis_options['cnh-medium'],
     'cnh-simple': person_analysis_options['cnh-simple'],
