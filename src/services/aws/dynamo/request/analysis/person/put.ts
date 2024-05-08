@@ -23,7 +23,7 @@ const putRequestplusAnalysisPerson = async (
   key: RequestplusAnalysisPersonKey,
   body: RequestplusAnalysisPersonBody,
   dynamodbClient: DynamoDBClient,
-): Promise<void> => {
+): Promise<RequestplusAnalysisPerson> => {
   logger.debug({
     message: 'DYNAMODB: PutItem',
     table: DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON,
@@ -48,6 +48,8 @@ const putRequestplusAnalysisPerson = async (
   })
 
   await dynamodbClient.send(command)
+
+  return put
 }
 
 export default putRequestplusAnalysisPerson
