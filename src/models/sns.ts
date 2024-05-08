@@ -1,5 +1,16 @@
+import { MessageAttributeValue } from '@aws-sdk/client-sns'
+
 import { CompanyRequestPersonConfigEnum, CompanyRequestVehicleConfigEnum } from './dynamo/enums/company'
 
-export interface SNSThirdPartyWorkersPersonMessage<T = any> extends Partial<Record<CompanyRequestPersonConfigEnum, T>> {}
+export type SNSMessageAttributes = {
+  origin: MessageAttributeValue,
+  requestId: MessageAttributeValue,
+}
 
-export interface SNSThirdPartyWorkersVehicleMessage<T = any> extends Partial<Record<CompanyRequestVehicleConfigEnum, T>> {}
+export type SNSThirdPartyWorkersPersonMessage<T = any> =
+  Partial<Record<CompanyRequestPersonConfigEnum, T>>
+  & {}
+
+export type SNSThirdPartyWorkersVehicleMessage<T = any> =
+  Partial<Record<CompanyRequestVehicleConfigEnum, T>>
+  & {}
