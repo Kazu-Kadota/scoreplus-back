@@ -1,0 +1,26 @@
+{
+  "Records": [
+    {
+      "body": "{\"biometry-basic\":{\"key\":{\"cpf\":\"40864690819\"},\"answer\":{\"nome\":\"Kazuyuki Kadota\",\"data_nascimento\":\"1999-08-25\",\"situacao_cpf\":\"regular\",\"cnh\":{\"numero_registro\":\"07180040463\",\"categoria\":\"AB\",\"codigo_situacao\":\"3\",\"possui_impedimento\":false},\"filiacao\":{\"nome_mae\":\"Kei Kadota\",\"nome_pai\":\"Noriaki Ricardo Kadota\"},\"documento\":{\"numero\":\"529065551\",\"tipo\":1,\"uf_expedidor\":\"SP\"},\"endereco\":{}}}}",
+      "messageAttributes": {
+        "origin": {
+          "dataType": "String",
+          "stringValue": "scoreplus"
+        },
+        "person_id": {
+          "dataType": "String",
+          "stringValue": "dc89b442-ced1-4021-881a-53aa5965c6f1"
+        },
+        "request_id": {
+          "dataType": "String",
+          "stringValue": "4d09a580-249b-454f-9dd2-864842429f0b"
+        },
+        "requestId": {
+          "dataType": "String",
+          "stringValue": "52eae399-fdb8-4f6e-9a75-ef0603d89a33"
+        }
+      },
+      "messageId": "e7457672-a66f-4bb9-8fa6-5997ae4efa08"
+    }
+  ]
+}
