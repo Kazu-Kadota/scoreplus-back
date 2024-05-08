@@ -8,7 +8,9 @@ export const companyAnalysisConfigStrings: Record<CompanyPersonAnalysisConfigEnu
 }
 
 export const companyRequestPersonConfigEnum: Record<CompanyRequestPersonConfigEnum, string> = {
-  [CompanyRequestPersonConfigEnum.BIOMETRY]: 'Biometria',
+  [CompanyRequestPersonConfigEnum.BIOMETRY_BASIC]: 'Biometria básico',
+  [CompanyRequestPersonConfigEnum.BIOMETRY_CNH]: 'Biometria cnh',
+  [CompanyRequestPersonConfigEnum.BIOMETRY_FACIAL]: 'Biometria facial',
   [CompanyRequestPersonConfigEnum.CNH_ADVANCED]: 'CNH avançado',
   [CompanyRequestPersonConfigEnum.CNH_MEDIUM]: 'CNH',
   [CompanyRequestPersonConfigEnum.CNH_SIMPLE]: 'CNH simples',
