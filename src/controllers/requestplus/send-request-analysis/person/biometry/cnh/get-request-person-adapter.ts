@@ -9,6 +9,7 @@ import {
 import getRequestplusAnalysisPerson from '~/services/aws/dynamo/request/analysis/person/get'
 import ForbiddenError from '~/utils/errors/403-forbidden'
 import NotFoundError from '~/utils/errors/404-not-found'
+import ConflictError from '~/utils/errors/409-conflict'
 import { UserFromJwt } from '~/utils/extract-jwt-lambda'
 import logger from '~/utils/logger'
 
@@ -61,6 +62,16 @@ const getRequestPersonAdapter = async ({
     })
 
     throw new ForbiddenError('Pessoa solicitada não é o mesmo informado pelo usuário')
+  }
+
+  if (request_person.status['biometry-cnh']) {
+    logger.warn({
+      message: 'Already requested to analyze biometry-cnh',
+      request_id: key.request_id,
+      person_id: key.person_id,
+    })
+
+    throw new ConflictError('Já solicitado para realizar análise de biometria de cnh')
   }
 
   return request_person

@@ -3,7 +3,6 @@ import { S3Client } from '@aws-sdk/client-s3'
 import { SNSClient } from '@aws-sdk/client-sns'
 
 import getCompanyAdapter from '../../../get-company-adapter'
-import getRequestPersonAdapter from '../get-request-person-adapter'
 import { PFFacialCDVImagesAnswerEnum } from '~/models/datavalid/pf-facial-cdv/request-body'
 import { CompanyRequestPersonConfigEnum } from '~/models/dynamo/enums/company'
 import { AnalysisTypeEnum } from '~/models/dynamo/enums/request'
@@ -13,6 +12,7 @@ import useCaseRequestPersonAnalysis, { UseCaseRequestPersonAnalysis } from '~/us
 import ForbiddenError from '~/utils/errors/403-forbidden'
 import logger from '~/utils/logger'
 
+import getRequestPersonAdapter from './get-request-person-adapter'
 import parseBody from './parse-body'
 import publishSnsTopicPersonAdapter from './publish-sns-topic-person-adapter'
 import putImageToBucketAdapter from './put-image-to-bucket-adapter'

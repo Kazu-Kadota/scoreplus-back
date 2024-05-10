@@ -116,7 +116,15 @@ namespace LambdaHandlerNameSpace {
           (request as BinaryRequest<true>).user = user
         }
 
-        const body_buffer = Buffer.from((event.body as string).toString(), 'binary')
+        // eslint-disable-next-line
+        let body_buffer: Buffer
+
+        if (event.isBase64Encoded) {
+          const body_decoded = Buffer.from(event.body as string, 'base64').toString('utf-8')
+          body_buffer = Buffer.from(body_decoded, 'binary')
+        } else {
+          body_buffer = Buffer.from((event.body as string).toString(), 'binary')
+        }
 
         const content_type = event.headers['Content-Type'] || event.headers['content-type'] as string
         const boundary = getBoundary(content_type)
@@ -127,6 +135,10 @@ namespace LambdaHandlerNameSpace {
           ...prev,
           [curr.name as string]: curr,
         }), {})
+
+        logger.debug({
+          parsed_body: request.parsed_body,
+        })
 
         const result = await this.controller(request)
 
