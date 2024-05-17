@@ -1,14 +1,14 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, SQSEvent, SQSMessageAttributes } from 'aws-lambda'
 import { getBoundary, parse } from 'parse-multipart-data'
 
-import catchError, { catchErrorWorker } from '../catch-error'
+import catchError from '../catch-error'
 import UnauthorizedError from '../errors/401-unauthorized'
 import InternalServerError from '../errors/500-internal-server-error'
 import extractJwtLambda from '../extract-jwt-lambda'
 import logger from '../logger'
 import { defaultHeaders } from '~/constants/headers'
 import { UserGroupEnum } from '~/models/dynamo/enums/user'
-import { BinaryController, BinaryRequest, Controller, Input, Request, SQSController, SQSControllerMessageAttributes, SQSControllerResponse } from '~/models/lambda'
+import { BinaryController, BinaryRequest, Controller, Input, Request, SQSController, SQSControllerMessageAttributes } from '~/models/lambda'
 
 namespace LambdaHandlerNameSpace {
   export interface UserAuthentication extends Record<UserGroupEnum, boolean> {}
@@ -169,47 +169,38 @@ namespace LambdaHandlerNameSpace {
       this.controller = controller
     }
 
-    async handler (event: SQSEvent): Promise<SQSControllerResponse> {
-      try {
-        for (const record of event.Records) {
-          const message_attributes = record.messageAttributes as T & SQSControllerMessageAttributes
+    async handler (event: SQSEvent): Promise<void> {
+      for (const record of event.Records) {
+        const message_attributes = record.messageAttributes as T & SQSControllerMessageAttributes
 
-          if (!message_attributes.requestId?.stringValue) {
-            logger.error({
-              message: 'Lambda requestId is not set from message sender',
-            })
-
-            throw new InternalServerError('Lambda requestId is not set from message sender')
-          }
-
-          if (!message_attributes.origin?.stringValue) {
-            logger.error({
-              message: 'Lambda origin is not set from message sender',
-            })
-
-            throw new InternalServerError('Lambda origin is not set from message sender')
-          }
-
-          logger.setRequestId(message_attributes.requestId.stringValue)
-
-          logger.debug({
-            message: 'SQS-LAMBDA: Handling message',
+        if (!message_attributes.requestId?.stringValue) {
+          logger.error({
+            message: 'Lambda requestId is not set from message sender',
           })
 
-          await this.controller({
-            attributes: record.attributes,
-            body: JSON.parse(record.body) as unknown,
-            message_attributes,
-            message_id: record.messageId,
-          })
+          throw new InternalServerError('Lambda requestId is not set from message sender')
         }
 
-        return {
-          success: true,
-          statusCode: 200,
+        if (!message_attributes.origin?.stringValue) {
+          logger.error({
+            message: 'Lambda origin is not set from message sender',
+          })
+
+          throw new InternalServerError('Lambda origin is not set from message sender')
         }
-      } catch (err: any) {
-        return catchErrorWorker(err)
+
+        logger.setRequestId(message_attributes.requestId.stringValue)
+
+        logger.debug({
+          message: 'SQS-LAMBDA: Handling message',
+        })
+
+        await this.controller({
+          attributes: record.attributes,
+          body: JSON.parse(record.body) as unknown,
+          message_attributes,
+          message_id: record.messageId,
+        })
       }
     }
   }

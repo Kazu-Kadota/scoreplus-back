@@ -377,10 +377,15 @@ functions:
             type: "request"
 
   worker-datavalid-pf-basic:
-    handler: src/workers/datavalid/pf-basic/index.handler
+    handler: src/workers/datavalid/pf-basic/index.handle
 
   worker-datavalid-pf-facial:
     handler: src/workers/datavalid/pf-facial/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: post
+          path: workers/datavalid/pf-facial
 
   worker-datavalid-pf-facial-cdv:
     handler: src/workers/datavalid/pf-facial-cdv/index.handler

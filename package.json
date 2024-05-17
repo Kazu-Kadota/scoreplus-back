@@ -6,9 +6,9 @@
   "scripts": {
     "start": "AWS_PROFILE=score-plus-sdx sls offline",
     "debug": "AWS_PROFILE=score-plus-sdx sls offline",
-    "debug:datavalid-send-request-pf-basic": "AWS_PROFILE=score-plus-prd AWS_REGION=us-east-1 sls invoke local --function worker-datavalid-send-request-pf-basic --path local/debug/worker-datavalid-send-request-pf-basic.json",
-    "debug:datavalid-send-request-pf-facial": "AWS_PROFILE=score-plus-prd AWS_REGION=us-east-1 sls invoke local --function worker-datavalid-send-request-pf-facial --path local/debug/worker-datavalid-send-request-pf-facial.json",
-    "debug:datavalid-send-request-pf-facial-cdv": "AWS_PROFILE=score-plus-prd AWS_REGION=us-east-1 sls invoke local --function worker-datavalid-send-request-pf-facial-cdv --path local/debug/worker-datavalid-send-request-pf-facial-cdv.json",
+    "debug:datavalid-pf-basic": "AWS_PROFILE=score-plus-prd AWS_REGION=us-east-1 sls invoke local --function worker-datavalid-pf-basic --path local/debug/worker-datavalid-pf-basic.json",
+    "debug:datavalid-pf-facial": "AWS_PROFILE=score-plus-prd AWS_REGION=us-east-1 sls invoke local --function worker-datavalid-pf-facial --path local/debug/worker-datavalid-pf-facial.json",
+    "debug:datavalid-pf-facial-cdv": "AWS_PROFILE=score-plus-prd AWS_REGION=us-east-1 sls invoke local --function worker-datavalid-pf-facial-cdv --path local/debug/worker-datavalid-pf-facial-cdv.json",
     "test": "LOGGER_LEVEL=silent jest",
     "lint": "tsc --noEmit && eslint --ext .ts src",
     "clean": "rimraf dist",

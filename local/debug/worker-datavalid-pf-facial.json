@@ -1,0 +1,41 @@
+{
+  "Records": [
+    {
+      "body": "{\"biometry-facial\":{\"key\":{\"cpf\":\"40864690819\"},\"answer\":{\"nome\":\"Kazuyuki Kadota\",\"data_nascimento\":\"1999-08-25\",\"situacao_cpf\":\"regular\",\"cnh\":{\"numero_registro\":\"07180040463\",\"categoria\":\"AB\",\"codigo_situacao\":\"3\",\"possui_impedimento\":false},\"filiacao\":{\"nome_mae\":\"Kei Kadota\",\"nome_pai\":\"Noriaki Ricardo Kadota\"},\"documento\":{\"numero\":\"529065551\",\"tipo\":1,\"uf_expedidor\":\"SP\"},\"endereco\":{},\"biometria_face\":{\"s3_image_path\":\"0409302b-f6bb-48b1-9298-91049237cf6a/cc7cc794-0f71-43be-9d2d-1ea2be7ad985/facial_image.jpeg.bin\"}}}}",
+      "message_attributes": {
+        "requestId": {
+          "stringValue": "64c5a78c-c639-49fe-aa82-5cb58196fa0b",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        },
+        "origin": {
+          "stringValue": "scoreplus",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        },
+        "request_id": {
+          "stringValue": "cc7cc794-0f71-43be-9d2d-1ea2be7ad985",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        },
+        "person_id": {
+          "stringValue": "0409302b-f6bb-48b1-9298-91049237cf6a",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        }
+      },
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "AWSTraceHeader": "Root=1-663f0785-1bb079c731e326144e0d3257;Parent=30392633733b0748;Sampled=0;Lineage=c50b1b4d:0",
+        "SentTimestamp": "1715406728908",
+        "SenderId": "AIDAIT2UOQQY3AUEKVGXU",
+        "ApproximateFirstReceiveTimestamp": "1715406728909"
+      },
+      "messageId": "e6530dfc-bc6f-46d2-bac0-6ea5763c20c8"
+    }
+  ]
+}

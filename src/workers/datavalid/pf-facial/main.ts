@@ -30,6 +30,7 @@ const s3Client = new S3Client({
 const datavalidSendRequestPfFacial: SQSController<DatavalidSQSReceivedMessageAttributes> = async (message) => {
   logger.debug({
     message: 'Start on verify send request pf-facial',
+    sqs_message: message,
   })
   const body = validateBody((message.body as DatavalidSendRequestPfFacialMessageBody)['biometry-facial'] as PFFacialBiometrySendRequestBody)
 
