@@ -17,7 +17,7 @@ const publishSnsTopicPersonAdapter = async ({
 }: BiometryFacialPublishSnsTopicPersonAdapterParams) => {
   const publish_sns_topic_person: PublishSnsTopicPersonParams<CompanyRequestPersonBiometryConfigEnum.BIOMETRY_FACIAL> = {
     person_analysis_options: {
-      'biometry-facial': {},
+      [CompanyRequestPersonBiometryConfigEnum.BIOMETRY_FACIAL]: {},
     },
     person_data: {
       birth_date: request_person.birth_date,

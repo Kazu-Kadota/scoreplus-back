@@ -53,7 +53,14 @@ const serproDatavalidV3ValidatePfBasica = async ({
     .catch((err) => {
       logger.warn({
         message: 'DATAVALID: Error on validate Pf Basica',
-        error: err,
+        error: {
+          request: err.request,
+          response: {
+            status: err.response.status,
+            headers: err.response.headers,
+            data: err.response.data,
+          },
+        },
       })
 
       throw new ErrorHandler('DATAVALID: Error on validate pf basica', err.statusCode)

@@ -13,9 +13,9 @@ const publishSnsTopicPersonAdapter = async ({
   request_person,
   snsClient,
 }: BiometryBasicPublishSnsTopicPersonAdapterParams) => {
-  const publish_sns_topic_person: PublishSnsTopicPersonParams<CompanyRequestPersonBiometryConfigEnum.BIOMETRY_FACIAL> = {
+  const publish_sns_topic_person: PublishSnsTopicPersonParams<CompanyRequestPersonBiometryConfigEnum.BIOMETRY_BASIC> = {
     person_analysis_options: {
-      'biometry-basic': {},
+      [CompanyRequestPersonBiometryConfigEnum.BIOMETRY_BASIC]: {},
     },
     person_data: {
       birth_date: request_person.birth_date,

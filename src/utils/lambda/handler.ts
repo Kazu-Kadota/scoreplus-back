@@ -136,10 +136,6 @@ namespace LambdaHandlerNameSpace {
           [curr.name as string]: curr,
         }), {})
 
-        logger.debug({
-          parsed_body: request.parsed_body,
-        })
-
         const result = await this.controller(request)
 
         return {

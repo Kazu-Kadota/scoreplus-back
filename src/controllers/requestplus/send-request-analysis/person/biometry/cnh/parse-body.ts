@@ -68,9 +68,11 @@ function parseBody (parsed_body: RequestBiometryPersonBinaryBody, user_info: Use
     throw new BadRequestError('O tamanho da imagem é maior que 3mb')
   }
 
-  const document_image_type_arr = parsed_body.document_image.filename?.split('.')
+  const document_image_buffer = Buffer.from(document_image_binary_buffer)
 
-  if (!document_image_type_arr) {
+  const document_image_filename = parsed_body.document_image.filename
+
+  if (!document_image_filename) {
     logger.warn({
       message: 'Name of document image not exist',
       parsed_body: {
@@ -84,10 +86,10 @@ function parseBody (parsed_body: RequestBiometryPersonBinaryBody, user_info: Use
     throw new BadRequestError('Nome da imagem do "document" não fornecido')
   }
 
-  const document_image_type = document_image_type_arr[document_image_type_arr.length - 1]
+  const document_image_type = parsed_body.document_image.type.split('/')[1]
 
   const document: BiometryCnhParseBodyImage = {
-    image: document_image_binary_buffer,
+    image: document_image_buffer,
     image_name: document_image_name,
     image_type: document_image_type,
   }
@@ -129,9 +131,11 @@ function parseBody (parsed_body: RequestBiometryPersonBinaryBody, user_info: Use
       throw new BadRequestError('O tamanho da imagem é maior que 3mb')
     }
 
-    const document_back_image_type_arr = parsed_body.document_back_image.filename?.split('.')
+    const document_back_image_buffer = Buffer.from(document_back_image_binary_buffer)
 
-    if (!document_back_image_type_arr) {
+    const document_back_image_filename = parsed_body.document_back_image.filename
+
+    if (!document_back_image_filename) {
       logger.warn({
         message: 'Name of document back image not exist',
         parsed_body: {
@@ -145,10 +149,10 @@ function parseBody (parsed_body: RequestBiometryPersonBinaryBody, user_info: Use
       throw new BadRequestError('Nome da imagem do "document_back" não fornecido')
     }
 
-    const document_back_image_type = document_back_image_type_arr[document_back_image_type_arr.length - 1]
+    const document_back_image_type = parsed_body.document_back_image.type.split('/')[1]
 
     document_back = {
-      image: document_back_image_binary_buffer,
+      image: document_back_image_buffer,
       image_name: document_back_image_name,
       image_type: document_back_image_type,
     }
@@ -191,9 +195,11 @@ function parseBody (parsed_body: RequestBiometryPersonBinaryBody, user_info: Use
       throw new BadRequestError('O tamanho da imagem é maior que 3mb')
     }
 
-    const facial_image_type_arr = parsed_body.facial_image.filename?.split('.')
+    const facial_image_buffer = Buffer.from(facial_image_binary_buffer)
 
-    if (!facial_image_type_arr) {
+    const facial_image_type_filename = parsed_body.facial_image.filename
+
+    if (!facial_image_type_filename) {
       logger.warn({
         message: 'Name of document back image not exist',
         parsed_body: {
@@ -207,10 +213,10 @@ function parseBody (parsed_body: RequestBiometryPersonBinaryBody, user_info: Use
       throw new BadRequestError('Nome da imagem do "facial" não fornecido')
     }
 
-    const facial_image_type = facial_image_type_arr[facial_image_type_arr.length - 1]
+    const facial_image_type = parsed_body.facial_image.type.split('/')[1]
 
     facial = {
-      image: facial_image_binary_buffer,
+      image: facial_image_buffer,
       image_name: facial_image_name,
       image_type: facial_image_type,
     }

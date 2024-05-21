@@ -54,9 +54,11 @@ function parseBody (parsed_body: RequestBiometryPersonBinaryBody, user_info: Use
     throw new BadRequestError('O tamanho da imagem é maior que 3mb')
   }
 
-  const facial_image_type_arr = parsed_body.facial_image.filename?.split('.')
+  const image_buffer = Buffer.from(image_binary_buffer)
 
-  if (!facial_image_type_arr) {
+  const facial_image_filename = parsed_body.facial_image.filename
+
+  if (!facial_image_filename) {
     logger.warn({
       message: 'Name of image not exist',
       parsed_body: {
@@ -68,7 +70,7 @@ function parseBody (parsed_body: RequestBiometryPersonBinaryBody, user_info: Use
     throw new BadRequestError('Nome da imagem não fornecido')
   }
 
-  const facial_image_type = facial_image_type_arr[facial_image_type_arr.length - 1]
+  const facial_image_type = parsed_body.facial_image.type.split('/')[1]
 
   const company_name = parsed_body.company_name?.data.toString()
 
@@ -116,7 +118,7 @@ function parseBody (parsed_body: RequestBiometryPersonBinaryBody, user_info: Use
     return {
       company_name,
       is_existing_person: true,
-      facial_image: image_binary_buffer,
+      facial_image: image_buffer,
       facial_image_name,
       facial_image_type,
       person,
@@ -163,7 +165,7 @@ function parseBody (parsed_body: RequestBiometryPersonBinaryBody, user_info: Use
     return {
       company_name,
       is_existing_person: false,
-      facial_image: image_binary_buffer,
+      facial_image: image_buffer,
       facial_image_name,
       facial_image_type,
       person: json_person,

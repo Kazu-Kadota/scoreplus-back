@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { ObjectCannedACL, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { StreamingBlobPayloadInputTypes } from '@smithy/types'
 
 import logger from '~/utils/logger'
@@ -8,6 +8,8 @@ export type PutS3Params<T = Record<string, string>> = {
   bucket: string
   key: string
   metadata?: T
+  acl?: ObjectCannedACL
+  contentEncoding?: string
   s3Client: S3Client
 }
 
@@ -19,6 +21,8 @@ const putS3: PutS3Function = async ({
   key,
   metadata,
   s3Client,
+  contentEncoding,
+  acl,
 }) => {
   logger.debug({
     message: 'S3: PutObject',
@@ -30,6 +34,8 @@ const putS3: PutS3Function = async ({
     Key: key,
     Body: body,
     Metadata: metadata,
+    ContentEncoding: contentEncoding,
+    ACL: acl,
   })
 
   await s3Client.send(command)

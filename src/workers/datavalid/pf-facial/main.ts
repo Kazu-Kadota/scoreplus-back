@@ -1,6 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { S3Client } from '@aws-sdk/client-s3'
 
+import { FileTypeJpegMap } from '~/constants/file-type'
 import { ImageAnswerFormato } from '~/models/datavalid/image-answer'
 import { PFFacialBiometrySendRequestBody } from '~/models/datavalid/pf-facial/request-body'
 import { DatavalidSQSReceivedMessageAttributes } from '~/models/datavalid/sqs-message-attributes'
@@ -61,7 +62,12 @@ const datavalidSendRequestPfFacial: SQSController<DatavalidSQSReceivedMessageAtt
   })
 
   const image_type_arr = body.answer.biometria_face.s3_image_path.split('.')
-  const image_type = image_type_arr[image_type_arr.length - 1] as ImageAnswerFormato
+
+  const verify_image_type = image_type_arr[image_type_arr.length - 1]
+
+  const image_type = verify_image_type === 'jpeg' || verify_image_type === 'JPEG'
+    ? FileTypeJpegMap[verify_image_type] as ImageAnswerFormato
+    : verify_image_type as ImageAnswerFormato
 
   const datavalid_result = await sendValidationAdapter({
     body,

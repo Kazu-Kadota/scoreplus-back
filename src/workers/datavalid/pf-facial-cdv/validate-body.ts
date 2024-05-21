@@ -15,16 +15,20 @@ const PFKeySchema = Joi.object<PFFacialKey, true>({
     .required(),
 })
 
-const ImageAnswerSchema = Joi.object<DatavalidRequestImage, true>({
-  s3_image_path: Joi
-    .string()
-    .required(),
-})
-
 const PFFacialCDVAnswerSchema = Joi.object<PFFacialCDVSendRequestAnswer, true>({
-  documento: ImageAnswerSchema.required(),
-  documento_verso: ImageAnswerSchema.optional(),
-  biometria_face: ImageAnswerSchema.optional(),
+  documento: Joi.object<DatavalidRequestImage, true>({
+    s3_image_path: Joi
+      .string()
+      .required(),
+  }).required(),
+  documento_verso: Joi.object<DatavalidRequestImage, true>({
+    s3_image_path: Joi
+      .string(),
+  }).optional(),
+  biometria_face: Joi.object<DatavalidRequestImage, true>({
+    s3_image_path: Joi
+      .string(),
+  }).optional(),
 })
 
 const schema = Joi.object<PFFacialCDVBiometrySendRequestBody, true>({

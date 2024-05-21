@@ -1,6 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { S3Client } from '@aws-sdk/client-s3'
 
+import { FileTypeJpegMap } from '~/constants/file-type'
 import { ImageAnswer, ImageAnswerFormato } from '~/models/datavalid/image-answer'
 import { PFFacialCDVBiometrySendRequestBody } from '~/models/datavalid/pf-facial-cdv/request-body'
 import { DatavalidRequestImage } from '~/models/datavalid/request-image'
@@ -28,9 +29,6 @@ const s3Client = new S3Client({
   maxAttempts: 5,
 })
 
-/* Continuar aqui. Basicamente agora é só copiar o que foi feito no "pf-facial" e depois testar localmente o fluxo inteiro (tem um bug na hora de requisitar análise com foto, não está vindo com o path do s3).
-  Feito isso, precisa verificar a infraestrutura e ajustar para todas as mudanças (não foi feito nada de infra praticamente para as novas mudanças)
-*/
 const datavalidSendRequestPfFacialCDV: SQSController<DatavalidSQSReceivedMessageAttributes> = async (message) => {
   logger.debug({
     message: 'Start on verify send request pf-facial-cdv',
@@ -60,7 +58,11 @@ const datavalidSendRequestPfFacialCDV: SQSController<DatavalidSQSReceivedMessage
 
   const images_map = new Map<string, ImageAnswer>()
 
-  for (const answer in body.answer) {
+  for (const answer of Object.values(body.answer)) {
+    if (Object.keys(answer).length === 0) {
+      continue
+    }
+
     const image = (answer as unknown) as DatavalidRequestImage
     const image_base64 = await getImageAdapter({
       key: image.s3_image_path,
@@ -68,7 +70,11 @@ const datavalidSendRequestPfFacialCDV: SQSController<DatavalidSQSReceivedMessage
     })
 
     const image_type_arr = image.s3_image_path.split('.')
-    const image_type = image_type_arr[image_type_arr.length - 1] as ImageAnswerFormato
+    const verify_image_type = image_type_arr[image_type_arr.length - 1]
+
+    const image_type = verify_image_type === 'jpeg' || verify_image_type === 'JPEG'
+      ? FileTypeJpegMap[verify_image_type] as ImageAnswerFormato
+      : verify_image_type as ImageAnswerFormato
 
     const image_name_arr = image_type_arr[0].split('/')
     const image_name = image_name_arr[image_name_arr.length - 1]

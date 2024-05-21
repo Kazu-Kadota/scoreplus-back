@@ -23,7 +23,7 @@ const putImageToBucketAdapter = async ({
   request_id,
   s3Client,
 }: PutImageToBucketAdapterParams): Promise<string> => {
-  const s3_facial_image_path = `${person_id}/${request_id}/${image_name}.${image_type}.bin`
+  const s3_facial_image_path = `${person_id}/${request_id}/${image_name}.${image_type}`
   const put_command: PutS3Params<DatavalidS3Metadata> = {
     body: image,
     bucket: S3_BUCKET_REQUESTPLUS_ANALYSIS_PERSON_BIOMETRY,
