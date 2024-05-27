@@ -6,6 +6,8 @@ import {
   PersonAnalysisOptionsRequestValueHistory,
 } from '~/models/dynamo/requestplus/analysis-person/person-analysis-options'
 import { RequestplusAnalysisPerson } from '~/models/dynamo/requestplus/analysis-person/table'
+import InternalServerError from '~/utils/errors/500-internal-server-error'
+import logger from '~/utils/logger'
 import removeEmpty from '~/utils/remove-empty'
 
 export type UpdatePersonConstructor = {
@@ -37,6 +39,14 @@ const updatePersonConstructor = ({
     if (person_analysis === CompanyRequestPersonConfigEnum.HISTORY) {
       const historical_value = value as PersonAnalysisOptionsRequestValueHistory<true>
       historical_value.regions.forEach((object) => {
+        if (!person.companies.history) {
+          person.companies.history = []
+        }
+
+        if (!person.validated.history) {
+          person.validated.history = []
+        }
+
         const exist_region = person.companies.history.find((value) =>
           value.state === object.region,
         )
@@ -84,7 +94,7 @@ const updatePersonConstructor = ({
     } else {
       const generic_value = value as PersonAnalysisOptionsRequestValueAnswer
 
-      if (!person.companies[person_analysis]) {
+      if (!person.companies[person_analysis] && !person.validated[person_analysis]) {
         person.companies[person_analysis] = {
           company_names: [request_person.company_name],
           created_at: now,
@@ -99,10 +109,12 @@ const updatePersonConstructor = ({
           updated_at: now,
           reason: generic_value.reason,
         }
-      } else {
+      } else if (person.companies[person_analysis] && person.validated[person_analysis]) {
+        // @ts-ignore
         const company_names = new Set(person.companies[person_analysis].company_names)
         company_names.add(request_person.company_name)
 
+        // @ts-ignore
         person.companies[person_analysis] = {
           ...person.companies[person_analysis],
           company_names: Array.from(company_names),
@@ -110,6 +122,7 @@ const updatePersonConstructor = ({
           updated_at: now,
         }
 
+        // @ts-ignore
         person.validated[person_analysis] = {
           ...person.validated[person_analysis],
           request_id: request_person.request_id,
@@ -117,6 +130,14 @@ const updatePersonConstructor = ({
           updated_at: now,
           reason: generic_value.reason,
         }
+      } else {
+        logger.warn({
+          message: 'One of person.companies or person.validated not exist',
+          company: person.companies[person_analysis],
+          validated: person.validated[person_analysis],
+        })
+
+        throw new InternalServerError('Verificar Person')
       }
     }
   }

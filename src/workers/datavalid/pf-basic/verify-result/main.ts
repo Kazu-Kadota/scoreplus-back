@@ -31,13 +31,17 @@ const datavalidVerifyResultPfBasic = async ({
 
   const use_case_send_person_answer: UseCaseSendPersonAnswerParams = {
     answers_body: [{
-      result: result.approved ? AnalysisResultEnum.APPROVED : AnalysisResultEnum.REJECTED,
+      result: AnalysisResultEnum.APPROVED,
       type: CompanyRequestPersonConfigEnum.BIOMETRY_BASIC,
-      reason: result.approved ? undefined : 'Reprovado por análise biométrica básica. Detalhes: ' + JSON.stringify(result.reproved_data),
     }],
     dynamodbClient,
     person_id,
     request_id,
+  }
+
+  if (!result.approved) {
+    use_case_send_person_answer.answers_body[0].result = AnalysisResultEnum.REJECTED
+    use_case_send_person_answer.answers_body[0].reason = 'Reprovado por análise biométrica básica. Detalhes: ' + JSON.stringify(result.reproved_data)
   }
 
   await useCaseSendPersonAnswer(use_case_send_person_answer)

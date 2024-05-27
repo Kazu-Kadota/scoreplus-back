@@ -74,7 +74,7 @@ export const person_schema = Joi.object<PersonRequestForms, true>({
 export const person_analysis_options_to_request_schema = Joi
   .array()
   .items(
-    Joi.string().valid(...Object.values(CompanyRequestPersonConfigEnum)),
+    Joi.string().valid(CompanyRequestPersonConfigEnum.ETHICAL, CompanyRequestPersonConfigEnum.HISTORY),
   )
 
 export const person_analysis_type_schema = Joi.object<PersonAnalysisType, true>({

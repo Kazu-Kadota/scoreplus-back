@@ -120,7 +120,7 @@ namespace LambdaHandlerNameSpace {
         let body_buffer: Buffer
 
         if (event.isBase64Encoded) {
-          const body_decoded = Buffer.from(event.body as string, 'base64').toString('utf-8')
+          const body_decoded = Buffer.from(event.body as string, 'base64').toString('binary')
           body_buffer = Buffer.from(body_decoded, 'binary')
         } else {
           body_buffer = Buffer.from((event.body as string).toString(), 'binary')

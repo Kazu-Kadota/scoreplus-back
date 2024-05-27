@@ -10,6 +10,7 @@ export type PutS3Params<T = Record<string, string>> = {
   metadata?: T
   acl?: ObjectCannedACL
   contentEncoding?: string
+  contentType?: string
   s3Client: S3Client
 }
 
@@ -22,6 +23,7 @@ const putS3: PutS3Function = async ({
   metadata,
   s3Client,
   contentEncoding,
+  contentType,
   acl,
 }) => {
   logger.debug({
@@ -35,6 +37,7 @@ const putS3: PutS3Function = async ({
     Body: body,
     Metadata: metadata,
     ContentEncoding: contentEncoding,
+    ContentType: contentType,
     ACL: acl,
   })
 

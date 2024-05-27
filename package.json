@@ -74,6 +74,6 @@
     "serverless-offline": "^13.3.3",
     "serverless-offline-local-authorizers-plugin": "^1.2.0",
     "tsc-alias": "^1.8.10",
-    "typescript": "^5.4.5"
+    "typescript": "^5.3.3"
   }
 }

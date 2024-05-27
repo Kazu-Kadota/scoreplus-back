@@ -80,6 +80,7 @@ const requestPersonBiometryFacial: BinaryController<true> = async (req) => {
     })
 
     const s3_facial_image_path = await putImageToBucketAdapter({
+      content_type: body.image_content_type,
       image: body.facial_image,
       image_name: body.facial_image_name,
       image_type: body.facial_image_type,
@@ -124,6 +125,7 @@ const requestPersonBiometryFacial: BinaryController<true> = async (req) => {
   const person_analysis = await useCaseRequestPersonAnalysis(use_case_request_person_analysis)
 
   const s3_facial_image_path = await putImageToBucketAdapter({
+    content_type: body.image_content_type,
     image: body.facial_image,
     image_name: body.facial_image_name,
     image_type: body.facial_image_type,

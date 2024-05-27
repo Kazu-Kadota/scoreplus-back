@@ -10,8 +10,8 @@ export type AnalysisplusPeopleKey = {
 }
 
 export type AnalysisplusPeopleBody = Omit<PersonRequestForms, 'document' | 'company_name'> & {
-  companies: PeopleAnalysisCompanyOptions
-  validated: PeopleAnalysisValidatedOptions
+  companies: Partial<PeopleAnalysisCompanyOptions>
+  validated: Partial<PeopleAnalysisValidatedOptions>
   black_list?: boolean
 }
 

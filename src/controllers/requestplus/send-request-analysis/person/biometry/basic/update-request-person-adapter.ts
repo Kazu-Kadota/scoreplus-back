@@ -17,7 +17,7 @@ const updateRequestPersonAdapter = async ({
     ...request_person,
   }
 
-  update_request_person.status['biometry-basic'] = RequestStatusEnum.WAITING
+  update_request_person.status['biometry-basic'] = RequestStatusEnum.PROCESSING
   update_request_person.person_analysis_options['biometry-basic'] = {}
 
   const { person_id, request_id, ...rest } = update_request_person

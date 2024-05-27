@@ -7,6 +7,7 @@ import getStringEnv from '~/utils/get-string-env'
 const S3_BUCKET_REQUESTPLUS_ANALYSIS_PERSON_BIOMETRY = getStringEnv('S3_BUCKET_REQUESTPLUS_ANALYSIS_PERSON_BIOMETRY')
 
 export type PutImageToBucketAdapterParams = {
+  content_type: string
   image: Buffer
   image_name: string
   image_type: string
@@ -16,6 +17,7 @@ export type PutImageToBucketAdapterParams = {
 }
 
 const putImageToBucketAdapter = async ({
+  content_type,
   image,
   image_name,
   image_type,
@@ -24,9 +26,11 @@ const putImageToBucketAdapter = async ({
   s3Client,
 }: PutImageToBucketAdapterParams): Promise<string> => {
   const s3_facial_image_path = `${person_id}/${request_id}/${image_name}.${image_type}`
+
   const put_command: PutS3Params<DatavalidS3Metadata> = {
     body: image,
     bucket: S3_BUCKET_REQUESTPLUS_ANALYSIS_PERSON_BIOMETRY,
+    contentType: content_type,
     key: s3_facial_image_path,
     s3Client,
     metadata: {

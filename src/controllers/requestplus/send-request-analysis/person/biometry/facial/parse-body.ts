@@ -10,6 +10,7 @@ import { RequestBiometryPersonBinaryBody } from './main'
 
 export type BiometryFacialParseBodyReturn = {
   company_name?: string,
+  image_content_type: string,
   facial_image: Buffer,
   facial_image_name: string,
   facial_image_type: string,
@@ -17,6 +18,7 @@ export type BiometryFacialParseBodyReturn = {
   person: RequestplusAnalysisPersonKey & {company_name?: string}
 } | {
   company_name?: string,
+  image_content_type: string,
   facial_image: Buffer,
   facial_image_name: string,
   facial_image_type: string,
@@ -117,6 +119,7 @@ function parseBody (parsed_body: RequestBiometryPersonBinaryBody, user_info: Use
 
     return {
       company_name,
+      image_content_type: parsed_body.facial_image.type,
       is_existing_person: true,
       facial_image: image_buffer,
       facial_image_name,
@@ -164,6 +167,7 @@ function parseBody (parsed_body: RequestBiometryPersonBinaryBody, user_info: Use
 
     return {
       company_name,
+      image_content_type: parsed_body.facial_image.type,
       is_existing_person: false,
       facial_image: image_buffer,
       facial_image_name,

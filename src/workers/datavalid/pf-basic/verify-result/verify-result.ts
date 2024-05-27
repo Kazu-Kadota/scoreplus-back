@@ -15,35 +15,35 @@ const verifyResult = (body: PFBasicResult): VerifyResultReturn => {
   })
   const reproved_data = new Map()
 
-  if (!body.nome) {
+  if (body.nome === false) {
     reproved_data.set('nome', 'reproved')
   }
 
-  if (!body.situacao_cpf) {
+  if (body.situacao_cpf === false) {
     reproved_data.set('situacao_cpf', 'reproved')
   }
 
-  if (!body.cnh_disponivel) {
+  if (body.cnh_disponivel === false) {
     reproved_data.set('cnh_disponivel', 'reproved')
   }
 
-  if (!body.cnh.nome) {
+  if (body.cnh.nome === false) {
     reproved_data.set('cnh.nome', 'reproved')
   }
 
-  if (!body.cnh.numero_registro) {
+  if (body.cnh.numero_registro === false) {
     reproved_data.set('cnh.numero_registro', 'reproved')
   }
 
-  if (!body.cnh.categoria) {
+  if (body.cnh.categoria === false) {
     reproved_data.set('cnh.categoria', 'reproved')
   }
 
-  if (!body.cnh.codigo_situacao) {
+  if (body.cnh.codigo_situacao === false) {
     reproved_data.set('cnh.codigo_situacao', 'reproved')
   }
 
-  if (!body.cnh.possui_impedimento) {
+  if (body.cnh.possui_impedimento === false) {
     reproved_data.set('cnh.possui_impedimento', 'reproved')
   }
 
@@ -55,15 +55,15 @@ const verifyResult = (body: PFBasicResult): VerifyResultReturn => {
     reproved_data.set('filiacao.nome_pai_similaridade', 'reproved')
   }
 
-  if (!body.documento.numero) {
+  if (body.documento.numero === false) {
     reproved_data.set('documento.numero', 'reproved')
   }
 
-  if (!body.documento.tipo) {
+  if (body.documento.tipo === false) {
     reproved_data.set('documento.tipo', 'reproved')
   }
 
-  if (!body.documento.uf_expedidor) {
+  if (body.documento.uf_expedidor === false) {
     reproved_data.set('documento.uf_expedidor', 'reproved')
   }
 

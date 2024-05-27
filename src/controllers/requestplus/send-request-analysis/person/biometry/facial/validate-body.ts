@@ -94,6 +94,7 @@ const person_analysis_type_schema = Joi.object<PersonAnalysisType, true>({
 
 const schema = Joi.object<BiometryFacialParseBodyReturn, true>({
   company_name: Joi.string().max(255).optional(),
+  image_content_type: Joi.string().required(),
   is_existing_person: Joi.boolean().required(),
   facial_image: Joi.binary().required(),
   facial_image_type: Joi.string().max(255).required(),
