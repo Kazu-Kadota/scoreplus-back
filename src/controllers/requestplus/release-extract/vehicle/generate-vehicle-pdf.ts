@@ -28,7 +28,7 @@ const generateVehiclePdf = async ({
       ],
     },
     analysisBoxes: [{
-      title: 'Dados da Frota',
+      title: 'Dados de veículos',
       items: [{
         finished_at: vehicle_analysis.finished_at,
         validity: vehicle_analysis.validity,

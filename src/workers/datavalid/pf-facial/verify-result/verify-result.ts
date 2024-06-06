@@ -1,5 +1,6 @@
 import { PFFacialBiometryAcceptablePercentageEnum } from '~/models/datavalid/pf-facial/biometry-acceptable-percentage'
 import { PFFacialResult } from '~/models/datavalid/pf-facial/result'
+import { PFFacialCDVBiometryAcceptablePercentageEnum } from '~/models/datavalid/pf-facial-cdv/biometry-acceptable-percentage'
 import logger from '~/utils/logger'
 
 export type VerifyResultReturn = {
@@ -68,8 +69,12 @@ const verifyResult = (body: PFFacialResult): VerifyResultReturn => {
   }
 
   if (body.biometria_face.disponivel) {
-    if (body.biometria_face.probabilidade === 'Baixa probabilidade' || body.biometria_face.probabilidade !== 'Baixíssima probabilidade') {
-      reproved_data.set('biometria_face.probabilidade', 'reproved')
+    if (body.biometria_face.similaridade && body.biometria_face.similaridade <= PFFacialCDVBiometryAcceptablePercentageEnum.PERCENTAGE) {
+      reproved_data.set('biometria_face.probabilidade', {
+        resultado: 'reproved',
+        valor: body.biometria_face.probabilidade,
+      })
+
       reproved_data.set('biometria_face.similaridade', body.biometria_face.similaridade)
     }
   }

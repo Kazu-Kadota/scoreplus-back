@@ -30,7 +30,7 @@ const updatePersonConstructor = ({
     expire_at_cnh: person.expire_at_cnh ?? request_person.expire_at_cnh,
     father_name: person.father_name ?? request_person.father_name,
     naturalness: person.naturalness ?? request_person.naturalness,
-    security_number_cnh: person.security_number_cnh ?? request_person.security_number_cnh,
+    mirror_number_cnh: person.mirror_number_cnh ?? request_person.mirror_number_cnh,
     // black_list
   }
 

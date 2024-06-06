@@ -1,5 +1,6 @@
 import { AttributeValue, DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
+import { UserGroupEnum } from '~/models/dynamo/enums/user'
 import { RequestplusAnalysisVehicle } from '~/models/dynamo/requestplus/analysis-vehicle/table'
 import { Controller } from '~/models/lambda'
 import scanRequestplusAnalysisVehicle, { ScanRequestplusAnalysisVehicleScan } from '~/services/aws/dynamo/request/analysis/vehicle/scan'
@@ -44,6 +45,11 @@ const requestVehicles: Controller<true> = async (req) => {
 
     if (scan_result?.result) {
       for (const item of scan_result.result) {
+        if (user_info.user_type === UserGroupEnum.CLIENT) {
+          delete item.vehicle_analysis_options.ethical?.reason
+          delete item.vehicle_analysis_options['plate-history']?.reason
+        }
+
         vehicles.push(item)
       }
     }

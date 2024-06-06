@@ -50,9 +50,12 @@ const PdfBoxAnalysisItem = (container: pdf.Cell, {
 
   PdfSpacer(analysisRightCell, PdfSpacing.sm)
 
+  const finished_at_without_utc = new Date(finished_at as string)
+  finished_at_without_utc.setHours(finished_at_without_utc.getHours() - 3)
+
   PdfBoxInfo(analysisRightCell, {
     label: 'Data da Análise',
-    text: dayjs(finished_at).format('DD/MM/YYYY'),
+    text: dayjs(finished_at_without_utc).format('DD/MM/YYYY HH:mm'),
     size: PdfBoxInfoSize.small,
     lineHeight: 1.2,
   })

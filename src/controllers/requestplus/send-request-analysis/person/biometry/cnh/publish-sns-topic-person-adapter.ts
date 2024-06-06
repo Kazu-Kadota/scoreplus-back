@@ -33,7 +33,7 @@ const publishSnsTopicPersonAdapter = async ({
       expire_at_cnh: request_person.expire_at_cnh,
       father_name: request_person.father_name,
       naturalness: request_person.naturalness,
-      security_number_cnh: request_person.security_number_cnh,
+      mirror_number_cnh: request_person.mirror_number_cnh,
     },
     person_id: request_person.person_id,
     request_id: request_person.request_id,

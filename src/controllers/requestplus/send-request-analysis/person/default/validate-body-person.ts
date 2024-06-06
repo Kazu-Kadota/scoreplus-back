@@ -62,7 +62,7 @@ export const person_schema = Joi.object<PersonRequestForms, true>({
   rg: Joi
     .string()
     .required(),
-  security_number_cnh: Joi
+  mirror_number_cnh: Joi
     .string()
     .optional(),
   state_rg: Joi

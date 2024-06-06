@@ -34,10 +34,29 @@ const queryRequestVehicleByPlateAdapter = async (
     throw new NotFoundError('Veículo não encontrado pela placa')
   }
 
+  (pending_analysis as RequestplusAnalysisVehicle[]).sort(
+    (r1, r2) => r1.created_at < r2.created_at
+      ? 1
+      : r1.created_at > r2.created_at
+        ? -1
+        : 0,
+  );
+
+  (finished_analysis as RequestplusFinishedAnalysisVehicle[]).sort(
+    (r1, r2) => r1.created_at < r2.created_at
+      ? 1
+      : r1.created_at > r2.created_at
+        ? -1
+        : 0,
+  )
+
   const data: (RequestplusAnalysisVehicle | RequestplusFinishedAnalysisVehicle)[] = []
 
   for (const item of pending_analysis as (RequestplusAnalysisVehicle | RequestplusFinishedAnalysisVehicle)[]) {
     if (user_info.user_type === 'client' && item.company_name === user_info.company_name) {
+      delete item.vehicle_analysis_options.ethical?.reason
+      delete item.vehicle_analysis_options['plate-history']?.reason
+
       data.push(item)
     } else if (user_info.user_type !== 'client') {
       data.push(item)
@@ -46,6 +65,9 @@ const queryRequestVehicleByPlateAdapter = async (
 
   for (const item of finished_analysis as (RequestplusAnalysisVehicle | RequestplusFinishedAnalysisVehicle)[]) {
     if (user_info.user_type === 'client' && item.company_name === user_info.company_name) {
+      delete item.vehicle_analysis_options.ethical?.reason
+      delete item.vehicle_analysis_options['plate-history']?.reason
+
       data.push(item)
     } else if (user_info.user_type !== 'client') {
       data.push(item)

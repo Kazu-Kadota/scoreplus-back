@@ -33,14 +33,19 @@ const getRequestVehicleAdapter = async ({
 
   if (request_vehicle) {
     const is_client_request = user_info.user_type === UserGroupEnum.CLIENT
-    if (is_client_request && user_info.company_name !== request_vehicle.company_name) {
-      logger.warn({
-        message: 'Vehicle not requested by company to be analyzed',
-        request_id: key.request_id,
-        vehicle_id: key.vehicle_id,
-      })
+    if (is_client_request) {
+      if (user_info.company_name !== request_vehicle.company_name) {
+        logger.warn({
+          message: 'Vehicle not requested by company to be analyzed',
+          request_id: key.request_id,
+          vehicle_id: key.vehicle_id,
+        })
 
-      throw new ForbiddenError('Requisição de análise não solicitada pela empresa')
+        throw new ForbiddenError('Requisição de análise não solicitada pela empresa')
+      }
+
+      delete request_vehicle.vehicle_analysis_options.ethical?.reason
+      delete request_vehicle.vehicle_analysis_options['plate-history']?.reason
     }
 
     return request_vehicle
@@ -50,14 +55,19 @@ const getRequestVehicleAdapter = async ({
 
   if (finished_vehicle) {
     const is_client_request = user_info.user_type === UserGroupEnum.CLIENT
-    if (is_client_request && user_info.company_name !== finished_vehicle.company_name) {
-      logger.warn({
-        message: 'Vehicle not requested by company to be analyzed',
-        request_id: key.request_id,
-        vehicle_id: key.vehicle_id,
-      })
+    if (is_client_request) {
+      if (user_info.company_name !== finished_vehicle.company_name) {
+        logger.warn({
+          message: 'Vehicle not requested by company to be analyzed',
+          request_id: key.request_id,
+          vehicle_id: key.vehicle_id,
+        })
 
-      throw new ForbiddenError('Requisição de análise não solicitada pela empresa')
+        throw new ForbiddenError('Requisição de análise não solicitada pela empresa')
+      }
+
+      delete finished_vehicle.vehicle_analysis_options.ethical?.reason
+      delete finished_vehicle.vehicle_analysis_options['plate-history']?.reason
     }
 
     return finished_vehicle

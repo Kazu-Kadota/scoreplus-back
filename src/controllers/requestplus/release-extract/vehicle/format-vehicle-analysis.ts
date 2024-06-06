@@ -15,7 +15,7 @@ const formatVehicleAnalysis = (analysis: RequestplusFinishedAnalysisVehicle, com
   let validity: string
 
   if (analysis.vehicle_analysis_type.type === CompanyVehicleAnalysisConfigEnum.AUTONOMOUS) {
-    validity = 'Próximo embarque'
+    validity = 'Embarque único'
   } else {
     const finished_at = dayjs(analysis.finished_at).toDate()
     finished_at.setDate(finished_at.getDate() + company.analysis_config[analysis.vehicle_analysis_type.type])
@@ -24,7 +24,7 @@ const formatVehicleAnalysis = (analysis: RequestplusFinishedAnalysisVehicle, com
   }
 
   if (analysis.result !== AnalysisResultEnum.APPROVED) {
-    validity = 'Inadequado para embarque'
+    validity = 'Inadequado'
   }
 
   const vehicle_analysis: PdfVehicleRequest = { ...analysis, validity }

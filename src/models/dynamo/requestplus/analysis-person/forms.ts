@@ -12,6 +12,6 @@ export type PersonRequestForms = {
   name: string
   naturalness?: string
   rg: string
-  security_number_cnh?: string
+  mirror_number_cnh?: string
   state_rg: StateEnum
 }

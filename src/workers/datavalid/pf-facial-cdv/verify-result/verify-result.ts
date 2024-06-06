@@ -68,6 +68,7 @@ const verifyResult = (body: PFFacialCDVResult): VerifyResultReturn => {
       reproved_data.set('cnh.retrato.probabilidade', {
         validation: 'reproved',
         ocr: body.cnh.retrato.similaridade,
+        probabilidade: body.cnh.retrato.probabilidade,
       })
     }
   }
@@ -77,6 +78,7 @@ const verifyResult = (body: PFFacialCDVResult): VerifyResultReturn => {
       reproved_data.set('biometria_face.probabilidade', {
         validation: 'reproved',
         ocr: body.biometria_face.similaridade,
+        probabilidade: body.biometria_face.probabilidade,
       })
     }
   }

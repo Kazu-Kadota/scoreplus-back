@@ -12,6 +12,7 @@ export type VehicleReportResult = MappedObject<
 MappedObject<VehicleReportCSVHeader, {
   [Key in CompanyRequestVehicleConfigEnum]?: boolean
 }>, {
+  combo_id: string
   combo_number: number
   result?: AnalysisResultEnum
   vehicle_type: VehicleType
@@ -55,6 +56,7 @@ const vehicleReport = async (
         owner_document: item.owner_document,
         owner_name: item.owner_name,
         plate: item.plate,
+        combo_id: item.combo_id,
         combo_number: item.combo_number,
         company_name: item.company_name,
         created_at: item.created_at,
@@ -94,6 +96,7 @@ const vehicleReport = async (
         owner_document: item.owner_document,
         owner_name: item.owner_name,
         plate: item.plate,
+        combo_id: item.combo_id,
         combo_number: item.combo_number,
         company_name: item.company_name,
         created_at: item.created_at,

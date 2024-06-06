@@ -1,3 +1,3 @@
 export enum PFFacialCDVBiometryAcceptablePercentageEnum {
-  PERCENTAGE = 0.9
+  PERCENTAGE = 0.85
 }
