@@ -15,7 +15,7 @@ const formatPersonAnalysis = (analysis: RequestplusFinishedAnalysisPerson, compa
   let validity: string
 
   if (analysis.person_analysis_type.type === CompanyPersonAnalysisConfigEnum.AUTONOMOUS) {
-    validity = 'Próximo embarque'
+    validity = 'Embarque único'
   } else {
     const finished_at = dayjs(analysis.finished_at).toDate()
     finished_at.setDate(finished_at.getDate() + company.analysis_config[analysis.person_analysis_type.type])
@@ -24,7 +24,7 @@ const formatPersonAnalysis = (analysis: RequestplusFinishedAnalysisPerson, compa
   }
 
   if (analysis.result !== AnalysisResultEnum.APPROVED) {
-    validity = 'Inadequado para embarque'
+    validity = 'Inadequado'
   }
 
   const person_analysis: PdfPersonRequest = { ...analysis, validity }

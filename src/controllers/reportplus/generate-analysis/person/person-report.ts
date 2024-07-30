@@ -13,6 +13,7 @@ export type PersonReportResult = MappedObject<
     [Key in CompanyRequestPersonConfigEnum]?: boolean
   }>, {
     analysis_type: AnalysisTypeEnum
+    combo_id: string
     combo_number: number
     result?: AnalysisResultEnum
 }>
@@ -53,6 +54,7 @@ const personReport = async (
       result.push({
         ...person_analysis_options_contructor,
         analysis_type: item.analysis_type,
+        combo_id: item.combo_id,
         combo_number: item.combo_number,
         company_name: item.company_name,
         created_at: item.created_at,
@@ -91,6 +93,7 @@ const personReport = async (
       result.push({
         ...person_analysis_options_contructor,
         analysis_type: item.analysis_type,
+        combo_id: item.combo_id,
         combo_number: item.combo_number,
         company_name: item.company_name,
         created_at: item.created_at,

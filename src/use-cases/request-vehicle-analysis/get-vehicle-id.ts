@@ -16,6 +16,10 @@ const getVehicleId = async (
   }
   const vehicle = await queryVehicleByPlate(query, dynamodbClient)
 
+  if (vehicle && vehicle[0]) {
+    return vehicle[0].vehicle_id
+  }
+
   const query_requested_vehicle: QueryRequestplusAnalysisVehicleByPlateQuery = {
     plate,
     plate_state,
@@ -26,17 +30,11 @@ const getVehicleId = async (
     dynamodbClient,
   )
 
-  let vehicle_id: string
-
-  if (vehicle && vehicle[0]) {
-    vehicle_id = vehicle[0].vehicle_id
-  } else if (requested_vehicle && requested_vehicle[0]) {
-    vehicle_id = requested_vehicle[0].vehicle_id
-  } else {
-    vehicle_id = uuid()
+  if (requested_vehicle && requested_vehicle[0]) {
+    return requested_vehicle[0].vehicle_id
   }
 
-  return vehicle_id
+  return uuid()
 }
 
 export default getVehicleId

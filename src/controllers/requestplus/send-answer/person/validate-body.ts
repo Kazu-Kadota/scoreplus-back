@@ -2,14 +2,12 @@ import Joi from 'joi'
 
 import { CompanyRequestPersonConfigEnum } from '~/models/dynamo/enums/company'
 import { AnalysisResultEnum, PersonStateEnum } from '~/models/dynamo/enums/request'
-import { SendAnswerPersonBody } from '~/models/dynamo/requestplus/finished-analysis-person/table'
+import { UseCaseSendPersonAnswersBody } from '~/use-cases/answer-person-analysis'
 import BadRequestError from '~/utils/errors/400-bad-request'
 import logger from '~/utils/logger'
 
-export type ValidateSendAnswerPersonBody = Omit<SendAnswerPersonBody, 'answered_at'>
-
-const schema = Joi.array<ValidateSendAnswerPersonBody[]>().items(
-  Joi.object<ValidateSendAnswerPersonBody, true>({
+const schema = Joi.array<UseCaseSendPersonAnswersBody[]>().items(
+  Joi.object<UseCaseSendPersonAnswersBody, true>({
     reason: Joi
       .string()
       .when('result', {
@@ -35,8 +33,8 @@ const schema = Joi.array<ValidateSendAnswerPersonBody[]>().items(
   }).required())
 
 const validateBody = (
-  data: Partial<ValidateSendAnswerPersonBody[]>,
-): ValidateSendAnswerPersonBody[] => {
+  data: Partial<UseCaseSendPersonAnswersBody[]>,
+): UseCaseSendPersonAnswersBody[] => {
   const { value, error } = schema.validate(data, {
     abortEarly: true,
   })

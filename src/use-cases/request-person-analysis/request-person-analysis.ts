@@ -8,6 +8,7 @@ import { PersonAnalysisType } from '~/models/dynamo/requestplus/analysis-person/
 import {
   RequestplusAnalysisPersonKey,
   RequestplusAnalysisPersonBody,
+  RequestplusAnalysisPerson,
 } from '~/models/dynamo/requestplus/analysis-person/table'
 import { CompanyRequestPersonConfig } from '~/models/dynamo/userplus/company'
 import putRequestplusAnalysisPerson from '~/services/aws/dynamo/request/analysis/person/put'
@@ -22,6 +23,7 @@ import personStatusConstructor from './person-status-constructor'
 export type PersonAnalysisResponse = {
   analysis_type: AnalysisTypeEnum
   name: string
+  person: RequestplusAnalysisPerson
   person_analysis_options: Partial<PersonAnalysisOptionsRequest<false>>
   person_analysis_type: PersonAnalysisType
   person_id: string
@@ -88,7 +90,7 @@ const requestPersonAnalysis = async (
     request_id,
   }
 
-  await putRequestplusAnalysisPerson(request_person_key, request_person_person_data, dynamodbClient)
+  const person = await putRequestplusAnalysisPerson(request_person_key, request_person_person_data, dynamodbClient)
 
   logger.debug({
     message: 'Successfully requested person analysis',
@@ -99,6 +101,7 @@ const requestPersonAnalysis = async (
   return {
     analysis_type,
     name: person_data.name,
+    person,
     person_analysis_options,
     person_analysis_type,
     person_id,

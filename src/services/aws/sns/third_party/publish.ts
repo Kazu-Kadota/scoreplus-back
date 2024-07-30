@@ -19,7 +19,7 @@ const publishThirdPartySns = async (
     TopicArn: SNS_REQUESTPLUS_THIRD_PARTY_WORKERS_ARN,
   })
 
-  console.log(await sns_client.send(command))
+  await sns_client.send(command)
 }
 
 export default publishThirdPartySns

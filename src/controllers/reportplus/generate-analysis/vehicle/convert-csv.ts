@@ -21,17 +21,18 @@ export type VehicleReportCSVVehicleConfig = {
 }
 
 export type VehicleReportCSVHeader = VehicleReportCSVVehicleConfig & {
-  company_name: string
-  request_id: string
-  vehicle_id: string
-  plate: string
-  vehicle_type: string
-  owner_name: string
-  owner_document: string
+  combo_id?: string
   combo_number?: string
-  result?: string
+  company_name: string
   created_at: string
   finished_at?: string
+  owner_document: string
+  owner_name: string
+  plate: string
+  request_id: string
+  result?: string
+  vehicle_id: string
+  vehicle_type: string
 }
 
 const convertCsv = ({
@@ -68,8 +69,9 @@ const convertCsv = ({
     owner_document: 'Documento do dono',
     ethical: vehicle_analysis_options.ethical,
     'plate-history': vehicle_analysis_options['plate-history'],
-    antt: vehicle_analysis_options.antt,
-    cronotacografo: vehicle_analysis_options.cronotacografo,
+    // antt: vehicle_analysis_options.antt,
+    // cronotacografo: vehicle_analysis_options.cronotacografo,
+    combo_id: 'ID do combo',
     combo_number: 'Número de requisições dentro do combo',
     created_at: 'Data de criação da análise',
     finished_at: 'Data de resposta da análise',

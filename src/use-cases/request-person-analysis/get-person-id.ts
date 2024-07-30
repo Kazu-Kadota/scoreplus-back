@@ -13,6 +13,10 @@ const getPersonId = async (
   }
   const person_analysis_people = await queryAnalysisplusPeopleByDocument(query_people, dynamodbClient)
 
+  if (person_analysis_people && person_analysis_people[0]) {
+    return person_analysis_people[0].person_id
+  }
+
   const query_person: QueryRequestplusAnalysisPersonByDocumentQuery = {
     document: person_document,
   }
@@ -22,17 +26,11 @@ const getPersonId = async (
     dynamodbClient,
   )
 
-  let person_id: string
-
-  if (person_analysis_people && person_analysis_people[0]) {
-    person_id = person_analysis_people[0].person_id
-  } else if (requested_person && requested_person[0]) {
-    person_id = requested_person[0].person_id
-  } else {
-    person_id = uuid()
+  if (requested_person && requested_person[0]) {
+    return requested_person[0].person_id
   }
 
-  return person_id
+  return uuid()
 }
 
 export default getPersonId

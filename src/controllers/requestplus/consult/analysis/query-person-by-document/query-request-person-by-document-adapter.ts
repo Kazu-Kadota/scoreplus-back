@@ -34,10 +34,31 @@ const queryRequestPersonByDocumentAdapter = async (
     throw new NotFoundError('Pessoa não encontrada pelo documento')
   }
 
+  (pending_analysis as RequestplusAnalysisPerson[]).sort(
+    (r1, r2) => r1.created_at < r2.created_at
+      ? 1
+      : r1.created_at > r2.created_at
+        ? -1
+        : 0,
+  );
+
+  (finished_analysis as RequestplusFinishedAnalysisPerson[]).sort(
+    (r1, r2) => r1.created_at < r2.created_at
+      ? 1
+      : r1.created_at > r2.created_at
+        ? -1
+        : 0,
+  )
+
   const data: (RequestplusFinishedAnalysisPerson | RequestplusAnalysisPerson)[] = []
 
   for (const item of pending_analysis as RequestplusAnalysisPerson[]) {
     if (user_info.user_type === 'client' && item.company_name === user_info.company_name) {
+      delete item.person_analysis_options.ethical?.reason
+      item.person_analysis_options.history?.regions.forEach((region) => {
+        delete region.reason
+      })
+
       data.push(item)
     } else if (user_info.user_type !== 'client') {
       data.push(item)
@@ -46,6 +67,11 @@ const queryRequestPersonByDocumentAdapter = async (
 
   for (const item of finished_analysis as RequestplusFinishedAnalysisPerson[]) {
     if (user_info.user_type === 'client' && item.company_name === user_info.company_name) {
+      delete item.person_analysis_options.ethical?.reason
+      item.person_analysis_options.history?.regions.forEach((region) => {
+        delete region.reason
+      })
+
       data.push(item)
     } else if (user_info.user_type !== 'client') {
       data.push(item)

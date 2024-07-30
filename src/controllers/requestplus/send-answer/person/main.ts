@@ -1,9 +1,9 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 import { Controller } from '~/models/lambda'
+import useCaseSendPersonAnswer, { UseCaseSendPersonAnswerParams } from '~/use-cases/answer-person-analysis'
 import logger from '~/utils/logger'
 
-import sendPersonAnswer, { SendPersonAnswerParams } from './send-person-answer'
 import validateBody from './validate-body'
 import validatePath from './validate-path'
 import validateQueryPerson from './validate-query-person'
@@ -19,14 +19,14 @@ const sendAnswerPersonController: Controller<true> = async (req) => {
   const { person_id } = validatePath({ ...req.pathParameters })
   const { request_id } = validateQueryPerson({ ...req.queryStringParameters })
 
-  const data: SendPersonAnswerParams = {
+  const data: UseCaseSendPersonAnswerParams = {
     request_id,
     answers_body: body,
     dynamodbClient,
     person_id,
   }
 
-  await sendPersonAnswer(data)
+  await useCaseSendPersonAnswer(data)
 
   logger.info({
     message: 'Person answer registered successfully',

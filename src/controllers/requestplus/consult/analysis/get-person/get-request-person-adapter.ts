@@ -1,7 +1,6 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 import { UserGroupEnum } from '~/models/dynamo/enums/user'
-
 import {
   RequestplusAnalysisPerson,
   RequestplusAnalysisPersonKey,
@@ -40,15 +39,22 @@ const getRequestPersonAdapter = async ({
 
   if (request_person) {
     const is_client_request = user_info.user_type === UserGroupEnum.CLIENT
-    if (is_client_request && user_info.company_name !== request_person.company_name) {
-      logger.warn({
-        message: 'Person not requested by company to be analyzed',
-        company_name: user_info,
-        request_id: key.request_id,
-        person_id: key.person_id,
-      })
+    if (is_client_request) {
+      if (user_info.company_name !== request_person.company_name) {
+        logger.warn({
+          message: 'Person not requested by company to be analyzed',
+          company_name: user_info,
+          request_id: key.request_id,
+          person_id: key.person_id,
+        })
 
-      throw new ForbiddenError('Requisição de análise não solicitada pela empresa')
+        throw new ForbiddenError('Requisição de análise não solicitada pela empresa')
+      }
+
+      delete request_person.person_analysis_options.ethical?.reason
+      request_person.person_analysis_options.history?.regions.forEach((region) => {
+        delete region.reason
+      })
     }
 
     return request_person
@@ -58,15 +64,22 @@ const getRequestPersonAdapter = async ({
 
   if (finished_person) {
     const is_client_request = user_info.user_type === UserGroupEnum.CLIENT
-    if (is_client_request && user_info.company_name !== finished_person.company_name) {
-      logger.warn({
-        message: 'Person not requested by company to be analyzed',
-        company_name: user_info,
-        request_id: key.request_id,
-        person_id: key.person_id,
-      })
+    if (is_client_request) {
+      if (user_info.company_name !== finished_person.company_name) {
+        logger.warn({
+          message: 'Person not requested by company to be analyzed',
+          company_name: user_info,
+          request_id: key.request_id,
+          person_id: key.person_id,
+        })
 
-      throw new ForbiddenError('Requisição de análise não solicitada pela empresa')
+        throw new ForbiddenError('Requisição de análise não solicitada pela empresa')
+      }
+
+      delete finished_person.person_analysis_options.ethical?.reason
+      finished_person.person_analysis_options.history?.regions.forEach((region) => {
+        delete region.reason
+      })
     }
 
     return finished_person

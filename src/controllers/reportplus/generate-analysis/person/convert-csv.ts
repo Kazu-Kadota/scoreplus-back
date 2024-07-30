@@ -5,7 +5,6 @@ import { CompanyRequestPersonConfigEnum } from '~/models/dynamo/enums/company'
 import { UserplusCompany } from '~/models/dynamo/userplus/company'
 import { UserFromJwt } from '~/utils/extract-jwt-lambda'
 import logger from '~/utils/logger'
-
 import removeEmpty from '~/utils/remove-empty'
 
 import { PersonReportResponse } from './person-report'
@@ -21,16 +20,17 @@ export type PersonReportCSVPersonConfig = {
 }
 
 export type PersonReportCSVHeader = PersonReportCSVPersonConfig & {
-  company_name: string
-  request_id: string
-  person_id: string
-  name: string
-  document: string
   analysis_type: string
+  combo_id?: string
   combo_number?: string
-  result?: string
+  company_name: string
   created_at: string
+  document: string
   finished_at?: string
+  name: string
+  person_id: string
+  request_id: string
+  result?: string
 }
 
 const convertCsv = ({
@@ -66,10 +66,13 @@ const convertCsv = ({
     analysis_type: 'Tipo de análise da pessoa',
     ethical: person_analysis_options.ethical,
     history: person_analysis_options.history,
-    biometry: person_analysis_options.biometry,
-    'cnh-advanced': person_analysis_options['cnh-advanced'],
-    'cnh-medium': person_analysis_options['cnh-medium'],
-    'cnh-simple': person_analysis_options['cnh-simple'],
+    'biometry-basic': person_analysis_options['biometry-basic'],
+    // 'biometry-cnh': person_analysis_options['biometry-cnh'],
+    'biometry-facial': person_analysis_options['biometry-facial'],
+    // 'cnh-advanced': person_analysis_options['cnh-advanced'],
+    // 'cnh-medium': person_analysis_options['cnh-medium'],
+    // 'cnh-simple': person_analysis_options['cnh-simple'],
+    combo_id: 'ID do combo',
     combo_number: 'Número de requisições dentro do combo',
     created_at: 'Data de criação da análise',
     finished_at: 'Data de resposta da análise',

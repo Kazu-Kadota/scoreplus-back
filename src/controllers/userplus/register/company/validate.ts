@@ -58,7 +58,13 @@ const company_config_vehicle_schema = Joi.object<CompanyRequestVehicleConfig, tr
 })
 
 const company_config_person_schema = Joi.object<CompanyRequestPersonConfig, true>({
-  biometry: Joi
+  'biometry-basic': Joi
+    .boolean()
+    .required(),
+  'biometry-cnh': Joi
+    .boolean()
+    .required(),
+  'biometry-facial': Joi
     .boolean()
     .required(),
   'cnh-simple': Joi

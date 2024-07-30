@@ -1,0 +1,26 @@
+{
+  "Records": [
+    {
+      "body": "{\"biometry-facial\":{\"key\":{\"cpf\":\"11295395045\"},\"answer\":{\"nome\":\"Isabelle Antonella Teixeiraa\",\"data_nascimento\":\"1982-11-12\",\"situacao_cpf\":\"regular\",\"cnh\":{\"numero_registro\":\"AB\",\"categoria\":\"AB\",\"codigo_situacao\":\"3\",\"possui_impedimento\":false},\"filiacao\":{\"nome_mae\":\"Adriana Maya Teixeira\"},\"documento\":{\"numero\":\"234567890\",\"tipo\":1,\"uf_expedidor\":\"RJ\"},\"endereco\":{},\"biometria_face\":{\"s3_image_path\":\"3bc3744b-eee4-4899-86af-3375927780db/3a166453-416b-4fbb-aca3-d2844a33faf4/facial_image.jpeg.bin\"}}}}",
+      "messageAttributes": {
+        "origin": {
+          "dataType": "String",
+          "stringValue": "scoreplus"
+        },
+        "person_id": {
+          "dataType": "String",
+          "stringValue": "3bc3744b-eee4-4899-86af-3375927780db"
+        },
+        "request_id": {
+          "dataType": "String",
+          "stringValue": "925104af-4a87-4051-ad77-e0f5579abbd2"
+        },
+        "requestId": {
+          "dataType": "String",
+          "stringValue": "3a166453-416b-4fbb-aca3-d2844a33faf4"
+        }
+      },
+      "messageId": "e7457672-a66f-4bb9-8fa6-5997ae4efa08"
+    }
+  ]
+}
