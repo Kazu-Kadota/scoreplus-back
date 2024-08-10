@@ -17,7 +17,7 @@ const listPeopleController: Controller<true> = async (req) => {
 
   let last_evaluated_key: Record<string, AttributeValue> | undefined
   const scan: ScanRequestplusAnalysisPersonScan = {}
-  const people: RequestplusAnalysisPerson[] = []
+  const people: Omit<RequestplusAnalysisPerson, 'm2_request'>[] = []
 
   if (user_info.user_type === 'client') {
     scan.company_name = user_info.company_name
@@ -51,8 +51,9 @@ const listPeopleController: Controller<true> = async (req) => {
             delete region.reason
           })
         }
+        const { m2_request, ...request } = item
 
-        people.push(item)
+        people.push(request)
       }
     }
 
