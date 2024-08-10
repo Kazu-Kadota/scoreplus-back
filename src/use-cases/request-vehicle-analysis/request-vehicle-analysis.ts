@@ -13,6 +13,7 @@ import logger from '~/utils/logger'
 import removeEmpty from '~/utils/remove-empty'
 
 import getVehicleId from './get-vehicle-id'
+import sendVehicleAnalysisToM2System from './send-vehicle-analysis-to-m2system'
 import vehicleAnalysisOptionsConstructor from './vehicle-analysis-options-constructor'
 import vehicleStatusConstructor from './vehicle-status-constructor'
 
@@ -65,12 +66,19 @@ const requestVehicleAnalysis = async ({
 
   const status = vehicleStatusConstructor(vehicle_analysis_options)
 
+  const m2_request = await sendVehicleAnalysisToM2System({
+    company_request_vehicle_config,
+    vehicle_analysis_options_to_request,
+    vehicle_data,
+  })
+
   const data_request_vehicle: RequestplusAnalysisVehicleBody = {
     ...vehicle_data,
     analysis_type,
     combo_id,
     combo_number: combo_number || undefined,
     company_name: user_info.user_type === 'admin' ? vehicle_data.company_name as string : user_info.company_name,
+    m2_request,
     status,
     user_id: user_info.user_id,
     vehicle_analysis_options,

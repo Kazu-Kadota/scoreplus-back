@@ -1,5 +1,6 @@
 import { AnalysisTypeEnum } from '../../enums/request'
 import { Timestamp } from '../../timestamp'
+import { M2VehicleAnalysisResponse } from '~/models/m2system/request/analysis-vehicle'
 
 import { VehicleRequestForms } from './forms'
 import { VehicleAnalysisStatus } from './status'
@@ -22,6 +23,7 @@ export type RequestplusAnalysisVehicleBody = VehicleRequestForms & {
   combo_id?: string
   combo_number?: number
   company_name: string
+  m2_request: M2VehicleAnalysisResponse[]
   status: VehicleAnalysisStatus<false>
   user_id: string
   vehicle_analysis_options: Partial<VehicleAnalysisOptionsRequest<false>>
