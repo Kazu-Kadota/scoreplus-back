@@ -3,6 +3,7 @@ import { PersonStateEnum } from '~/models/dynamo/enums/request'
 import { PersonAnalysisOptionsRequest, PersonAnalysisOptionsToRequest } from '~/models/dynamo/requestplus/analysis-person/person-analysis-options'
 import { CompanyRequestPersonConfig } from '~/models/dynamo/userplus/company'
 import BadRequestError from '~/utils/errors/400-bad-request'
+import InternalServerError from '~/utils/errors/500-internal-server-error'
 import logger from '~/utils/logger'
 
 const personAnalysisOptionsConstructor = (
@@ -17,6 +18,17 @@ const personAnalysisOptionsConstructor = (
     if (analysis_to_request === CompanyRequestPersonConfigEnum.HISTORY) {
       person_analysis_options[analysis_to_request] = { regions: [] }
       const company_request_person_config_history = Object.entries(request_person_config[CompanyRequestPersonConfigEnum.HISTORY])
+
+      if (company_request_person_config_history.length === 0) {
+        logger.warn({
+          message: 'Company selected history but does not have states',
+          request_person_config,
+        })
+
+        throw new InternalServerError('Empresa selecionou histórico mas não há estados', {
+          request_person_config,
+        })
+      }
 
       for (const [history_regions, to_be_analyzed] of company_request_person_config_history) {
         const region = history_regions as PersonStateEnum

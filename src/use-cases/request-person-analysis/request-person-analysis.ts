@@ -19,6 +19,7 @@ import removeEmpty from '~/utils/remove-empty'
 import getPersonId from './get-person-id'
 import personAnalysisOptionsConstructor from './person-analysis-options-constructor'
 import personStatusConstructor from './person-status-constructor'
+import sendPersonAnalysisToM2System from './send-person-analysis-to-m2system'
 
 export type PersonAnalysisResponse = {
   analysis_type: AnalysisTypeEnum
@@ -42,19 +43,17 @@ export type PersonAnalysisRequest = {
   user_info: UserFromJwt
 }
 
-const requestPersonAnalysis = async (
-  {
-    analysis_type,
-    combo_id,
-    combo_number,
-    company_request_person_config,
-    dynamodbClient,
-    person_analysis_options_to_request,
-    person_analysis_type,
-    person_data,
-    user_info,
-  }: PersonAnalysisRequest,
-): Promise<PersonAnalysisResponse> => {
+const requestPersonAnalysis = async ({
+  analysis_type,
+  combo_id,
+  combo_number,
+  company_request_person_config,
+  dynamodbClient,
+  person_analysis_options_to_request,
+  person_analysis_type,
+  person_data,
+  user_info,
+}: PersonAnalysisRequest): Promise<PersonAnalysisResponse> => {
   logger.debug({
     message: 'Requested person analysis',
     analysis_type,
@@ -71,12 +70,19 @@ const requestPersonAnalysis = async (
 
   const status = personStatusConstructor(person_analysis_options)
 
+  const m2_request = await sendPersonAnalysisToM2System({
+    company_request_person_config,
+    person: person_data,
+    person_analysis_options_to_request,
+  })
+
   const data_request_person: RequestplusAnalysisPersonBody = {
     ...person_data,
     analysis_type,
     combo_id,
     combo_number: combo_number ?? undefined,
     company_name: user_info.user_type === 'admin' ? person_data.company_name as string : user_info.company_name,
+    m2_request,
     person_analysis_options,
     person_analysis_type,
     status,
