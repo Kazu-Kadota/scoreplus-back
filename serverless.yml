@@ -7,33 +7,38 @@ provider:
   stage: stage
   environment:
     AWS_REGION: us-east-1
-    WORKSPACE: prd
-    AUTH_ES256_PRIVATE_KEY: ${ssm:/prd/auth-key/ecdsa/private}
+    WORKSPACE: sdx
+    AUTH_ES256_PRIVATE_KEY: ${ssm:/sdx/auth-key/ecdsa/private}
     DATAVALID_ENDPOINT: https://gateway.apiserpro.serpro.gov.br/datavalid/v3
-    DYNAMO_TABLE_USERPLUS_ACCESS_TOKEN: userplus-access-token-prd
-    DYNAMO_TABLE_USERPLUS_COMPANY: userplus-company-prd
-    DYNAMO_TABLE_USERPLUS_USER: userplus-users-prd
-    DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD: userplus-recovery-password-prd
-    DYNAMO_TABLE_USERPLUS_PASSWORD_HISTORY: userplus-password-history-prd
-    DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON: requestplus-analysis-person-prd
-    DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE: requestplus-analysis-vehicle-prd
-    DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON: requestplus-finished-analysis-person-prd
-    DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE: requestplus-finished-analysis-vehicle-prd
-    DYNAMO_TABLE_ANALYSISPLUS_PEOPLE: analysisplus-people-prd
-    DYNAMO_TABLE_ANALYSISPLUS_VEHICLES: analysisplus-vehicles-prd
+    DYNAMO_TABLE_ANALYSISPLUS_PEOPLE: analysisplus-people-sdx
+    DYNAMO_TABLE_ANALYSISPLUS_VEHICLES: analysisplus-vehicles-sdx
+    DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_PERSON: requestplus-analysis-person-sdx
+    DYNAMO_TABLE_REQUESTPLUS_ANALYSIS_VEHICLE: requestplus-analysis-vehicle-sdx
+    DYNAMO_TABLE_REQUESTPLUS_COMPANY_CONSULT: requestplus-company-consult-sdx
+    DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON: requestplus-finished-analysis-person-sdx
+    DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE: requestplus-finished-analysis-vehicle-sdx
+    DYNAMO_TABLE_USERPLUS_ACCESS_TOKEN: userplus-access-token-sdx
+    DYNAMO_TABLE_USERPLUS_COMPANY: userplus-company-sdx
+    DYNAMO_TABLE_USERPLUS_PASSWORD_HISTORY: userplus-password-history-sdx
+    DYNAMO_TABLE_USERPLUS_RECOVERY_PASSWORD: userplus-recovery-password-sdx
+    DYNAMO_TABLE_USERPLUS_USER: userplus-users-sdx
+    M2SYSTEM_REQUEST_ENDPOINT: ${ssm:/sdx/m2system/request/endpoint}
+    M2SYSTEM_USER_ENDPOINT: ${ssm:/sdx/m2system/user/endpoint}
+    M2SYSTEM_USER_LOGIN_EMAIL: ${ssm:/sdx/m2system/user/login/email}
+    M2SYSTEM_USER_LOGIN_PASSWORD: ${ssm:/sdx/m2system/user/login/password}
+    S3_BUCKET_REQUESTPLUS_ANALYSIS_PERSON_BIOMETRY: requestplus-analysis-person-biometry-sdx
+    SCOREPLUS_DATAVALID_USER_ACCOUNT: ${ssm:/sdx/lambda/worker/datavalid/user}
+    SCOREPLUS_DATAVALID_USER_PASSWORD: ${ssm:/sdx/lambda/worker/datavalid/password}
+    SCOREPLUS_EMAIL: sdx.no-reply@systemscoreplus.com.br
+    SCOREPLUS_REQUESTPLUS_URL: https://request.api.systemscoreplus.com.br
+    SCOREPLUS_USERPLUS_URL: https://user.api.systemscoreplus.com.br
+    SERPRO_CONSUMER_KEY: ${ssm:/sdx/serpro-consumer-key}
+    SERPRO_CONSUMER_SECRET: ${ssm:/sdx/serpro-consumer-secret}
+    SERPRO_ENDPOINT: https://gateway.apiserpro.serpro.gov.br
+    SNS_REQUESTPLUS_THIRD_PARTY_WORKERS_ARN: arn:aws:sns:us-east-1:316279706039:requestplus-third-party-workers
+    SQS_DATAVALID_FACIAL: https://sqs.us-east-1.amazonaws.com/316279706039/requestplus-pf-facial-biometry-sdx.fifo
     STAGE: local
     USER_RECOVERY_KEY_URL: https://user.api.systemscoreplus.com.br/reset-password
-    S3_BUCKET_REQUESTPLUS_ANALYSIS_PERSON_BIOMETRY: requestplus-analysis-person-biometry-prd
-    SERPRO_ENDPOINT: https://gateway.apiserpro.serpro.gov.br
-    SERPRO_CONSUMER_KEY: ${ssm:/prd/serpro-consumer-key}
-    SERPRO_CONSUMER_SECRET: ${ssm:/prd/serpro-consumer-secret}
-    SCOREPLUS_EMAIL: prd.no-reply@systemscoreplus.com.br
-    SCOREPLUS_DATAVALID_USER_ACCOUNT: ${ssm:/prd/lambda/worker/datavalid/user}
-    SCOREPLUS_DATAVALID_USER_PASSWORD: ${ssm:/prd/lambda/worker/datavalid/password}
-    SCOREPLUS_USERPLUS_URL: https://user.api.systemscoreplus.com.br
-    SCOREPLUS_REQUESTPLUS_URL: https://request.api.systemscoreplus.com.br
-    SNS_REQUESTPLUS_THIRD_PARTY_WORKERS_ARN: arn:aws:sns:us-east-1:316279706039:requestplus-third-party-workers
-    SQS_DATAVALID_FACIAL: https://sqs.us-east-1.amazonaws.com/316279706039/requestplus-pf-facial-biometry-prd.fifo
 
 
 package:
@@ -369,6 +374,20 @@ functions:
       - http:
           method: post
           path: /report/analysis/vehicle
+          authorizer:
+            type: CUSTOM
+            authorizerId: abcjfk
+          localAuthorizer:
+            name: "mylocalAuthProxyFn"
+            type: "request"
+
+  reportplus-company-consult:
+    handler: src/controllers/reportplus/company-consult/index.handler
+    timeout: 600
+    events:
+      - http:
+          method: get
+          path: /report/company-consult
           authorizer:
             type: CUSTOM
             authorizerId: abcjfk
