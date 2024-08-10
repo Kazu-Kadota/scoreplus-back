@@ -3,6 +3,8 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import getCompanyAdapter from '../get-company-adapter '
 import getUserAdapter from '../get-user-adapter'
 import verifyCompanyName from '../verify-company-name'
+import { UserGroupEnum } from '~/models/dynamo/enums/user'
+import { UserplusCompany } from '~/models/dynamo/userplus/company'
 import { Controller } from '~/models/lambda'
 import logger from '~/utils/logger'
 
@@ -29,10 +31,18 @@ const personReleaseExtractController: Controller<true> = async (req) => {
 
   const company = await getCompanyAdapter(person_analysis.company_name, dynamodbClient)
 
+  let user_company
+
+  if (user.user_type === UserGroupEnum.CLIENT && user.company_name !== person_analysis.company_name) {
+    user_company = await getCompanyAdapter(user.company_name, dynamodbClient)
+  } else if (user.user_type === UserGroupEnum.CLIENT && user.company_name === person_analysis.company_name) {
+    user_company = company
+  }
+
   verifyCompanyName(user, person_analysis)
 
   const pdf_buffer = await generatePersonPdf({
-    company,
+    company: user.user_type === UserGroupEnum.CLIENT ? user_company as UserplusCompany : company,
     user,
     verification_code: params.request_id,
     person_analysis: formatPersonAnalysis(person_analysis, company),
