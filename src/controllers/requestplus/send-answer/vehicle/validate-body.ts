@@ -1,7 +1,7 @@
 import Joi from 'joi'
 
 import { CompanyRequestVehicleConfigEnum } from '~/models/dynamo/enums/company'
-import { AnalysisResultEnum } from '~/models/dynamo/enums/request'
+import { AnalysisResultEnum, StateEnum } from '~/models/dynamo/enums/request'
 import { SendAnswerVehicleBody } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
 import BadRequestError from '~/utils/errors/400-bad-request'
 import logger from '~/utils/logger'
@@ -25,6 +25,13 @@ const schema = Joi.array<ValidateSendAnswerVehicleBody[]>().items(
       .string()
       .valid(CompanyRequestVehicleConfigEnum.ETHICAL, CompanyRequestVehicleConfigEnum.PLATE_HISTORY)
       .required(),
+    region: Joi
+      .string()
+      .when('type', {
+        is: CompanyRequestVehicleConfigEnum.PLATE_HISTORY,
+        then: Joi.valid(...Object.values(StateEnum)).required(),
+        otherwise: Joi.forbidden(),
+      }),
   }).required())
 
 const validateBody = (

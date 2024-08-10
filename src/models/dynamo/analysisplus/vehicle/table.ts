@@ -10,8 +10,8 @@ export type AnalysisplusVehiclesKey = {
 }
 
 export type AnalysisplusVehiclesBody = Omit<VehicleRequestForms, 'driver_name' | 'plate' | 'company_name'> & {
-  companies: VehiclesAnalysisCompanyOptions
-  validated: VehiclesAnalysisValidatedOptions
+  companies: Partial<VehiclesAnalysisCompanyOptions>
+  validated: Partial<VehiclesAnalysisValidatedOptions>
   black_list?: boolean
   driver_name?: string[]
 }

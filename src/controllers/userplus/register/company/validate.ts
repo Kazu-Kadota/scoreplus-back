@@ -53,7 +53,7 @@ const company_config_vehicle_schema = Joi.object<CompanyRequestVehicleConfig, tr
     .boolean()
     .required(),
   'plate-history': Joi
-    .boolean()
+    .object()
     .required(),
 })
 
@@ -83,12 +83,13 @@ const company_config_person_schema = Joi.object<CompanyRequestPersonConfig, true
     .object<Record<PersonStateEnum, boolean>>()
     .default({
       SP: true,
-      BA: true,
       MG: true,
       GO: true,
       SC: true,
       PR: true,
       RJ: true,
+      MT: true,
+      MS: true,
     })
     .required(),
 })

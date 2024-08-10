@@ -64,6 +64,7 @@ export enum StateEnum {
   TO = 'TO',
 }
 
+// Como o nacional histórico será a pesquisa ética, não precisa ter o Brasil como valor e pode ser juntado em uma única Enum
 export enum PersonStateEnum {
   AC = 'AC',
   AL = 'AL',
