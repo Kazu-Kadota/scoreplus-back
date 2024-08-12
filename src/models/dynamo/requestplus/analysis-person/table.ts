@@ -23,7 +23,7 @@ export type RequestplusAnalysisPersonBody = PersonRequestForms & {
   combo_id?: string
   combo_number?: number
   company_name: string
-  m2_request: M2PersonRequestAnalysisResponseBody[]
+  m2_request?: M2PersonRequestAnalysisResponseBody[]
   person_analysis_options: Partial<PersonAnalysisOptionsRequest<false>>
   person_analysis_type: PersonAnalysisType
   status: PersonAnalysisStatus<false>

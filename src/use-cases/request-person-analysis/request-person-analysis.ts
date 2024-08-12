@@ -24,7 +24,7 @@ import sendPersonAnalysisToM2System from './send-person-analysis-to-m2system'
 export type PersonAnalysisResponse = {
   analysis_type: AnalysisTypeEnum
   name: string
-  person: RequestplusAnalysisPerson
+  person: Omit<RequestplusAnalysisPerson, 'm2_request'>
   person_analysis_options: Partial<PersonAnalysisOptionsRequest<false>>
   person_analysis_type: PersonAnalysisType
   person_id: string
@@ -98,6 +98,8 @@ const requestPersonAnalysis = async ({
 
   const person = await putRequestplusAnalysisPerson(request_person_key, request_person_person_data, dynamodbClient)
 
+  const { m2_request: m2, ...person_sanitized } = person
+
   logger.debug({
     message: 'Successfully requested person analysis',
     person_id,
@@ -107,7 +109,7 @@ const requestPersonAnalysis = async ({
   return {
     analysis_type,
     name: person_data.name,
-    person,
+    person: person_sanitized,
     person_analysis_options,
     person_analysis_type,
     person_id,

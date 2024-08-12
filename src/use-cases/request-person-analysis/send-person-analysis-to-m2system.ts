@@ -16,11 +16,15 @@ async function sendPersonAnalysisToM2System ({
   person,
   company_request_person_config,
   person_analysis_options_to_request,
-}: SendPersonAnalysisToM2SystemParams): Promise<M2PersonRequestAnalysisResponseBody[]> {
+}: SendPersonAnalysisToM2SystemParams): Promise<M2PersonRequestAnalysisResponseBody[] | undefined> {
   const person_analysis_constructor: M2PersonAnalysisItems[] = m2PersonAnalysisConstructor({
     company_request_person_config,
     person_analysis_options_to_request,
   })
+
+  if (person_analysis_constructor.length === 0) {
+    return undefined
+  }
 
   const { mirror_number_cnh, ...person_forms } = person
 

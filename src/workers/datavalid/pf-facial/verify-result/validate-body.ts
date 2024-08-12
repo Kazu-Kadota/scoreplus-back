@@ -188,7 +188,7 @@ const PFFacialResultSchema = Joi.object<PFFacialResult, true>({
     .optional(),
   cnh_disponivel: Joi
     .bool()
-    .required(),
+    .optional(),
   cnh: CNHResultSchema.optional(),
   filiacao: FiliacaoResultSchema.optional(),
   documento: DocumentoResultSchema.optional(),

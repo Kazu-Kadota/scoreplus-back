@@ -7,7 +7,7 @@ import { UserGroupEnum } from '~/models/dynamo/enums/user'
 import { PersonRequestForms } from '~/models/dynamo/requestplus/analysis-person/forms'
 import { PersonAnalysisOptionsRequest } from '~/models/dynamo/requestplus/analysis-person/person-analysis-options'
 import { PersonAnalysisType } from '~/models/dynamo/requestplus/analysis-person/person-analysis-type'
-import { RequestplusAnalysisPerson } from '~/models/dynamo/requestplus/analysis-person/table'
+import { RequestplusAnalysisPerson, RequestplusAnalysisPersonKey } from '~/models/dynamo/requestplus/analysis-person/table'
 import { RequestplusFinishedAnalysisPerson, RequestplusFinishedAnalysisPersonKey } from '~/models/dynamo/requestplus/finished-analysis-person/table'
 import { Timestamp } from '~/models/dynamo/timestamp'
 import { UserplusCompany } from '~/models/dynamo/userplus/company'
@@ -24,13 +24,20 @@ import validateQuery from './validate-query'
 
 import verifyValidityDate from './verify-validity-date'
 
-export type QueryPersonByDocumentControllerClientResponse = RequestplusFinishedAnalysisPersonKey & PersonRequestForms & Timestamp & {
+export type QueryPersonByDocumentControllerClientFinishedResponse = RequestplusFinishedAnalysisPersonKey & PersonRequestForms & Timestamp & {
   analysis_type: AnalysisTypeEnum
   finished_at: string
   person_analysis_options: Partial<PersonAnalysisOptionsRequest<true>>
   person_analysis_type: PersonAnalysisType
   release_extract_id?: string
   result: AnalysisResultEnum
+}
+
+export type QueryPersonByDocumentControllerClientResponse = RequestplusAnalysisPersonKey & PersonRequestForms & Timestamp & {
+  analysis_type: AnalysisTypeEnum
+  person_analysis_options: Partial<PersonAnalysisOptionsRequest<false>>
+  person_analysis_type: PersonAnalysisType
+  release_extract_id?: string
 }
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
@@ -54,10 +61,9 @@ const queryPersonByDocumentController: Controller<true> = async (req) => {
   const user_info = req.user
   const query_person = validateQuery({ ...req.queryStringParameters })
 
-  // Precisa ainda criar uma rota para consultar a quantidade de consultas realizadas pela empresa
-
   const people: Array<(
-    QueryPersonByDocumentControllerClientResponse
+    QueryPersonByDocumentControllerClientFinishedResponse
+    | QueryPersonByDocumentControllerClientResponse
     | RequestplusFinishedAnalysisPerson
     | RequestplusAnalysisPerson
     ) & {
@@ -82,7 +88,19 @@ const queryPersonByDocumentController: Controller<true> = async (req) => {
     if (request_person) {
       for (const request of request_person) {
         if (request.company_name === user_info.company_name) {
-          people.push(request)
+          const {
+            combo_id,
+            combo_number,
+            company_name,
+            m2_request,
+            status,
+            user_id,
+            ...client_person_info
+          } = request
+
+          const person: Exact<QueryPersonByDocumentControllerClientResponse, typeof client_person_info> = client_person_info
+
+          people.push(person)
         }
       }
     }
@@ -107,7 +125,7 @@ const queryPersonByDocumentController: Controller<true> = async (req) => {
           ...client_person_info
         } = finished_person
 
-        const person: Exact<QueryPersonByDocumentControllerClientResponse, typeof client_person_info> = client_person_info
+        const person: Exact<QueryPersonByDocumentControllerClientFinishedResponse, typeof client_person_info> = client_person_info
 
         people.push({
           ...person,

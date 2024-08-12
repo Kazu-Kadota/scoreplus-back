@@ -23,7 +23,7 @@ export type RequestplusAnalysisVehicleBody = VehicleRequestForms & {
   combo_id?: string
   combo_number?: number
   company_name: string
-  m2_request: M2VehicleAnalysisResponse[]
+  m2_request?: M2VehicleAnalysisResponse[]
   status: VehicleAnalysisStatus<false>
   user_id: string
   vehicle_analysis_options: Partial<VehicleAnalysisOptionsRequest<false>>

@@ -5,7 +5,7 @@ import { LRUCache } from 'lru-cache'
 import { AnalysisResultEnum, AnalysisTypeEnum } from '~/models/dynamo/enums/request'
 import { UserGroupEnum } from '~/models/dynamo/enums/user'
 import { VehicleRequestForms } from '~/models/dynamo/requestplus/analysis-vehicle/forms'
-import { RequestplusAnalysisVehicle } from '~/models/dynamo/requestplus/analysis-vehicle/table'
+import { RequestplusAnalysisVehicle, RequestplusAnalysisVehicleKey } from '~/models/dynamo/requestplus/analysis-vehicle/table'
 import { VehicleAnalysisOptionsRequest } from '~/models/dynamo/requestplus/analysis-vehicle/vehicle-analysis-options'
 import { VehicleAnalysisType } from '~/models/dynamo/requestplus/analysis-vehicle/vehicle-analysis-type'
 import { RequestplusFinishedAnalysisVehicle, RequestplusFinishedAnalysisVehicleKey } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
@@ -24,11 +24,17 @@ import validateQuery from './validate-query'
 
 import verifyValidityDate from './verify-validity-date'
 
-export type QueryVehicleByPlateControllerClientResponse = RequestplusFinishedAnalysisVehicleKey & VehicleRequestForms & Timestamp & {
+export type QueryVehicleByPlateControllerClientFinishedResponse = RequestplusFinishedAnalysisVehicleKey & VehicleRequestForms & Timestamp & {
   analysis_type: AnalysisTypeEnum
   finished_at: string
   result: AnalysisResultEnum
   vehicle_analysis_options: Partial<VehicleAnalysisOptionsRequest<true>>
+  vehicle_analysis_type: VehicleAnalysisType
+}
+
+export type QueryVehicleByPlateControllerClientResponse = RequestplusAnalysisVehicleKey & VehicleRequestForms & Timestamp & {
+  analysis_type: AnalysisTypeEnum
+  vehicle_analysis_options: Partial<VehicleAnalysisOptionsRequest<false>>
   vehicle_analysis_type: VehicleAnalysisType
 }
 
@@ -54,7 +60,8 @@ const queryVehicleByPlateController: Controller<true> = async (req) => {
   const query_vehicle = validateQuery({ ...req.queryStringParameters })
 
   const vehicles: Array<(
-    QueryVehicleByPlateControllerClientResponse
+    QueryVehicleByPlateControllerClientFinishedResponse
+    | QueryVehicleByPlateControllerClientResponse
     | RequestplusFinishedAnalysisVehicle
     | RequestplusAnalysisVehicle
     ) & {
@@ -79,7 +86,19 @@ const queryVehicleByPlateController: Controller<true> = async (req) => {
     if (request_vehicle) {
       for (const request of request_vehicle) {
         if (request.company_name === user_info.company_name) {
-          vehicles.push(request)
+          const {
+            combo_id,
+            combo_number,
+            company_name,
+            m2_request,
+            status,
+            user_id,
+            ...client_vehicle_info
+          } = request
+
+          const vehicle: Exact<QueryVehicleByPlateControllerClientResponse, typeof client_vehicle_info> = client_vehicle_info
+
+          vehicles.push(vehicle)
         }
       }
     }
@@ -104,7 +123,7 @@ const queryVehicleByPlateController: Controller<true> = async (req) => {
           ...client_vehicle_info
         } = finished_vehicle
 
-        const vehicle: Exact<QueryVehicleByPlateControllerClientResponse, typeof client_vehicle_info> = client_vehicle_info
+        const vehicle: Exact<QueryVehicleByPlateControllerClientFinishedResponse, typeof client_vehicle_info> = client_vehicle_info
 
         vehicles.push({
           ...vehicle,
