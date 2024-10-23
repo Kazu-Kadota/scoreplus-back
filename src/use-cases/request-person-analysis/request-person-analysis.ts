@@ -11,6 +11,7 @@ import {
   RequestplusAnalysisPerson,
 } from '~/models/dynamo/requestplus/analysis-person/table'
 import { CompanyRequestPersonConfig } from '~/models/dynamo/userplus/company'
+import { M2PersonRequestAnalysisResponseBody } from '~/models/m2system/request/analysis-person'
 import putRequestplusAnalysisPerson from '~/services/aws/dynamo/request/analysis/person/put'
 import { UserFromJwt } from '~/utils/extract-jwt-lambda'
 import logger from '~/utils/logger'
@@ -70,11 +71,15 @@ const requestPersonAnalysis = async ({
 
   const status = personStatusConstructor(person_analysis_options)
 
-  const m2_request = await sendPersonAnalysisToM2System({
-    company_request_person_config,
-    person: person_data,
-    person_analysis_options_to_request,
-  })
+  let m2_request: M2PersonRequestAnalysisResponseBody[] | undefined
+
+  if (person_data.company_name !== 'SCORE PLUS TECH LTDA') {
+    m2_request = await sendPersonAnalysisToM2System({
+      company_request_person_config,
+      person: person_data,
+      person_analysis_options_to_request,
+    })
+  }
 
   const data_request_person: RequestplusAnalysisPersonBody = {
     ...person_data,
