@@ -3,12 +3,16 @@ import {
   CompanyRequestPersonConfigEnum,
   CompanyRequestVehicleConfigEnum,
 } from '../enums/company'
-import { PersonStateEnum } from '../enums/request'
+import { PersonStateEnum, StateEnum } from '../enums/request'
 import { Timestamp } from '../timestamp'
 
 export type CompanyPersonAnalysisConfig = Record<CompanyPersonAnalysisConfigEnum, number> & {}
 
-export type CompanyRequestVehicleConfig = Record<CompanyRequestVehicleConfigEnum, boolean>
+export type CompanyRequestVehicleConfig = {
+  [Key in CompanyRequestVehicleConfigEnum]: Key extends CompanyRequestVehicleConfigEnum.PLATE_HISTORY
+    ? Record<StateEnum, boolean>
+    : boolean
+}
 
 export type CompanyRequestPersonConfig = {
   [Key in CompanyRequestPersonConfigEnum]: Key extends CompanyRequestPersonConfigEnum.HISTORY

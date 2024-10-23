@@ -1,37 +1,29 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 import { RequestplusAnalysisPerson } from '~/models/dynamo/requestplus/analysis-person/table'
-import { RequestplusFinishedAnalysisPerson } from '~/models/dynamo/requestplus/finished-analysis-person/table'
 import queryRequestplusAnalysisPersonByDocument from '~/services/aws/dynamo/request/analysis/person/query-by-document'
-import queryRequestplusFinishedAnalysisPersonByDocument from '~/services/aws/dynamo/request/finished/person/query-by-document'
-import NotFoundError from '~/utils/errors/404-not-found'
 import { UserFromJwt } from '~/utils/extract-jwt-lambda'
-import logger from '~/utils/logger'
 
 import { RequestPersonByDocumentQuery } from './validate-query'
 
-const queryRequestPersonByDocumentAdapter = async (
+export type QueryRequestPersonByDocumentAdapterParams = {
   query_person: RequestPersonByDocumentQuery,
   dynamodbClient: DynamoDBClient,
   user_info: UserFromJwt,
-): Promise<(RequestplusFinishedAnalysisPerson | RequestplusAnalysisPerson)[]> => {
+}
+
+const queryRequestPersonByDocumentAdapter = async ({
+  query_person,
+  dynamodbClient,
+  user_info,
+}: QueryRequestPersonByDocumentAdapterParams): Promise<RequestplusAnalysisPerson[] | undefined> => {
   const pending_analysis = await queryRequestplusAnalysisPersonByDocument(
     query_person,
     dynamodbClient,
   )
 
-  const finished_analysis = await queryRequestplusFinishedAnalysisPersonByDocument(
-    query_person,
-    dynamodbClient,
-  )
-
-  if ((!pending_analysis || !pending_analysis[0]) && (!finished_analysis || !finished_analysis[0])) {
-    logger.warn({
-      message: 'Person not found with document',
-      document: query_person.document,
-    })
-
-    throw new NotFoundError('Pessoa não encontrada pelo documento')
+  if (!pending_analysis || !pending_analysis[0]) {
+    return undefined
   }
 
   (pending_analysis as RequestplusAnalysisPerson[]).sort(
@@ -40,40 +32,19 @@ const queryRequestPersonByDocumentAdapter = async (
       : r1.created_at > r2.created_at
         ? -1
         : 0,
-  );
-
-  (finished_analysis as RequestplusFinishedAnalysisPerson[]).sort(
-    (r1, r2) => r1.created_at < r2.created_at
-      ? 1
-      : r1.created_at > r2.created_at
-        ? -1
-        : 0,
   )
 
-  const data: (RequestplusFinishedAnalysisPerson | RequestplusAnalysisPerson)[] = []
+  const data: RequestplusAnalysisPerson[] = []
 
   for (const item of pending_analysis as RequestplusAnalysisPerson[]) {
-    if (user_info.user_type === 'client' && item.company_name === user_info.company_name) {
+    if (user_info.user_type === 'client') {
       delete item.person_analysis_options.ethical?.reason
       item.person_analysis_options.history?.regions.forEach((region) => {
         delete region.reason
       })
 
       data.push(item)
-    } else if (user_info.user_type !== 'client') {
-      data.push(item)
-    }
-  }
-
-  for (const item of finished_analysis as RequestplusFinishedAnalysisPerson[]) {
-    if (user_info.user_type === 'client' && item.company_name === user_info.company_name) {
-      delete item.person_analysis_options.ethical?.reason
-      item.person_analysis_options.history?.regions.forEach((region) => {
-        delete region.reason
-      })
-
-      data.push(item)
-    } else if (user_info.user_type !== 'client') {
+    } else {
       data.push(item)
     }
   }

@@ -3,7 +3,7 @@ import { AnalysisplusVehicles } from '~/models/dynamo/analysisplus/vehicle/table
 import { VehiclesAnalysisValidatedOptions } from '~/models/dynamo/analysisplus/vehicle/validated-options'
 import { CompanyRequestVehicleConfigEnum } from '~/models/dynamo/enums/company'
 import { RequestplusAnalysisVehicle } from '~/models/dynamo/requestplus/analysis-vehicle/table'
-import { VehicleAnalysisOptionsRequest } from '~/models/dynamo/requestplus/analysis-vehicle/vehicle-analysis-options'
+import { VehicleAnalysisOptionsRequest, VehicleAnalysisOptionsRequestValueAnswer, VehicleAnalysisOptionsRequestValueHistory } from '~/models/dynamo/requestplus/analysis-vehicle/vehicle-analysis-options'
 import removeEmpty from '~/utils/remove-empty'
 
 export type VehiclesConstructor = {
@@ -19,22 +19,49 @@ const vehiclesConstructor = ({
 }: VehiclesConstructor): AnalysisplusVehicles => {
   const company_constructor = {} as VehiclesAnalysisCompanyOptions
   const validated_constructor = {} as VehiclesAnalysisValidatedOptions
+  if (vehicle_analysis_options['plate-history']) {
+    company_constructor['plate-history'] = []
+    validated_constructor['plate-history'] = []
+  }
 
   for (const [analysis, value] of Object.entries(vehicle_analysis_options)) {
     const vehicle_analysis = analysis as CompanyRequestVehicleConfigEnum
-    company_constructor[vehicle_analysis] = {
-      company_names: [request_vehicle.company_name],
-      created_at: now,
-      request_id: request_vehicle.request_id,
-      updated_at: now,
-    }
+    if (vehicle_analysis === CompanyRequestVehicleConfigEnum.PLATE_HISTORY) {
+      const plate_history_value = value as VehicleAnalysisOptionsRequestValueHistory<true>
+      plate_history_value.regions.forEach((object) => {
+        company_constructor[vehicle_analysis].push({
+          company_names: [request_vehicle.company_name],
+          created_at: now,
+          request_id: request_vehicle.request_id,
+          state: object.region,
+          updated_at: now,
+        })
 
-    validated_constructor[vehicle_analysis] = {
-      created_at: now,
-      reason: value.reason,
-      request_id: request_vehicle.request_id,
-      result: value.result,
-      updated_at: now,
+        validated_constructor[vehicle_analysis].push({
+          created_at: now,
+          request_id: request_vehicle.request_id,
+          result: object.result,
+          state: object.region,
+          updated_at: now,
+          reason: object.reason,
+        })
+      })
+    } else {
+      const generic_value = value as VehicleAnalysisOptionsRequestValueAnswer
+      company_constructor[vehicle_analysis] = {
+        company_names: [request_vehicle.company_name],
+        created_at: now,
+        request_id: request_vehicle.request_id,
+        updated_at: now,
+      }
+
+      validated_constructor[vehicle_analysis] = {
+        created_at: now,
+        request_id: request_vehicle.request_id,
+        result: generic_value.result,
+        updated_at: now,
+        reason: generic_value.reason,
+      }
     }
   }
 

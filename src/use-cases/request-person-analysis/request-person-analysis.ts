@@ -11,6 +11,7 @@ import {
   RequestplusAnalysisPerson,
 } from '~/models/dynamo/requestplus/analysis-person/table'
 import { CompanyRequestPersonConfig } from '~/models/dynamo/userplus/company'
+import { M2PersonRequestAnalysisResponseBody } from '~/models/m2system/request/analysis-person'
 import putRequestplusAnalysisPerson from '~/services/aws/dynamo/request/analysis/person/put'
 import { UserFromJwt } from '~/utils/extract-jwt-lambda'
 import logger from '~/utils/logger'
@@ -19,11 +20,12 @@ import removeEmpty from '~/utils/remove-empty'
 import getPersonId from './get-person-id'
 import personAnalysisOptionsConstructor from './person-analysis-options-constructor'
 import personStatusConstructor from './person-status-constructor'
+import sendPersonAnalysisToM2System from './send-person-analysis-to-m2system'
 
 export type PersonAnalysisResponse = {
   analysis_type: AnalysisTypeEnum
   name: string
-  person: RequestplusAnalysisPerson
+  person: Omit<RequestplusAnalysisPerson, 'm2_request'>
   person_analysis_options: Partial<PersonAnalysisOptionsRequest<false>>
   person_analysis_type: PersonAnalysisType
   person_id: string
@@ -42,19 +44,17 @@ export type PersonAnalysisRequest = {
   user_info: UserFromJwt
 }
 
-const requestPersonAnalysis = async (
-  {
-    analysis_type,
-    combo_id,
-    combo_number,
-    company_request_person_config,
-    dynamodbClient,
-    person_analysis_options_to_request,
-    person_analysis_type,
-    person_data,
-    user_info,
-  }: PersonAnalysisRequest,
-): Promise<PersonAnalysisResponse> => {
+const requestPersonAnalysis = async ({
+  analysis_type,
+  combo_id,
+  combo_number,
+  company_request_person_config,
+  dynamodbClient,
+  person_analysis_options_to_request,
+  person_analysis_type,
+  person_data,
+  user_info,
+}: PersonAnalysisRequest): Promise<PersonAnalysisResponse> => {
   logger.debug({
     message: 'Requested person analysis',
     analysis_type,
@@ -71,12 +71,23 @@ const requestPersonAnalysis = async (
 
   const status = personStatusConstructor(person_analysis_options)
 
+  let m2_request: M2PersonRequestAnalysisResponseBody[] | undefined
+
+  if (person_data.company_name !== 'SCORE PLUS TECH LTDA') {
+    m2_request = await sendPersonAnalysisToM2System({
+      company_request_person_config,
+      person: person_data,
+      person_analysis_options_to_request,
+    })
+  }
+
   const data_request_person: RequestplusAnalysisPersonBody = {
     ...person_data,
     analysis_type,
     combo_id,
     combo_number: combo_number ?? undefined,
     company_name: user_info.user_type === 'admin' ? person_data.company_name as string : user_info.company_name,
+    m2_request,
     person_analysis_options,
     person_analysis_type,
     status,
@@ -92,6 +103,8 @@ const requestPersonAnalysis = async (
 
   const person = await putRequestplusAnalysisPerson(request_person_key, request_person_person_data, dynamodbClient)
 
+  const { m2_request: m2, ...person_sanitized } = person
+
   logger.debug({
     message: 'Successfully requested person analysis',
     person_id,
@@ -101,7 +114,7 @@ const requestPersonAnalysis = async (
   return {
     analysis_type,
     name: person_data.name,
-    person,
+    person: person_sanitized,
     person_analysis_options,
     person_analysis_type,
     person_id,

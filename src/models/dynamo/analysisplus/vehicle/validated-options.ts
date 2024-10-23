@@ -1,5 +1,5 @@
 import { CompanyRequestVehicleConfigEnum } from '../../enums/company'
-import { AnalysisResultEnum } from '../../enums/request'
+import { AnalysisResultEnum, StateEnum } from '../../enums/request'
 import { Timestamp } from '../../timestamp'
 
 export type VehiclesAnalysisValidatedContent = Timestamp & {
@@ -8,6 +8,12 @@ export type VehiclesAnalysisValidatedContent = Timestamp & {
   request_id: string
 }
 
+export type VehiclesAnalysisValidatedContentHistory = VehiclesAnalysisValidatedContent & {
+  state: StateEnum
+}
+
 export type VehiclesAnalysisValidatedOptions = {
-  [Key in CompanyRequestVehicleConfigEnum]: VehiclesAnalysisValidatedContent
+  [Key in CompanyRequestVehicleConfigEnum]: Key extends CompanyRequestVehicleConfigEnum.PLATE_HISTORY
+  ? Array<VehiclesAnalysisValidatedContentHistory>
+  : VehiclesAnalysisValidatedContent
 }

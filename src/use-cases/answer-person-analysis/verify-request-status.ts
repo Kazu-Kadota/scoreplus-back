@@ -86,13 +86,13 @@ const verifyRequestStatus = ({
 
       if (is_already_answered) {
         logger.warn({
-          message: 'Analysis already answered',
+          message: 'Historical analysis already answered',
           request_id,
           person_id,
           region,
         })
 
-        throw new ForbiddenError('Análise já respondido')
+        throw new ForbiddenError('Análise histórico já respondido')
       }
 
       const is_canceled = find_region[region] === RequestStatusEnum.CANCELED
@@ -131,12 +131,12 @@ const verifyRequestStatus = ({
 
       if (is_already_answered) {
         logger.warn({
-          message: 'Analysis already answered',
+          message: 'Ethical analysis already answered',
           request_id,
           person_id,
         })
 
-        throw new ForbiddenError('Análise já respondido')
+        throw new ForbiddenError('Análise ética já respondido')
       }
 
       const is_canceled = ethical_status === RequestStatusEnum.CANCELED

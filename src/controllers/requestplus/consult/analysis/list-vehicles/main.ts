@@ -17,7 +17,7 @@ const requestVehicles: Controller<true> = async (req) => {
 
   let last_evaluated_key: Record<string, AttributeValue> | undefined
   const scan: ScanRequestplusAnalysisVehicleScan = {}
-  const vehicles: RequestplusAnalysisVehicle[] = []
+  const vehicles: Omit<RequestplusAnalysisVehicle, 'm2_request'>[] = []
 
   if (user_info.user_type === 'client') {
     scan.company_name = user_info.company_name
@@ -47,10 +47,13 @@ const requestVehicles: Controller<true> = async (req) => {
       for (const item of scan_result.result) {
         if (user_info.user_type === UserGroupEnum.CLIENT) {
           delete item.vehicle_analysis_options.ethical?.reason
-          delete item.vehicle_analysis_options['plate-history']?.reason
+          item.vehicle_analysis_options['plate-history']?.regions.forEach((region) => {
+            delete region.reason
+          })
         }
+        const { m2_request, ...request } = item
 
-        vehicles.push(item)
+        vehicles.push(request)
       }
     }
 
