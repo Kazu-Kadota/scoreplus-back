@@ -5,6 +5,7 @@ import { LRUCache } from 'lru-cache'
 import { AnalysisResultEnum, AnalysisTypeEnum } from '~/models/dynamo/enums/request'
 import { UserGroupEnum } from '~/models/dynamo/enums/user'
 import { VehicleRequestForms } from '~/models/dynamo/requestplus/analysis-vehicle/forms'
+import { VehicleAnalysisStatus } from '~/models/dynamo/requestplus/analysis-vehicle/status'
 import { RequestplusAnalysisVehicle, RequestplusAnalysisVehicleKey } from '~/models/dynamo/requestplus/analysis-vehicle/table'
 import { VehicleAnalysisOptionsRequest } from '~/models/dynamo/requestplus/analysis-vehicle/vehicle-analysis-options'
 import { VehicleAnalysisType } from '~/models/dynamo/requestplus/analysis-vehicle/vehicle-analysis-type'
@@ -28,6 +29,7 @@ export type QueryVehicleByPlateControllerClientFinishedResponse = RequestplusFin
   analysis_type: AnalysisTypeEnum
   finished_at: string
   result: AnalysisResultEnum
+  status: VehicleAnalysisStatus<true>
   vehicle_analysis_options: Partial<VehicleAnalysisOptionsRequest<true>>
   vehicle_analysis_type: VehicleAnalysisType
 }
@@ -36,6 +38,7 @@ export type QueryVehicleByPlateControllerClientResponse = RequestplusAnalysisVeh
   analysis_type: AnalysisTypeEnum
   vehicle_analysis_options: Partial<VehicleAnalysisOptionsRequest<false>>
   vehicle_analysis_type: VehicleAnalysisType
+  status: VehicleAnalysisStatus<false>
 }
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
@@ -91,7 +94,6 @@ const queryVehicleByPlateController: Controller<true> = async (req) => {
             combo_number,
             company_name,
             m2_request,
-            status,
             user_id,
             ...client_vehicle_info
           } = request
@@ -118,7 +120,6 @@ const queryVehicleByPlateController: Controller<true> = async (req) => {
           combo_number,
           company_name,
           m2_request,
-          status,
           user_id,
           ...client_vehicle_info
         } = finished_vehicle
