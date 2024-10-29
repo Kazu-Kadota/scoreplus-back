@@ -7,6 +7,7 @@ import { UserGroupEnum } from '~/models/dynamo/enums/user'
 import { PersonRequestForms } from '~/models/dynamo/requestplus/analysis-person/forms'
 import { PersonAnalysisOptionsRequest } from '~/models/dynamo/requestplus/analysis-person/person-analysis-options'
 import { PersonAnalysisType } from '~/models/dynamo/requestplus/analysis-person/person-analysis-type'
+import { PersonAnalysisStatus } from '~/models/dynamo/requestplus/analysis-person/status'
 import { RequestplusAnalysisPerson, RequestplusAnalysisPersonKey } from '~/models/dynamo/requestplus/analysis-person/table'
 import { RequestplusFinishedAnalysisPerson, RequestplusFinishedAnalysisPersonKey } from '~/models/dynamo/requestplus/finished-analysis-person/table'
 import { Timestamp } from '~/models/dynamo/timestamp'
@@ -31,6 +32,7 @@ export type QueryPersonByDocumentControllerClientFinishedResponse = RequestplusF
   person_analysis_type: PersonAnalysisType
   release_extract_id?: string
   result: AnalysisResultEnum
+  status: PersonAnalysisStatus<true>
 }
 
 export type QueryPersonByDocumentControllerClientResponse = RequestplusAnalysisPersonKey & PersonRequestForms & Timestamp & {
@@ -38,6 +40,7 @@ export type QueryPersonByDocumentControllerClientResponse = RequestplusAnalysisP
   person_analysis_options: Partial<PersonAnalysisOptionsRequest<false>>
   person_analysis_type: PersonAnalysisType
   release_extract_id?: string
+  status: PersonAnalysisStatus<false>
 }
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
@@ -93,7 +96,6 @@ const queryPersonByDocumentController: Controller<true> = async (req) => {
             combo_number,
             company_name,
             m2_request,
-            status,
             user_id,
             ...client_person_info
           } = request
@@ -120,7 +122,6 @@ const queryPersonByDocumentController: Controller<true> = async (req) => {
           combo_number,
           company_name,
           m2_request,
-          status,
           user_id,
           ...client_person_info
         } = finished_person
