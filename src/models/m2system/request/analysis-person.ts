@@ -1,4 +1,4 @@
-import { M2AnalysisTypeEnum, M2PersonAnalysisTypeEnum, M2PersonRegionTypeEnum } from '../enums/analysis'
+import { M2AnalysisTypeEnum, M2PersonAnalysisTypeEnum, M2PersonRegionTypeEnum, M2RequestAnalysisStateEnum } from '../enums/analysis'
 import { DriverCategoryEnum, StateEnum } from '~/models/dynamo/enums/request'
 
 export type M2PersonRequestForms = {
@@ -20,7 +20,7 @@ export type M2PersonRequestForms = {
 export type M2PersonAnalysisItems = {
   type: M2PersonAnalysisTypeEnum
   region_types: M2PersonRegionTypeEnum[]
-  regions?: StateEnum[]
+  regions?: M2RequestAnalysisStateEnum[]
 }
 
 export type M2PersonRequestAnalysisBody = {
@@ -34,7 +34,7 @@ export type M2PersonRequestAnalysisResponseBody = {
   person_id: string
   person_analysis_type: M2PersonAnalysisTypeEnum
   region_type?: M2PersonRegionTypeEnum,
-  region?: StateEnum,
+  region?: M2RequestAnalysisStateEnum,
   request_id: string
 }
 
