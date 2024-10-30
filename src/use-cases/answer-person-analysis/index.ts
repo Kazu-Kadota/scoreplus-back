@@ -3,6 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { AnalysisplusPeopleKey } from '~/models/dynamo/analysisplus/people/table'
 import { RequestplusAnalysisPersonBody, RequestplusAnalysisPersonKey } from '~/models/dynamo/requestplus/analysis-person/table'
 import { RequestplusFinishedAnalysisPersonBody, RequestplusFinishedAnalysisPersonKey, SendAnswerPersonBody } from '~/models/dynamo/requestplus/finished-analysis-person/table'
+import { Timestamp } from '~/models/dynamo/timestamp'
 import getAnalysisplusPeople from '~/services/aws/dynamo/analysis/person/get'
 import putAnalysisplusPeople from '~/services/aws/dynamo/analysis/person/put'
 import updateAnalysisplusPeople from '~/services/aws/dynamo/analysis/person/update'
@@ -87,7 +88,7 @@ const useCaseSendPersonAnswer = async ({
         request_id,
       }
 
-      const finished_request_body: RequestplusFinishedAnalysisPersonBody = removeEmpty({
+      const finished_request_body: RequestplusFinishedAnalysisPersonBody & Timestamp = removeEmpty({
         ...request_person,
         person_analysis_options,
         status,
@@ -123,7 +124,7 @@ const useCaseSendPersonAnswer = async ({
       request_id,
     }
 
-    const finished_request_body: RequestplusFinishedAnalysisPersonBody = removeEmpty({
+    const finished_request_body: RequestplusFinishedAnalysisPersonBody & Timestamp = removeEmpty({
       ...request_person,
       person_analysis_options,
       status,

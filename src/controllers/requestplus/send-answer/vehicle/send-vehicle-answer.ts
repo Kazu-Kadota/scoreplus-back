@@ -3,6 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { AnalysisplusVehiclesKey } from '~/models/dynamo/analysisplus/vehicle/table'
 import { RequestplusAnalysisVehicleBody, RequestplusAnalysisVehicleKey } from '~/models/dynamo/requestplus/analysis-vehicle/table'
 import { RequestplusFinishedAnalysisVehicleBody } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
+import { Timestamp } from '~/models/dynamo/timestamp'
 import getAnalysisplusVehicles from '~/services/aws/dynamo/analysis/vehicle/get'
 import putAnalysisplusVehicles from '~/services/aws/dynamo/analysis/vehicle/put'
 import updateAnalysisplusVehicles from '~/services/aws/dynamo/analysis/vehicle/update'
@@ -81,7 +82,7 @@ const sendVehicleAnswer = async ({
         vehicle_id,
       }
 
-      const finished_request_body: RequestplusFinishedAnalysisVehicleBody = removeEmpty({
+      const finished_request_body: RequestplusFinishedAnalysisVehicleBody & Timestamp = removeEmpty({
         ...request_vehicle,
         vehicle_analysis_options,
         status,
@@ -121,7 +122,7 @@ const sendVehicleAnswer = async ({
       vehicle_id,
     }
 
-    const finished_request_body: RequestplusFinishedAnalysisVehicleBody = removeEmpty({
+    const finished_request_body: RequestplusFinishedAnalysisVehicleBody & Timestamp = removeEmpty({
       ...request_vehicle,
       vehicle_analysis_options,
       status,
