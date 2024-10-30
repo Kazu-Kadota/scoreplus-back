@@ -9,6 +9,7 @@ import {
   RequestplusFinishedAnalysisVehicleBody,
   RequestplusFinishedAnalysisVehicleKey,
 } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
+import { Timestamp } from '~/models/dynamo/timestamp'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
@@ -21,7 +22,7 @@ const DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE = getStringEnv('DYNAMO_
 
 const putRequestplusFinishedAnalysisVehicle = async (
   key: RequestplusFinishedAnalysisVehicleKey,
-  body: RequestplusFinishedAnalysisVehicleBody,
+  body: RequestplusFinishedAnalysisVehicleBody & Timestamp,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   logger.debug({
@@ -35,7 +36,7 @@ const putRequestplusFinishedAnalysisVehicle = async (
   const put: RequestplusFinishedAnalysisVehicle = {
     ...key,
     ...body,
-    created_at: now,
+    created_at: body.created_at,
     finished_at: now,
     updated_at: now,
   }

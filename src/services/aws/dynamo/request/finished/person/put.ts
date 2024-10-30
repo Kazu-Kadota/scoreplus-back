@@ -9,6 +9,7 @@ import {
   RequestplusFinishedAnalysisPersonBody,
   RequestplusFinishedAnalysisPersonKey,
 } from '~/models/dynamo/requestplus/finished-analysis-person/table'
+import { Timestamp } from '~/models/dynamo/timestamp'
 import {
   createConditionExpression,
   createExpressionAttributeNames,
@@ -21,7 +22,7 @@ const DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON = getStringEnv('DYNAMO_T
 
 const putRequestplusFinishedAnalysisPerson = async (
   key: RequestplusFinishedAnalysisPersonKey,
-  body: RequestplusFinishedAnalysisPersonBody,
+  body: RequestplusFinishedAnalysisPersonBody & Timestamp,
   dynamodbClient: DynamoDBClient,
 ): Promise<void> => {
   logger.debug({
@@ -35,7 +36,7 @@ const putRequestplusFinishedAnalysisPerson = async (
   const put: RequestplusFinishedAnalysisPerson = {
     ...key,
     ...body,
-    created_at: now,
+    created_at: body.created_at,
     finished_at: now,
     updated_at: now,
   }
