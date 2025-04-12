@@ -8,19 +8,21 @@ export const companyAnalysisConfigStrings: Record<CompanyPersonAnalysisConfigEnu
 }
 
 export const companyRequestPersonConfigEnum: Record<CompanyRequestPersonConfigEnum, string> = {
+  [CompanyRequestPersonConfigEnum.BASIC_DATA]: 'Dados básicos',
   [CompanyRequestPersonConfigEnum.BIOMETRY_BASIC]: 'Biometria básico',
   [CompanyRequestPersonConfigEnum.BIOMETRY_CNH]: 'Biometria cnh',
   [CompanyRequestPersonConfigEnum.BIOMETRY_FACIAL]: 'Biometria facial',
   [CompanyRequestPersonConfigEnum.CNH_ADVANCED]: 'CNH avançado',
-  [CompanyRequestPersonConfigEnum.CNH_MEDIUM]: 'CNH',
   [CompanyRequestPersonConfigEnum.CNH_SIMPLE]: 'CNH simples',
   [CompanyRequestPersonConfigEnum.ETHICAL]: 'Ético',
   [CompanyRequestPersonConfigEnum.HISTORY]: 'Histórico',
+  [CompanyRequestPersonConfigEnum.PROCESS]: 'Processo',
 }
 
 export const companyRequestVehicleConfigEnum: Record<CompanyRequestVehicleConfigEnum, string> = {
   [CompanyRequestVehicleConfigEnum.ANTT]: 'Antt',
-  [CompanyRequestVehicleConfigEnum.ETHICAL]: 'Ético',
+  [CompanyRequestVehicleConfigEnum.BASIC_DATA]: 'Dados básicos',
   [CompanyRequestVehicleConfigEnum.CRONOTACOGRAFO]: 'Cronotacografo',
+  [CompanyRequestVehicleConfigEnum.ETHICAL]: 'Ético',
   [CompanyRequestVehicleConfigEnum.PLATE_HISTORY]: 'Histórico de placa',
 }

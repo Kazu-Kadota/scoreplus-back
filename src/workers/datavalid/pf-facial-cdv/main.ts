@@ -1,5 +1,7 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { S3Client } from '@aws-sdk/client-s3'
+import { SQSClient } from '@aws-sdk/client-sqs'
+
+import { mockDatavalidPfFacialCDVResponse } from 'src/mock/datavalid/pf-facial-cdv/response'
 
 import { FileTypeJpegMap } from '~/constants/file-type'
 import { ImageAnswer, ImageAnswerFormato } from '~/models/datavalid/image-answer'
@@ -8,6 +10,7 @@ import { DatavalidRequestImage } from '~/models/datavalid/request-image'
 import { DatavalidSQSReceivedMessageAttributes } from '~/models/datavalid/sqs-message-attributes'
 import { SQSController } from '~/models/lambda'
 import InternalServerError from '~/utils/errors/500-internal-server-error'
+import getStringEnv from '~/utils/get-string-env'
 import logger from '~/utils/logger'
 
 import getImageAdapter from './get-facial-image-adapter'
@@ -19,15 +22,18 @@ export type DatavalidSendRequestPfFacialMessageBody = {
   'biometry-cnh': PFFacialCDVBiometrySendRequestBody
 }
 
-const dynamodbClient = new DynamoDBClient({
-  region: 'us-east-1',
-  maxAttempts: 5,
-})
-
 const s3Client = new S3Client({
   region: 'us-east-1',
   maxAttempts: 5,
 })
+
+const sqsClient = new SQSClient({
+  region: 'us-east-1',
+  maxAttempts: 5,
+})
+
+const STAGE = getStringEnv('STAGE')
+const REQUEST_INFORMATION_THIRD_PARTY = getStringEnv('REQUEST_INFORMATION_THIRD_PARTY')
 
 const datavalidSendRequestPfFacialCDV: SQSController<DatavalidSQSReceivedMessageAttributes> = async (message) => {
   logger.debug({
@@ -85,14 +91,19 @@ const datavalidSendRequestPfFacialCDV: SQSController<DatavalidSQSReceivedMessage
     })
   }
 
-  const datavalid_result = await sendValidationAdapter({
-    body,
-    images_map,
-  })
+  const get_response_datavalid = STAGE === 'prd' || REQUEST_INFORMATION_THIRD_PARTY === 'true'
+
+  const datavalid_result = get_response_datavalid
+    ? await sendValidationAdapter({
+      body,
+      images_map,
+    })
+    : mockDatavalidPfFacialCDVResponse
 
   await datavalidVerifyResultPfFacialCDV({
     datavalid_result,
-    dynamodbClient,
+    s3Client,
+    sqsClient,
     person_id,
     request_id,
   })

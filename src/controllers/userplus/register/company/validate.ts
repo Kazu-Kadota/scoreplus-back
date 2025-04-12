@@ -46,6 +46,9 @@ const company_config_vehicle_schema = Joi.object<CompanyRequestVehicleConfig, tr
   antt: Joi
     .boolean()
     .required(),
+  'basic-data': Joi
+    .boolean()
+    .required(),
   ethical: Joi
     .boolean()
     .required(),
@@ -58,6 +61,9 @@ const company_config_vehicle_schema = Joi.object<CompanyRequestVehicleConfig, tr
 })
 
 const company_config_person_schema = Joi.object<CompanyRequestPersonConfig, true>({
+  'basic-data': Joi
+    .boolean()
+    .required(),
   'biometry-basic': Joi
     .boolean()
     .required(),
@@ -68,9 +74,6 @@ const company_config_person_schema = Joi.object<CompanyRequestPersonConfig, true
     .boolean()
     .required(),
   'cnh-simple': Joi
-    .boolean()
-    .required(),
-  'cnh-medium': Joi
     .boolean()
     .required(),
   'cnh-advanced': Joi
@@ -91,6 +94,9 @@ const company_config_person_schema = Joi.object<CompanyRequestPersonConfig, true
       MT: true,
       MS: true,
     })
+    .required(),
+  process: Joi
+    .boolean()
     .required(),
 })
 

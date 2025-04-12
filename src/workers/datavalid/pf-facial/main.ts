@@ -1,5 +1,7 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { S3Client } from '@aws-sdk/client-s3'
+import { SQSClient } from '@aws-sdk/client-sqs'
+
+import { mockDatavalidPfFacialResponse } from 'src/mock/datavalid/pf-facial/response'
 
 import { FileTypeJpegMap } from '~/constants/file-type'
 import { ImageAnswerFormato } from '~/models/datavalid/image-answer'
@@ -7,6 +9,7 @@ import { PFFacialBiometrySendRequestBody } from '~/models/datavalid/pf-facial/re
 import { DatavalidSQSReceivedMessageAttributes } from '~/models/datavalid/sqs-message-attributes'
 import { SQSController } from '~/models/lambda'
 import InternalServerError from '~/utils/errors/500-internal-server-error'
+import getStringEnv from '~/utils/get-string-env'
 import logger from '~/utils/logger'
 
 import getFacialImageAdapter from './get-facial-image-adapter'
@@ -18,15 +21,18 @@ export type DatavalidSendRequestPfFacialMessageBody = {
   'biometry-facial': PFFacialBiometrySendRequestBody
 }
 
-const dynamodbClient = new DynamoDBClient({
-  region: 'us-east-1',
-  maxAttempts: 5,
-})
-
 const s3Client = new S3Client({
   region: 'us-east-1',
   maxAttempts: 5,
 })
+
+const sqsClient = new SQSClient({
+  region: 'us-east-1',
+  maxAttempts: 5,
+})
+
+const STAGE = getStringEnv('STAGE')
+const REQUEST_INFORMATION_THIRD_PARTY = getStringEnv('REQUEST_INFORMATION_THIRD_PARTY')
 
 const datavalidSendRequestPfFacial: SQSController<DatavalidSQSReceivedMessageAttributes> = async (message) => {
   logger.debug({
@@ -69,17 +75,22 @@ const datavalidSendRequestPfFacial: SQSController<DatavalidSQSReceivedMessageAtt
     ? FileTypeJpegMap[verify_image_type] as ImageAnswerFormato
     : verify_image_type as ImageAnswerFormato
 
-  const datavalid_result = await sendValidationAdapter({
-    body,
-    image_base64,
-    image_type,
-  })
+  const get_response_datavalid = STAGE === 'prd' || REQUEST_INFORMATION_THIRD_PARTY === 'true'
+
+  const datavalid_result = get_response_datavalid
+    ? await sendValidationAdapter({
+      body,
+      image_base64,
+      image_type,
+    })
+    : mockDatavalidPfFacialResponse
 
   await datavalidVerifyResultPfFacial({
     datavalid_result,
-    dynamodbClient,
     person_id,
     request_id,
+    s3Client,
+    sqsClient,
   })
 
   logger.info({

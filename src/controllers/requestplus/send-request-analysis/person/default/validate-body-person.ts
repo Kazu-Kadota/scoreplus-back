@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-import { CompanyPersonAnalysisConfigEnum, CompanyRequestPersonConfigEnum } from '~/models/dynamo/enums/company'
+import { CompanyPersonAnalysisConfigEnum, CompanyRequestPersonConfigDefaultArray } from '~/models/dynamo/enums/company'
 import {
   DriverCategoryEnum,
   StateEnum,
@@ -74,7 +74,7 @@ export const person_schema = Joi.object<PersonRequestForms, true>({
 export const person_analysis_options_to_request_schema = Joi
   .array()
   .items(
-    Joi.string().valid(CompanyRequestPersonConfigEnum.ETHICAL, CompanyRequestPersonConfigEnum.HISTORY),
+    Joi.string().valid(...CompanyRequestPersonConfigDefaultArray),
   )
 
 export const person_analysis_type_schema = Joi.object<PersonAnalysisType, true>({

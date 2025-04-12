@@ -2,7 +2,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import dayjs from 'dayjs'
 
 import { RequestplusCompanyConsultBody, RequestplusCompanyConsultKey } from '~/models/dynamo/requestplus/company-consult/table'
-import { RequestplusFinishedAnalysisPerson, RequestplusFinishedAnalysisPersonBody, RequestplusFinishedAnalysisPersonKey } from '~/models/dynamo/requestplus/finished-analysis-person/table'
+import { RequestplusFinishedAnalysisPersonBody, RequestplusFinishedAnalysisPersonKey } from '~/models/dynamo/requestplus/finished-analysis-person/table'
 import putRequestplusCompanyConsult from '~/services/aws/dynamo/request/company-consult/put'
 import updateRequestplusCompanyConsult from '~/services/aws/dynamo/request/company-consult/update'
 import updateRequestplusFinishedRequestPerson from '~/services/aws/dynamo/request/finished/person/update'
@@ -11,24 +11,30 @@ import { UserFromJwt } from '~/utils/extract-jwt-lambda'
 import getCompanyConsultAdapter, { GetCompanyConsultAdapterParams } from './get-company-consult-adapter'
 
 export type CountConsultParams = {
-  finished_person: RequestplusFinishedAnalysisPerson
+  finished_person_company_name: string
+  finished_person_already_consulted?: boolean
+  finished_person_id: string
+  finished_request_id: string
   user_info: UserFromJwt
   dynamodbClient: DynamoDBClient
 }
 
 const countConsult = async ({
-  finished_person,
+  finished_person_company_name,
+  finished_person_id,
+  finished_request_id,
+  finished_person_already_consulted,
   user_info,
   dynamodbClient,
 }: CountConsultParams) => {
   const now = new Date().toISOString()
   const year_month = dayjs().format('YYYY-MM')
 
-  if (user_info.company_name === finished_person.company_name) {
-    if (!finished_person.already_consulted) {
+  if (user_info.company_name === finished_person_company_name) {
+    if (!finished_person_already_consulted) {
       const finished_person_key: RequestplusFinishedAnalysisPersonKey = {
-        person_id: finished_person.person_id,
-        request_id: finished_person.request_id,
+        person_id: finished_person_id,
+        request_id: finished_request_id,
       }
 
       const finished_person_body: Partial<RequestplusFinishedAnalysisPersonBody> = {
@@ -59,8 +65,8 @@ const countConsult = async ({
       number_of_request: 1,
       requests: [{
         date_of_request: now,
-        person_id: finished_person.person_id,
-        request_id: finished_person.request_id,
+        person_id: finished_person_id,
+        request_id: finished_request_id,
         user_id: user_info.user_id,
       }],
     }
@@ -73,8 +79,8 @@ const countConsult = async ({
         ...company_consult.requests,
         {
           date_of_request: now,
-          person_id: finished_person.person_id,
-          request_id: finished_person.request_id,
+          person_id: finished_person_id,
+          request_id: finished_request_id,
           user_id: user_info.user_id,
         },
       ],

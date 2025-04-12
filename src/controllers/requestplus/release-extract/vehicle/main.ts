@@ -2,7 +2,6 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 import getCompanyAdapter from '../get-company-adapter '
 import getUserAdapter from '../get-user-adapter'
-import verifyCompanyName from '../verify-company-name'
 import { UserGroupEnum } from '~/models/dynamo/enums/user'
 import { UserplusCompany } from '~/models/dynamo/userplus/company'
 import { Controller } from '~/models/lambda'
@@ -39,7 +38,7 @@ const vehicleReleaseExtractController: Controller<true> = async (req) => {
     user_company = company
   }
 
-  verifyCompanyName(user, vehicle_analysis)
+  // verifyCompanyName(user, vehicle_analysis)
 
   const pdf_buffer = await generateVehiclePdf({
     company: user.user_type === UserGroupEnum.CLIENT ? user_company as UserplusCompany : company,
@@ -48,6 +47,7 @@ const vehicleReleaseExtractController: Controller<true> = async (req) => {
     vehicle_analysis: formatVehicleAnalysis(vehicle_analysis, company),
   })
 
+  // @ts-ignore-next-line
   const pdf_base64 = Buffer.from(pdf_buffer).toString('base64')
 
   logger.info({

@@ -2,9 +2,15 @@ import { AttributeValue, DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 import { UserGroupEnum } from '~/models/dynamo/enums/user'
 import { RequestplusAnalysisVehicle } from '~/models/dynamo/requestplus/analysis-vehicle/table'
+import { RequestplusValidateAnalysisVehicle } from '~/models/dynamo/requestplus/validate-analysis-vehicle/table'
 import { Controller } from '~/models/lambda'
 import scanRequestplusAnalysisVehicle, { ScanRequestplusAnalysisVehicleScan } from '~/services/aws/dynamo/request/analysis/vehicle/scan'
+import scanRequestplusValidateAnalysisVehicle from '~/services/aws/dynamo/request/validate/vehicle/scan'
 import logger from '~/utils/logger'
+
+export type ListPeopleControllerRequestAnalysisVehicle = Omit<RequestplusAnalysisVehicle, 'vehicle_analysis_options' | 'third_party'>
+
+export type ListPeopleControllerRequestValidateAnalysisVehicle = Omit<RequestplusValidateAnalysisVehicle, 'information_validation' | 'vehicle_analysis_options' | 'third_party'>
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
 
@@ -17,7 +23,7 @@ const requestVehicles: Controller<true> = async (req) => {
 
   let last_evaluated_key: Record<string, AttributeValue> | undefined
   const scan: ScanRequestplusAnalysisVehicleScan = {}
-  const vehicles: Omit<RequestplusAnalysisVehicle, 'm2_request'>[] = []
+  const vehicles: (ListPeopleControllerRequestAnalysisVehicle | ListPeopleControllerRequestValidateAnalysisVehicle)[] = []
 
   if (user_info.user_type === 'client') {
     scan.company_name = user_info.company_name
@@ -43,18 +49,64 @@ const requestVehicles: Controller<true> = async (req) => {
       }
     }
 
-    if (scan_result?.result) {
-      for (const item of scan_result.result) {
+    if (scan_result.result) {
+      const result_map = scan_result.result.map((item) => {
         if (user_info.user_type === UserGroupEnum.CLIENT) {
-          delete item.vehicle_analysis_options.ethical?.reason
-          item.vehicle_analysis_options['plate-history']?.regions.forEach((region) => {
-            delete region.reason
-          })
-        }
-        const { m2_request, ...request } = item
+          const {
+            vehicle_analysis_options,
+            third_party,
+            ...rest_item
+          } = item
 
-        vehicles.push(request)
+          return rest_item
+        }
+
+        return item
+      })
+
+      vehicles.push(...result_map)
+    }
+
+    last_evaluated_key = scan_result.last_evaluated_key
+  } while (last_evaluated_key)
+
+  do {
+    const scan_result = await scanRequestplusValidateAnalysisVehicle(
+      scan,
+      dynamodbClient,
+      last_evaluated_key,
+    )
+
+    if (!scan_result) {
+      logger.info({
+        message: 'Finish on list vehicles requests',
+      })
+
+      return {
+        body: {
+          message: 'Finish on list vehicles requests',
+          vehicles,
+        },
       }
+    }
+
+    if (scan_result.result) {
+      const result_map = scan_result.result.map((item) => {
+        if (user_info.user_type === UserGroupEnum.CLIENT) {
+          const {
+            information_validation,
+            vehicle_analysis_options,
+            third_party,
+            ...rest_item
+          } = item
+
+          return rest_item
+        }
+
+        return item
+      })
+
+      vehicles.push(...result_map)
     }
 
     last_evaluated_key = scan_result.last_evaluated_key

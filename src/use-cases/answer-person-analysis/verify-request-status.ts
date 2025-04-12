@@ -1,6 +1,6 @@
 import { CompanyRequestPersonConfigEnum } from '~/models/dynamo/enums/company'
-import { AnalysisResultEnum, PersonStateEnum, RequestStatusEnum } from '~/models/dynamo/enums/request'
-import { PersonAnalysisOptionsRequest, PersonAnalysisOptionsRequestValueAnswer, PersonAnalysisOptionsRequestValueHistory } from '~/models/dynamo/requestplus/analysis-person/person-analysis-options'
+import { PersonStateEnum, RequestStatusEnum } from '~/models/dynamo/enums/request'
+import { PersonAnalysisOptionsRequest, PersonAnalysisOptionsRequestValueHistory } from '~/models/dynamo/requestplus/analysis-person/person-analysis-options'
 import { PersonAnalysisStatus, PersonAnalysisStatusHistory } from '~/models/dynamo/requestplus/analysis-person/status'
 import { RequestplusAnalysisPersonKey } from '~/models/dynamo/requestplus/analysis-person/table'
 import ForbiddenError from '~/utils/errors/403-forbidden'
@@ -17,14 +17,14 @@ export type VerifyPersonRequestStatusParams = RequestplusAnalysisPersonKey & {
 
 export type VerifyPersonRequestStatusReturn = {
   is_finished: true;
-  status: PersonAnalysisStatus<true>;
+  status: PersonAnalysisStatus<false>;
   person_analysis_options: Partial<PersonAnalysisOptionsRequest<true>>
-  is_all_approved: AnalysisResultEnum
+  // is_all_approved: AnalysisResultEnum
 } | {
   is_finished: false;
   status: PersonAnalysisStatus<false>;
   person_analysis_options: Partial<PersonAnalysisOptionsRequest<false>>
-  is_all_approved: AnalysisResultEnum
+  // is_all_approved: AnalysisResultEnum
 }
 
 const verifyRequestStatus = ({
@@ -34,7 +34,9 @@ const verifyRequestStatus = ({
   request_id,
   person_analysis_options,
 }: VerifyPersonRequestStatusParams): VerifyPersonRequestStatusReturn => {
-  if (request_person_status.general !== RequestStatusEnum.WAITING) {
+  const is_processing_or_waiting = request_person_status.general === RequestStatusEnum.WAITING
+    || request_person_status.general === RequestStatusEnum.PROCESSING
+  if (!is_processing_or_waiting) {
     logger.warn({
       message: 'Person request not authorized to send answer',
       request_id,
@@ -50,12 +52,21 @@ const verifyRequestStatus = ({
     ...person_analysis_options,
   }
 
-  const analysis_answered = {
+  const analysis_answered: PersonAnalysisStatus<false> = {
     ...request_person_status,
-    general: RequestStatusEnum.FINISHED,
+    general: RequestStatusEnum.VALIDATING,
   }
 
   for (const answer of answers_body) {
+    const is_biometry_request = answer.type === CompanyRequestPersonConfigEnum.BIOMETRY_BASIC
+      || answer.type === CompanyRequestPersonConfigEnum.BIOMETRY_CNH
+      || answer.type === CompanyRequestPersonConfigEnum.BIOMETRY_FACIAL
+
+    const is_eagle_request = answer.type === CompanyRequestPersonConfigEnum.BASIC_DATA
+      || answer.type === CompanyRequestPersonConfigEnum.CNH_SIMPLE
+      || answer.type === CompanyRequestPersonConfigEnum.CNH_ADVANCED
+      || answer.type === CompanyRequestPersonConfigEnum.PROCESS
+
     if (answer.type === CompanyRequestPersonConfigEnum.HISTORY) {
       const historical_status = request_person_status[answer.type]
       if (!historical_status) {
@@ -83,10 +94,12 @@ const verifyRequestStatus = ({
       }
 
       const is_already_answered = find_region[region] === RequestStatusEnum.FINISHED
+        || find_region[region] === RequestStatusEnum.VALIDATING
 
       if (is_already_answered) {
         logger.warn({
           message: 'Historical analysis already answered',
+          answer_type: answer.type,
           request_id,
           person_id,
           region,
@@ -99,12 +112,13 @@ const verifyRequestStatus = ({
       if (is_canceled) {
         logger.warn({
           message: 'Analysis canceled',
+          answer_type: answer.type,
           request_id,
           person_id,
           region,
         })
 
-        throw new ForbiddenError('Análise cancelado')
+        throw new ForbiddenError('Análise histórico cancelado')
       }
 
       const index_find_region = historical_status.regions
@@ -112,7 +126,7 @@ const verifyRequestStatus = ({
 
       const history_answer = analysis_answered[answer.type] as PersonAnalysisStatusHistory<false>
 
-      history_answer.regions[index_find_region][region] = RequestStatusEnum.FINISHED
+      history_answer.regions[index_find_region][region] = RequestStatusEnum.VALIDATING
 
       const historical_analysis = mount_person_analysis_options.history as PersonAnalysisOptionsRequestValueHistory<false>
 
@@ -128,10 +142,12 @@ const verifyRequestStatus = ({
       const ethical_status = request_person_status[answer.type]
 
       const is_already_answered = ethical_status === RequestStatusEnum.FINISHED
+        || ethical_status === RequestStatusEnum.VALIDATING
 
       if (is_already_answered) {
         logger.warn({
           message: 'Ethical analysis already answered',
+          answer_type: answer.type,
           request_id,
           person_id,
         })
@@ -142,49 +158,86 @@ const verifyRequestStatus = ({
       const is_canceled = ethical_status === RequestStatusEnum.CANCELED
       if (is_canceled) {
         logger.warn({
-          message: 'Analysis canceled',
+          message: 'Ethical analysis canceled',
+          answer_type: answer.type,
           request_id,
           person_id,
         })
 
-        throw new ForbiddenError('Análise cancelado')
+        throw new ForbiddenError('Análise ética cancelado')
       }
 
-      analysis_answered[answer.type] = RequestStatusEnum.FINISHED
+      analysis_answered[answer.type] = RequestStatusEnum.VALIDATING
 
       mount_person_analysis_options[answer.type] = {
         ...answer,
         answered_at: now,
       }
-    } else if (answer.type === CompanyRequestPersonConfigEnum.BIOMETRY_BASIC
-      || answer.type === CompanyRequestPersonConfigEnum.BIOMETRY_CNH
-      || answer.type === CompanyRequestPersonConfigEnum.BIOMETRY_FACIAL) {
-      const biometry_status = request_person_status[answer.type]
+    } else if (is_eagle_request) {
+      const eagle_answer_type_status = request_person_status[answer.type]
 
-      const is_already_answered = biometry_status === RequestStatusEnum.FINISHED
+      const is_already_answered = eagle_answer_type_status === RequestStatusEnum.FINISHED
+        || eagle_answer_type_status === RequestStatusEnum.VALIDATING
 
       if (is_already_answered) {
         logger.warn({
-          message: 'Analysis already answered',
+          message: `${answer.type} analysis already answered`,
+          answer_type: answer.type,
           request_id,
           person_id,
         })
 
-        throw new ForbiddenError('Análise já respondido')
+        throw new ForbiddenError(`Análise ${answer.type} já respondido`)
+      }
+
+      const is_canceled = eagle_answer_type_status === RequestStatusEnum.CANCELED
+      if (is_canceled) {
+        logger.warn({
+          message: `${answer.type} analysis canceled`,
+          answer_type: answer.type,
+          request_id,
+          person_id,
+        })
+
+        throw new ForbiddenError(`Análise ${answer.type} cancelado`)
+      }
+
+      analysis_answered[answer.type] = RequestStatusEnum.VALIDATING
+
+      mount_person_analysis_options[answer.type] = {
+        ...answer,
+        answered_at: now,
+      }
+    } else if (is_biometry_request) {
+      const biometry_status = request_person_status[answer.type]
+
+      const is_already_answered = biometry_status === RequestStatusEnum.FINISHED
+        || biometry_status === RequestStatusEnum.VALIDATING
+
+      if (is_already_answered) {
+        logger.warn({
+          message: `${answer.type} analysis already answered`,
+          answer_type: answer.type,
+          request_id,
+          person_id,
+        })
+
+        throw new ForbiddenError(`Análise ${answer.type} já respondido`)
       }
 
       const is_canceled = biometry_status === RequestStatusEnum.CANCELED
       if (is_canceled) {
         logger.warn({
-          message: 'Analysis canceled',
+          message: `${answer.type} analysis canceled`,
+          answer_type: answer.type,
           request_id,
           person_id,
         })
 
-        throw new ForbiddenError('Análise cancelado')
+        throw new ForbiddenError(`Análise ${answer.type} cancelado`)
       }
 
-      analysis_answered[answer.type] = RequestStatusEnum.FINISHED
+      analysis_answered[answer.type] = RequestStatusEnum.VALIDATING
 
       mount_person_analysis_options[answer.type] = {
         ...answer,
@@ -193,42 +246,42 @@ const verifyRequestStatus = ({
     } else {
       logger.warn({
         message: 'Request not authorized to be answered',
+        answer_type: answer.type,
         request_id,
         person_id,
-        type: answer.type,
       })
 
       throw new InternalServerError()
     }
   }
 
-  let is_all_approved: AnalysisResultEnum = AnalysisResultEnum.APPROVED
+  // let is_all_approved: AnalysisResultEnum = AnalysisResultEnum.APPROVED
 
-  for (const [analysis, value] of Object.entries(mount_person_analysis_options)) {
-    const person_analysis = analysis as CompanyRequestPersonConfigEnum
-    if (person_analysis === CompanyRequestPersonConfigEnum.HISTORY) {
-      const historical_value = value as PersonAnalysisOptionsRequestValueHistory<false>
+  // for (const [analysis, value] of Object.entries(mount_person_analysis_options)) {
+  //   const person_analysis = analysis as CompanyRequestPersonConfigEnum
+  //   if (person_analysis === CompanyRequestPersonConfigEnum.HISTORY) {
+  //     const historical_value = value as PersonAnalysisOptionsRequestValueHistory<false>
 
-      for (const region of historical_value.regions) {
-        if (region.result !== AnalysisResultEnum.APPROVED) {
-          is_all_approved = AnalysisResultEnum.REJECTED
+  //     for (const region of historical_value.regions) {
+  //       if (region.result !== AnalysisResultEnum.APPROVED) {
+  //         is_all_approved = AnalysisResultEnum.REJECTED
 
-          break
-        }
-      }
+  //         break
+  //       }
+  //     }
 
-      if (is_all_approved === AnalysisResultEnum.REJECTED) {
-        break
-      }
-    } else {
-      const status = value as Partial<PersonAnalysisOptionsRequestValueAnswer>
-      if (status.result !== AnalysisResultEnum.APPROVED) {
-        is_all_approved = AnalysisResultEnum.REJECTED
+  //     if (is_all_approved === AnalysisResultEnum.REJECTED) {
+  //       break
+  //     }
+  //   } else {
+  //     const status = value as Partial<PersonAnalysisOptionsRequestValueAnswer>
+  //     if (status.result !== AnalysisResultEnum.APPROVED) {
+  //       is_all_approved = AnalysisResultEnum.REJECTED
 
-        break
-      }
-    }
-  }
+  //       break
+  //     }
+  //   }
+  // }
 
   let is_worker_finished = true
 
@@ -236,10 +289,10 @@ const verifyRequestStatus = ({
     const person_analysis = analysis as CompanyRequestPersonConfigEnum
     if (person_analysis === CompanyRequestPersonConfigEnum.HISTORY) {
       const historical_value = value as PersonAnalysisStatusHistory<false>
-      const find_region = historical_value.regions.find((object) =>
+      const find_waiting_region = historical_value.regions.find((object) =>
         Object.values(object).includes(RequestStatusEnum.WAITING),
       )
-      if (find_region) {
+      if (find_waiting_region) {
         return {
           is_finished: false,
           status: {
@@ -247,7 +300,7 @@ const verifyRequestStatus = ({
             general: RequestStatusEnum.WAITING,
           },
           person_analysis_options: mount_person_analysis_options,
-          is_all_approved,
+          // is_all_approved,
         }
       }
     } else if (person_analysis === CompanyRequestPersonConfigEnum.ETHICAL) {
@@ -260,7 +313,7 @@ const verifyRequestStatus = ({
             general: RequestStatusEnum.WAITING,
           },
           person_analysis_options: mount_person_analysis_options,
-          is_all_approved,
+          // is_all_approved,
         }
       }
     } else {
@@ -272,13 +325,12 @@ const verifyRequestStatus = ({
   }
 
   if (is_worker_finished) {
-    const status = analysis_answered as PersonAnalysisStatus<true>
-    const person_analysis_options_finished = mount_person_analysis_options as Partial<PersonAnalysisOptionsRequest<true>>
+    const person_analysis_options_answered = mount_person_analysis_options as Partial<PersonAnalysisOptionsRequest<true>>
     return {
       is_finished: true,
-      status,
-      person_analysis_options: person_analysis_options_finished,
-      is_all_approved,
+      status: analysis_answered,
+      person_analysis_options: person_analysis_options_answered,
+      // is_all_approved,
     }
   }
 
@@ -289,7 +341,7 @@ const verifyRequestStatus = ({
       general: RequestStatusEnum.PROCESSING,
     },
     person_analysis_options: mount_person_analysis_options,
-    is_all_approved,
+    // is_all_approved,
   }
 }
 

@@ -36,6 +36,7 @@ const personAnalysisOptionsConstructor = (
           person_analysis_options[analysis_to_request]!.regions.push({
             region,
           })
+          // I think that I need to take this part, because even is false, it just request analysis
         } else {
           invalid_request_set.add(analysis_to_request)
           invalid_regions.push(region)

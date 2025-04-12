@@ -1,4 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { S3Client } from '@aws-sdk/client-s3'
 
 import { Controller } from '~/models/lambda'
 import logger from '~/utils/logger'
@@ -7,7 +8,14 @@ import getRequestPersonAdapter, { GetRequestPersonAdapterParams } from './get-re
 import validatePersonParam from './validate-param'
 import validatePersonQuery from './validate-query'
 
-const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
+const dynamodbClient = new DynamoDBClient({
+  region: 'us-east-1',
+})
+
+const s3Client = new S3Client({
+  region: 'us-east-1',
+  maxAttempts: 5,
+})
 
 const getPersonController: Controller<true> = async (req) => {
   logger.debug({
@@ -24,10 +32,10 @@ const getPersonController: Controller<true> = async (req) => {
     person_id,
     request_id,
     user_info,
+    s3Client,
   }
 
   const request_person = await getRequestPersonAdapter(get_request_person_adapter_params)
-
   logger.info({
     message: 'Finish on get person request info',
     request_id,

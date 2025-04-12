@@ -1,7 +1,7 @@
 import Joi from 'joi'
 
 import { CompanyRequestPersonConfigEnum } from '~/models/dynamo/enums/company'
-import { AnalysisResultEnum, PersonStateEnum } from '~/models/dynamo/enums/request'
+import { PersonStateEnum } from '~/models/dynamo/enums/request'
 import { UseCaseSendPersonAnswersBody } from '~/use-cases/answer-person-analysis'
 import BadRequestError from '~/utils/errors/400-bad-request'
 import logger from '~/utils/logger'
@@ -10,18 +10,10 @@ const schema = Joi.array<UseCaseSendPersonAnswersBody[]>().items(
   Joi.object<UseCaseSendPersonAnswersBody, true>({
     reason: Joi
       .string()
-      .when('result', {
-        is: AnalysisResultEnum.REJECTED,
-        then: Joi.required(),
-        otherwise: Joi.optional(),
-      }),
-    result: Joi
-      .string()
-      .valid(...Object.values(AnalysisResultEnum))
-      .required(),
+      .optional(),
     type: Joi
       .string()
-      .valid(CompanyRequestPersonConfigEnum.ETHICAL, CompanyRequestPersonConfigEnum.HISTORY)
+      .valid(...Object.values(CompanyRequestPersonConfigEnum))
       .required(),
     region: Joi
       .string()

@@ -1,16 +1,15 @@
 import { CompanyRequestVehicleConfigEnum } from '../../enums/company'
-import { AnalysisResultEnum, StateEnum } from '../../enums/request'
+import { VehicleAnalysisStateEnum } from '../../enums/request'
 
 export type VehicleAnalysisOptionsRequestValueAnswer = {
   answered_at: string
   reason?: string
-  result: AnalysisResultEnum
   type: CompanyRequestVehicleConfigEnum
 }
 
 export type VehicleAnalysisOptionsRequestValueHistoryRegion<Finished extends boolean> = Finished extends true
-  ? VehicleAnalysisOptionsRequestValueAnswer & { region: StateEnum }
-  : Partial<VehicleAnalysisOptionsRequestValueAnswer> & { region: StateEnum }
+  ? VehicleAnalysisOptionsRequestValueAnswer & { region: VehicleAnalysisStateEnum }
+  : Partial<VehicleAnalysisOptionsRequestValueAnswer> & { region: VehicleAnalysisStateEnum }
 
 export type VehicleAnalysisOptionsRequestValueHistory<Finished extends boolean> = {
   regions: Array<VehicleAnalysisOptionsRequestValueHistoryRegion<Finished>>

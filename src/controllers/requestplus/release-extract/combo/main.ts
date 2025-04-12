@@ -4,7 +4,6 @@ import getCompanyAdapter from '../get-company-adapter '
 import getUserAdapter from '../get-user-adapter'
 import formatPersonAnalysis from '../person/format-person-analysis'
 import formatVehicleAnalysis from '../vehicle/format-vehicle-analysis'
-import verifyCompanyName from '../verify-company-name'
 import { Controller } from '~/models/lambda'
 import logger from '~/utils/logger'
 
@@ -35,7 +34,7 @@ const comboReleaseExtractController: Controller<true> = async (req) => {
 
   const company = await getCompanyAdapter(person_analysis.company_name, dynamodbClient)
 
-  verifyCompanyName(user, person_analysis)
+  // verifyCompanyName(user, person_analysis)
 
   const pdf_buffer = await generateComboPdf({
     company,
@@ -45,6 +44,7 @@ const comboReleaseExtractController: Controller<true> = async (req) => {
     vehicles_analysis: vehicle_analysis.map(analysis => formatVehicleAnalysis(analysis, company)),
   })
 
+  // @ts-ignore-next-line
   const pdf_base64 = Buffer.from(pdf_buffer).toString('base64')
 
   logger.info({

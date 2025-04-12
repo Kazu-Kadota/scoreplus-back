@@ -2,6 +2,7 @@ export enum RequestStatusEnum {
   CANCELED = 'CANCELED',
   FINISHED = 'FINISHED',
   PROCESSING = 'PROCESSING',
+  VALIDATING = 'VALIDATING',
   WAITING = 'WAITING',
 }
 
@@ -23,6 +24,17 @@ export enum AnalysisTypeEnum {
 export enum PersonRegionTypeEnum {
   STATES = 'states',
   NATIONAL = 'national'
+}
+
+export enum PersonThirdPartyEnum {
+  DATAVALID = 'datavalid',
+  EAGLESYSTEM = 'eagle_system',
+  M2SYSTEM = 'm2_system',
+}
+
+export enum VehicleThirdPartyEnum {
+  EAGLESYSTEM = 'eagle_system',
+  M2SYSTEM = 'm2_system',
 }
 
 export enum DriverCategoryEnum {
@@ -94,6 +106,7 @@ export enum PersonStateEnum {
   SE = 'SE',
   TO = 'TO',
   BRASIL = 'BRASIL',
+  NATIONAL_HISTORY_WITH_SP = 'NACIONAL HISTÓRICO + SP',
 }
 
 export enum PlateStateEnum {
@@ -125,6 +138,37 @@ export enum PlateStateEnum {
   SE = 'SE',
   TO = 'TO',
   MERCOSUL = 'MERCOSUL',
+}
+
+export enum VehicleAnalysisStateEnum {
+  AC = 'AC',
+  AL = 'AL',
+  AP = 'AP',
+  AM = 'AM',
+  BA = 'BA',
+  CE = 'CE',
+  DF = 'DF',
+  ES = 'ES',
+  GO = 'GO',
+  MA = 'MA',
+  MT = 'MT',
+  MS = 'MS',
+  MG = 'MG',
+  PA = 'PA',
+  PB = 'PB',
+  PR = 'PR',
+  PE = 'PE',
+  PI = 'PI',
+  RJ = 'RJ',
+  RN = 'RN',
+  RS = 'RS',
+  RO = 'RO',
+  RR = 'RR',
+  SC = 'SC',
+  SP = 'SP',
+  SE = 'SE',
+  TO = 'TO',
+  NATIONAL_HISTORY_WITH_SP = 'NACIONAL HISTÓRICO + SP'
 }
 
 export enum VehicleType {

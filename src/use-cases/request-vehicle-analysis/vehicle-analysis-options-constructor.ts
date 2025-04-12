@@ -1,5 +1,5 @@
 import { CompanyRequestVehicleConfigEnum } from '~/models/dynamo/enums/company'
-import { StateEnum } from '~/models/dynamo/enums/request'
+import { VehicleAnalysisStateEnum } from '~/models/dynamo/enums/request'
 import { VehicleAnalysisOptionsRequest, VehicleAnalysisOptionsToRequest } from '~/models/dynamo/requestplus/analysis-vehicle/vehicle-analysis-options'
 import { CompanyRequestVehicleConfig } from '~/models/dynamo/userplus/company'
 import BadRequestError from '~/utils/errors/400-bad-request'
@@ -12,7 +12,7 @@ const vehicleAnalysisOptionsConstructor = (
 ): Partial<VehicleAnalysisOptionsRequest<false>> => {
   const vehicle_analysis_options: Partial<VehicleAnalysisOptionsRequest<false>> = {}
   const invalid_request_set = new Set<CompanyRequestVehicleConfigEnum>()
-  const invalid_regions: Array<StateEnum> = []
+  const invalid_regions: Array<VehicleAnalysisStateEnum> = []
 
   for (const analysis_to_request of vehicle_analysis_options_to_request) {
     if (analysis_to_request === CompanyRequestVehicleConfigEnum.PLATE_HISTORY) {
@@ -31,7 +31,7 @@ const vehicleAnalysisOptionsConstructor = (
       }
 
       for (const [history_regions, to_be_analyzed] of company_request_vehicle_config_history) {
-        const region = history_regions as StateEnum
+        const region = history_regions as VehicleAnalysisStateEnum
         if (to_be_analyzed) {
           vehicle_analysis_options[analysis_to_request]!.regions.push({
             region,

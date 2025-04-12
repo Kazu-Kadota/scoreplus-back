@@ -5,6 +5,7 @@ import { CompanyRequestPersonConfigEnum, CompanyRequestVehicleConfigEnum } from 
 export type SNSMessageAttributes = {
   origin: MessageAttributeValue,
   requestId: MessageAttributeValue,
+  consumer: MessageAttributeValue,
 }
 
 export type SNSThirdPartyWorkersPersonMessage<T = any> =

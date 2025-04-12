@@ -1,44 +1,43 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-
 import { LRUCache } from 'lru-cache'
 
-import { AnalysisResultEnum, AnalysisTypeEnum } from '~/models/dynamo/enums/request'
 import { UserGroupEnum } from '~/models/dynamo/enums/user'
-import { VehicleRequestForms } from '~/models/dynamo/requestplus/analysis-vehicle/forms'
-import { VehicleAnalysisStatus } from '~/models/dynamo/requestplus/analysis-vehicle/status'
-import { RequestplusAnalysisVehicle, RequestplusAnalysisVehicleKey } from '~/models/dynamo/requestplus/analysis-vehicle/table'
-import { VehicleAnalysisOptionsRequest } from '~/models/dynamo/requestplus/analysis-vehicle/vehicle-analysis-options'
-import { VehicleAnalysisType } from '~/models/dynamo/requestplus/analysis-vehicle/vehicle-analysis-type'
-import { RequestplusFinishedAnalysisVehicle, RequestplusFinishedAnalysisVehicleKey } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
-import { Timestamp } from '~/models/dynamo/timestamp'
+import { RequestplusAnalysisVehicle } from '~/models/dynamo/requestplus/analysis-vehicle/table'
+import { RequestplusFinishedAnalysisVehicle } from '~/models/dynamo/requestplus/finished-analysis-vehicle/table'
+import { RequestplusValidateAnalysisVehicle } from '~/models/dynamo/requestplus/validate-analysis-vehicle/table'
 import { UserplusCompany } from '~/models/dynamo/userplus/company'
 import { Controller } from '~/models/lambda'
 import NotFoundError from '~/utils/errors/404-not-found'
 import logger from '~/utils/logger'
 import { Exact } from '~/utils/types/exact'
 
-import countConsult from './count-consult'
 import getCompanyAdapter from './get-company-adapter '
 import queryFinishedRequestVehicleByPlateAdapter, { QueryFinishedRequestVehicleByPlateAdapterParams } from './query-finished-request-vehicle-by-plate-adapter'
 import queryRequestVehicleByPlateAdapter, { QueryRequestVehicleByPlateAdapterParams } from './query-request-vehicle-by-plate-adapter'
+import queryValidateVehicleByPlateAdapter from './query-validate-vehicle-by-document-adapter'
 import validateQuery from './validate-query'
 
-import verifyValidityDate from './verify-validity-date'
+import verifyValidityDate, { VerifyValidityDateParams } from './verify-validity-date'
 
-export type QueryVehicleByPlateControllerClientFinishedResponse = RequestplusFinishedAnalysisVehicleKey & VehicleRequestForms & Timestamp & {
-  analysis_type: AnalysisTypeEnum
-  finished_at: string
-  result: AnalysisResultEnum
-  status: VehicleAnalysisStatus<true>
-  vehicle_analysis_options: Partial<VehicleAnalysisOptionsRequest<true>>
-  vehicle_analysis_type: VehicleAnalysisType
-}
+export type QueryVehicleByPlateControllerClientResponse = Omit<RequestplusAnalysisVehicle,
+  'vehicle_analysis_options'
+  | 'third_party'
+>
 
-export type QueryVehicleByPlateControllerClientResponse = RequestplusAnalysisVehicleKey & VehicleRequestForms & Timestamp & {
-  analysis_type: AnalysisTypeEnum
-  vehicle_analysis_options: Partial<VehicleAnalysisOptionsRequest<false>>
-  vehicle_analysis_type: VehicleAnalysisType
-  status: VehicleAnalysisStatus<false>
+export type QueryVehicleByPlateControllerClientValidateResponse = Omit<RequestplusValidateAnalysisVehicle,
+  'vehicle_analysis_options'
+  | 'information_validation'
+  | 'third_party'
+  >
+
+export type QueryVehicleByPlateControllerClientFinishedResponse = Omit<RequestplusFinishedAnalysisVehicle,
+  'vehicle_analysis_options'
+  | 'information_validation'
+  | 'third_party'
+  | 'already_consulted'
+  | 'company_name'
+> & {
+  is_my_company: boolean
 }
 
 const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
@@ -50,7 +49,7 @@ const cache_options = {
 
 const company_cache = new LRUCache(cache_options)
 
-function isFinishedAnalysisVehicle (vehicle: RequestplusFinishedAnalysisVehicle | RequestplusAnalysisVehicle): vehicle is RequestplusFinishedAnalysisVehicle {
+function isFinishedAnalysisVehicle (vehicle: RequestplusAnalysisVehicle | RequestplusValidateAnalysisVehicle | RequestplusFinishedAnalysisVehicle): vehicle is RequestplusFinishedAnalysisVehicle {
   return (vehicle as RequestplusFinishedAnalysisVehicle).finished_at !== undefined
 }
 
@@ -64,6 +63,7 @@ const queryVehicleByPlateController: Controller<true> = async (req) => {
 
   const vehicles: Array<(
     QueryVehicleByPlateControllerClientFinishedResponse
+    | QueryVehicleByPlateControllerClientValidateResponse
     | QueryVehicleByPlateControllerClientResponse
     | RequestplusFinishedAnalysisVehicle
     | RequestplusAnalysisVehicle
@@ -88,13 +88,10 @@ const queryVehicleByPlateController: Controller<true> = async (req) => {
 
     if (request_vehicle) {
       for (const request of request_vehicle) {
-        if (request.company_name === user_info.company_name) {
+        if (user_info.user_type === UserGroupEnum.CLIENT && request.company_name === user_info.company_name) {
           const {
-            combo_id,
-            combo_number,
-            company_name,
-            m2_request,
-            user_id,
+            vehicle_analysis_options,
+            third_party,
             ...client_vehicle_info
           } = request
 
@@ -105,44 +102,165 @@ const queryVehicleByPlateController: Controller<true> = async (req) => {
       }
     }
 
-    if (vehicles.length === 0) {
-      const finished_vehicles = await queryFinishedRequestVehicleByPlateAdapter(query_finished_vehicle_params)
-      if (finished_vehicles) {
-        const finished_vehicle = finished_vehicles.find((value) => value.company_name === user_info.company_name) ?? finished_vehicles[0]
+    const validate_request_vehicle = await queryValidateVehicleByPlateAdapter(query_vehicle_params)
 
-        const company = await getCompanyAdapter(finished_vehicle.company_name, dynamodbClient)
+    if (validate_request_vehicle) {
+      for (const request of validate_request_vehicle) {
+        if (user_info.user_type === UserGroupEnum.CLIENT && request.company_name === user_info.company_name) {
+          const {
+            information_validation,
+            vehicle_analysis_options,
+            third_party,
+            ...client_vehicle_info
+          } = request
 
-        const validity_date = verifyValidityDate(finished_vehicle, company)
+          const vehicle: Exact<QueryVehicleByPlateControllerClientValidateResponse, typeof client_vehicle_info> = client_vehicle_info
+
+          vehicles.push(vehicle)
+        }
+      }
+    }
+
+    const finished_vehicles = await queryFinishedRequestVehicleByPlateAdapter(query_finished_vehicle_params)
+
+    if (finished_vehicles) {
+      let last_finished_vehicle: RequestplusFinishedAnalysisVehicle | undefined = finished_vehicles[0]
+      const finished_vehicles_from_company = finished_vehicles.filter((value) => value.company_name === user_info.company_name)
+
+      if (!finished_vehicles_from_company[0] && !last_finished_vehicle) {
+        logger.warn({
+          message: 'Vehicle not found with plate',
+          plate: query_vehicle.plate,
+        })
+
+        throw new NotFoundError('Veículo não encontrada pelo placa')
+      }
+
+      if (last_finished_vehicle && finished_vehicles_from_company[0] && last_finished_vehicle.request_id === finished_vehicles_from_company[0].request_id) {
+        last_finished_vehicle = undefined
+      }
+
+      if (finished_vehicles_from_company[0]) {
+        const company_from_company = await getCompanyAdapter(finished_vehicles_from_company[0].company_name, dynamodbClient)
+
+        for (const finished_vehicle of finished_vehicles_from_company) {
+          const verify_validity_date_params: VerifyValidityDateParams = {
+            company: company_from_company,
+            finished_vehicle,
+          }
+
+          const validity_date = verifyValidityDate(verify_validity_date_params)
+
+          const {
+            already_consulted,
+            company_name,
+            information_validation,
+            vehicle_analysis_options,
+            third_party,
+            ...client_vehicle_info
+          } = finished_vehicle
+
+          const client_vehicle_info_company: QueryVehicleByPlateControllerClientFinishedResponse = {
+            ...client_vehicle_info,
+            is_my_company: true,
+          }
+
+          const vehicle: Exact<QueryVehicleByPlateControllerClientFinishedResponse, typeof client_vehicle_info_company> = client_vehicle_info_company
+
+          vehicles.push({
+            ...vehicle,
+            validity_date,
+          })
+        }
+      }
+
+      if (last_finished_vehicle) {
+        const company_from_last_finished_vehicle = await getCompanyAdapter(last_finished_vehicle.company_name, dynamodbClient)
+
+        const verify_validity_date_params: VerifyValidityDateParams = {
+          company: company_from_last_finished_vehicle,
+          finished_vehicle: last_finished_vehicle,
+        }
+
+        const validity_date = verifyValidityDate(verify_validity_date_params)
 
         const {
           already_consulted,
-          combo_id,
-          combo_number,
           company_name,
-          m2_request,
-          user_id,
+          information_validation,
+          vehicle_analysis_options,
+          third_party,
           ...client_vehicle_info
-        } = finished_vehicle
+        } = last_finished_vehicle
 
-        const vehicle: Exact<QueryVehicleByPlateControllerClientFinishedResponse, typeof client_vehicle_info> = client_vehicle_info
+        const client_vehicle_info_company: QueryVehicleByPlateControllerClientFinishedResponse = {
+          ...client_vehicle_info,
+          is_my_company: false,
+        }
+
+        const vehicle: Exact<QueryVehicleByPlateControllerClientFinishedResponse, typeof client_vehicle_info_company> = client_vehicle_info_company
 
         vehicles.push({
           ...vehicle,
           validity_date,
         })
-
-        await countConsult({
-          dynamodbClient,
-          finished_vehicle,
-          user_info,
-        })
       }
     }
+
+    // if (vehicles.length === 0) {
+    //   const finished_vehicles = await queryFinishedRequestVehicleByPlateAdapter(query_finished_vehicle_params)
+    //   if (finished_vehicles) {
+    //     const finished_vehicle = finished_vehicles.find((value) => value.company_name === user_info.company_name)
+
+    //     if (!finished_vehicle) {
+    //       logger.warn({
+    //         message: 'Vehicle not found with plate',
+    //         plate: query_vehicle.plate,
+    //       })
+
+    //       throw new NotFoundError('Veículo não encontrada pela placa')
+    //     }
+
+    //     const company = await getCompanyAdapter(finished_vehicle.company_name, dynamodbClient)
+
+    //     const verify_validity_date_params: VerifyValidityDateParams = {
+    //       company,
+    //       finished_vehicle,
+    //     }
+
+    //     const validity_date = verifyValidityDate(verify_validity_date_params)
+
+    //     const {
+    //       already_consulted,
+    //       information_validation,
+    //       vehicle_analysis_options,
+    //       third_party,
+    //       ...client_vehicle_info
+    //     } = finished_vehicle
+
+    //     const client_vehicle_info_company: QueryVehicleByPlateControllerClientFinishedResponse = {
+    //       ...client_vehicle_info,
+    //       is_my_company: user_info.company_name === company.name,
+    //     }
+
+    //     const vehicle: Exact<QueryVehicleByPlateControllerClientFinishedResponse, typeof client_vehicle_info_company> = client_vehicle_info_company
+
+    //     vehicles.push({
+    //       ...vehicle,
+    //       validity_date,
+    //     })
+    //   }
+    // }
   } else {
-    const analysis: Array<(RequestplusFinishedAnalysisVehicle | RequestplusAnalysisVehicle)> = []
+    const analysis: Array<(RequestplusFinishedAnalysisVehicle | RequestplusValidateAnalysisVehicle | RequestplusAnalysisVehicle)> = []
     const request_vehicle = await queryRequestVehicleByPlateAdapter(query_vehicle_params)
     if (request_vehicle) {
       analysis.push(...request_vehicle)
+    }
+
+    const validate_vehicle = await queryValidateVehicleByPlateAdapter(query_vehicle_params)
+    if (validate_vehicle) {
+      analysis.push(...validate_vehicle)
     }
 
     const finished_vehicle = await queryFinishedRequestVehicleByPlateAdapter(query_finished_vehicle_params)
@@ -157,7 +275,13 @@ const queryVehicleByPlateController: Controller<true> = async (req) => {
         }
 
         const company = company_cache.get(item.company_name) as UserplusCompany
-        const validity_date = verifyValidityDate(item, company)
+
+        const verify_validity_date_params: VerifyValidityDateParams = {
+          company,
+          finished_vehicle: item,
+        }
+
+        const validity_date = verifyValidityDate(verify_validity_date_params)
 
         vehicles.push({
           ...item,

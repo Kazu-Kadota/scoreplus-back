@@ -1,11 +1,11 @@
 import { AnalysisTypeEnum } from '../../enums/request'
 import { Timestamp } from '../../timestamp'
-import { M2PersonRequestAnalysisResponseBody } from '~/models/m2system/request/analysis-person'
 
 import { PersonRequestForms } from './forms'
 import { PersonAnalysisOptionsRequest } from './person-analysis-options'
 import { PersonAnalysisType } from './person-analysis-type'
 import { PersonAnalysisStatus } from './status'
+import { PersonAnalysisThirdParty } from './third-party'
 
 export type RequestPersonAnalysis = {
   person: PersonRequestForms
@@ -23,10 +23,10 @@ export type RequestplusAnalysisPersonBody = PersonRequestForms & {
   combo_id?: string
   combo_number?: number
   company_name: string
-  m2_request?: M2PersonRequestAnalysisResponseBody[]
   person_analysis_options: Partial<PersonAnalysisOptionsRequest<false>>
   person_analysis_type: PersonAnalysisType
   status: PersonAnalysisStatus<false>
+  third_party?: PersonAnalysisThirdParty
   user_id: string
 }
 

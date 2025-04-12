@@ -1,11 +1,12 @@
-import { M2PlateHistoryStateEnum } from '../enums/analysis'
-import { PlateStateEnum } from '~/models/dynamo/enums/request'
+import { M2PlateStateEnum, M2RequestAnalysisStateEnum } from '../enums/analysis'
 
 export type M2VehicleRequestPlateHistoryForms = {
   company_name?: string
+  metadata?: Record<any, any>
   owner_document: string
   owner_name: string
-  plate_state: PlateStateEnum
+  plate_state: M2PlateStateEnum
   plate: string
-  region: M2PlateHistoryStateEnum
+  postback?: 'scoreplus'
+  region: M2RequestAnalysisStateEnum
 }

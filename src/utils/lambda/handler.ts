@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, SQSEvent, SQSMessageAttributes } from 'aws-lambda'
 import { getBoundary, parse } from 'parse-multipart-data'
+import { v4 as uuid } from 'uuid'
 
 import catchError from '../catch-error'
 import UnauthorizedError from '../errors/401-unauthorized'
@@ -116,7 +117,6 @@ namespace LambdaHandlerNameSpace {
           (request as BinaryRequest<true>).user = user
         }
 
-        // eslint-disable-next-line
         let body_buffer: Buffer
 
         if (event.isBase64Encoded) {
@@ -170,22 +170,18 @@ namespace LambdaHandlerNameSpace {
         const message_attributes = record.messageAttributes as T & SQSControllerMessageAttributes
 
         if (!message_attributes.requestId?.stringValue) {
-          logger.error({
+          logger.warn({
             message: 'Lambda requestId is not set from message sender',
           })
-
-          throw new InternalServerError('Lambda requestId is not set from message sender')
         }
 
         if (!message_attributes.origin?.stringValue) {
-          logger.error({
+          logger.warn({
             message: 'Lambda origin is not set from message sender',
           })
-
-          throw new InternalServerError('Lambda origin is not set from message sender')
         }
 
-        logger.setRequestId(message_attributes.requestId.stringValue)
+        logger.setRequestId(message_attributes.requestId?.stringValue ?? uuid())
 
         logger.debug({
           message: 'SQS-LAMBDA: Handling message',

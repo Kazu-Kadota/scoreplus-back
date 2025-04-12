@@ -17,6 +17,8 @@ provider:
     DYNAMO_TABLE_REQUESTPLUS_COMPANY_CONSULT: requestplus-company-consult-sdx
     DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_PERSON: requestplus-finished-analysis-person-sdx
     DYNAMO_TABLE_REQUESTPLUS_FINISHED_ANALYSIS_VEHICLE: requestplus-finished-analysis-vehicle-sdx
+    DYNAMO_TABLE_REQUESTPLUS_VALIDATE_ANALYSIS_PERSON: requestplus-validate-analysis-person-sdx
+    DYNAMO_TABLE_REQUESTPLUS_VALIDATE_ANALYSIS_VEHICLE: requestplus-validate-analysis-vehicle-sdx
     DYNAMO_TABLE_USERPLUS_ACCESS_TOKEN: userplus-access-token-sdx
     DYNAMO_TABLE_USERPLUS_COMPANY: userplus-company-sdx
     DYNAMO_TABLE_USERPLUS_PASSWORD_HISTORY: userplus-password-history-sdx
@@ -27,6 +29,7 @@ provider:
     M2SYSTEM_USER_LOGIN_EMAIL: ${ssm:/sdx/m2system/user/login/email}
     M2SYSTEM_USER_LOGIN_PASSWORD: ${ssm:/sdx/m2system/user/login/password}
     S3_BUCKET_REQUESTPLUS_ANALYSIS_PERSON_BIOMETRY: requestplus-analysis-person-biometry-sdx
+    S3_THIRD_PARTY_ANSWER: requestplus-third-party-analysis-sdx
     SCOREPLUS_DATAVALID_USER_ACCOUNT: ${ssm:/sdx/lambda/worker/datavalid/user}
     SCOREPLUS_DATAVALID_USER_PASSWORD: ${ssm:/sdx/lambda/worker/datavalid/password}
     SCOREPLUS_EMAIL: sdx.no-reply@systemscoreplus.com.br
@@ -35,8 +38,8 @@ provider:
     SERPRO_CONSUMER_KEY: ${ssm:/sdx/serpro-consumer-key}
     SERPRO_CONSUMER_SECRET: ${ssm:/sdx/serpro-consumer-secret}
     SERPRO_ENDPOINT: https://gateway.apiserpro.serpro.gov.br
-    SNS_REQUESTPLUS_THIRD_PARTY_WORKERS_ARN: arn:aws:sns:us-east-1:316279706039:requestplus-third-party-workers
-    SQS_DATAVALID_FACIAL: https://sqs.us-east-1.amazonaws.com/316279706039/requestplus-pf-facial-biometry-sdx.fifo
+    SNS_REQUESTPLUS_THIRD_PARTY_WORKERS_ARN: arn:aws:sns:us-east-1:011528291947:requestplus-third-party-workers
+    SQS_DATAVALID_FACIAL: https://sqs.us-east-1.amazonaws.com/011528291947/requestplus-pf-facial-biometry-sdx.fifo
     STAGE: local
     USER_RECOVERY_KEY_URL: https://user.api.systemscoreplus.com.br/reset-password
 

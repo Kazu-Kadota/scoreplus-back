@@ -1,12 +1,12 @@
 import { CompanyRequestVehicleConfigEnum } from '../../enums/company'
-import { GeneralAnalysisStatusEnum, RequestStatusEnum, StateEnum } from '../../enums/request'
+import { GeneralAnalysisStatusEnum, RequestStatusEnum, VehicleAnalysisStateEnum } from '../../enums/request'
 
 export type VerifyVehicleAnalysisStatus<Finished extends boolean> = Finished extends true
   ? RequestStatusEnum.FINISHED
   : RequestStatusEnum
 
 export type VehicleAnalysisStatusHistoryRegion<Finished extends boolean> = Partial<{
-    [Key in StateEnum]: VerifyVehicleAnalysisStatus<Finished>
+    [Key in VehicleAnalysisStateEnum]: VerifyVehicleAnalysisStatus<Finished>
   }>
 
 export type VehicleAnalysisStatusHistory<Finished extends boolean> = {

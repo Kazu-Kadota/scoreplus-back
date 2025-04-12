@@ -3,15 +3,18 @@ import { SNSClient } from '@aws-sdk/client-sns'
 import { PFFacialCDVImagesAnswerEnum } from '~/models/datavalid/pf-facial-cdv/request-body'
 import { CompanyRequestPersonBiometryConfigEnum } from '~/models/dynamo/enums/company'
 import { RequestplusAnalysisPerson } from '~/models/dynamo/requestplus/analysis-person/table'
+import { CompanyRequestPersonConfig } from '~/models/dynamo/userplus/company'
 import useCasePublishSnsTopicPerson, { PublishSnsTopicPersonParams } from '~/use-cases/publish-sns-topic-person'
 
 export type BiometryFacialPublishSnsTopicPersonAdapterParams = {
+  company_request_person_config: CompanyRequestPersonConfig
   request_person: RequestplusAnalysisPerson,
   snsClient: SNSClient
   s3_image_paths: Map<PFFacialCDVImagesAnswerEnum, string>
 }
 
 const publishSnsTopicPersonAdapter = async ({
+  company_request_person_config,
   request_person,
   snsClient,
   s3_image_paths,
@@ -35,6 +38,7 @@ const publishSnsTopicPersonAdapter = async ({
       naturalness: request_person.naturalness,
       mirror_number_cnh: request_person.mirror_number_cnh,
     },
+    company_request_person_config,
     person_id: request_person.person_id,
     request_id: request_person.request_id,
     snsClient,

@@ -1,5 +1,5 @@
 import { CompanyRequestVehicleConfigEnum } from '../../enums/company'
-import { StateEnum } from '../../enums/request'
+import { VehicleAnalysisStateEnum } from '../../enums/request'
 import { Timestamp } from '../../timestamp'
 
 export type VehiclesAnalysisCompanyContent = Timestamp & {
@@ -8,7 +8,7 @@ export type VehiclesAnalysisCompanyContent = Timestamp & {
 }
 
 export type VehiclesAnalysisCompanyContentHistory = VehiclesAnalysisCompanyContent & {
-  state: StateEnum
+  state: VehicleAnalysisStateEnum
 }
 
 export type VehiclesAnalysisCompanyOptions = {

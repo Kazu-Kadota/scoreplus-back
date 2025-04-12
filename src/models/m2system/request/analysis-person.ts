@@ -5,13 +5,14 @@ export type M2PersonRequestForms = {
   birth_date: string
   category_cnh?: DriverCategoryEnum
   cnh?: string
-  company_name?: string
   document: string
   expire_at_cnh?: string
   father_name?: string
+  metadata?: Record<any, any>
   mother_name: string
   name: string
   naturalness?: string
+  postback?: 'scoreplus'
   rg: string
   security_number_cnh?: string
   state_rg: StateEnum

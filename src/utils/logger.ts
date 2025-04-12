@@ -43,8 +43,8 @@ class Logger {
     this.config.user = user
   }
 
-  setRequestId (request_id: string) {
-    this.config.request_id = request_id
+  setRequestId (requestId: string) {
+    this.config.requestId = requestId
   }
 
   getConfig () {
