@@ -20,6 +20,8 @@ const personStatusConstructor = (
       general: RequestStatusEnum.WAITING,
     } as PersonAnalysisStatus<false>
 
+  let at_least_one_waiting = false
+
   for (const [analysis, object] of Object.entries(person_analysis_options)) {
     const analysis_key = analysis as CompanyRequestPersonConfigEnum
     if (analysis_key === CompanyRequestPersonConfigEnum.HISTORY) {
@@ -30,12 +32,20 @@ const personStatusConstructor = (
             [region]: RequestStatusEnum.WAITING,
           },
         )
+
+        at_least_one_waiting = true
       }
     } else if (analysis_key === CompanyRequestPersonConfigEnum.ETHICAL) {
       status[analysis_key] = RequestStatusEnum.WAITING
+
+      at_least_one_waiting = true
     } else {
       status[analysis_key] = RequestStatusEnum.PROCESSING
     }
+  }
+
+  if (!at_least_one_waiting) {
+    status.general = RequestStatusEnum.PROCESSING
   }
 
   return status

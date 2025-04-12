@@ -3,7 +3,7 @@ import { LRUCache } from 'lru-cache'
 
 import m2SystemHeaders from '../headers'
 import m2SystemToken, { M2SystemTokenResponse } from '../token'
-import { M2VehicleAnalysisResponse, M2VehicleRequestForms } from '~/models/m2system/request/analysis-vehicle'
+import { M2VehicleRequestAnalysisResponse, M2VehicleRequestForms } from '~/models/m2system/request/analysis-vehicle'
 import ErrorHandler from '~/utils/error-handler'
 import getStringEnv from '~/utils/get-string-env'
 import logger from '~/utils/logger'
@@ -23,7 +23,7 @@ const M2SYSTEM_REQUEST_ENDPOINT = getStringEnv('M2SYSTEM_REQUEST_ENDPOINT')
 
 const m2RequestAnalysisVehicle = async ({
   body,
-}: M2RequestAnalysisVehicleParams): Promise<M2VehicleAnalysisResponse> => {
+}: M2RequestAnalysisVehicleParams): Promise<M2VehicleRequestAnalysisResponse> => {
   if (!access_token_cache.has('token')) {
     const token = await m2SystemToken()
 
@@ -48,7 +48,7 @@ const m2RequestAnalysisVehicle = async ({
   })
 
   const result = await axios
-    .request<M2VehicleAnalysisResponse>(options)
+    .request<M2VehicleRequestAnalysisResponse>(options)
     .catch((err) => {
       logger.warn({
         message: 'M2Request: Error on request vehicle analysis',

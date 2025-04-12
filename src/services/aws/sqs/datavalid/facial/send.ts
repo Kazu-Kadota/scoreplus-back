@@ -6,13 +6,13 @@ import logger from '~/utils/logger'
 
 const SQS_DATAVALID_FACIAL = getStringEnv('SQS_DATAVALID_FACIAL')
 
-export type sendMessageParams = {
+export type SendMessageDatavalidFacial = {
   message: string
   message_attributes: Record<string, MessageAttributeValue>
   message_group_id: string
 }
 
-const sendMessage = async (params: sendMessageParams, sqsClient: SQSClient) => {
+const sendMessageDatavalidFacial = async (params: SendMessageDatavalidFacial, sqsClient: SQSClient) => {
   logger.debug({
     message: 'SQS: SendMessage',
     message_group_id: params.message_group_id,
@@ -37,4 +37,4 @@ const sendMessage = async (params: sendMessageParams, sqsClient: SQSClient) => {
     })
 }
 
-export default sendMessage
+export default sendMessageDatavalidFacial

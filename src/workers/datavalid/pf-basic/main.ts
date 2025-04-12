@@ -1,10 +1,14 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { S3Client } from '@aws-sdk/client-s3'
+import { SQSClient } from '@aws-sdk/client-sqs'
+
+import { mockDatavalidPfBasicResponse } from 'src/mock/datavalid/pf-basic/response'
 
 import { PFBasicBiometryBody } from '~/models/datavalid/pf-basic/request-body'
 import { DatavalidSQSReceivedMessageAttributes } from '~/models/datavalid/sqs-message-attributes'
 import { SQSController } from '~/models/lambda'
 import serproDatavalidV3ValidatePfBasica from '~/services/serpro/datavalid/v3/validate/pf-basica'
 import InternalServerError from '~/utils/errors/500-internal-server-error'
+import getStringEnv from '~/utils/get-string-env'
 import logger from '~/utils/logger'
 
 import validateBody from './validate-body'
@@ -14,10 +18,18 @@ export type DatavalidSendRequestPfBasicMessageBody = {
   'biometry-basic': PFBasicBiometryBody
 }
 
-const dynamodbClient = new DynamoDBClient({
+const sqsClient = new SQSClient({
   region: 'us-east-1',
   maxAttempts: 5,
 })
+
+const s3Client = new S3Client({
+  region: 'us-east-1',
+  maxAttempts: 5,
+})
+
+const STAGE = getStringEnv('STAGE')
+const REQUEST_INFORMATION_THIRD_PARTY = getStringEnv('REQUEST_INFORMATION_THIRD_PARTY')
 
 const datavalidSendRequestPfBasic: SQSController<DatavalidSQSReceivedMessageAttributes> = async (message) => {
   logger.debug({
@@ -46,13 +58,18 @@ const datavalidSendRequestPfBasic: SQSController<DatavalidSQSReceivedMessageAttr
     throw new InternalServerError('Not informed person_id in message attributes')
   }
 
-  const datavalid_result = await serproDatavalidV3ValidatePfBasica({ body })
+  const get_response_datavalid = STAGE === 'prd' || REQUEST_INFORMATION_THIRD_PARTY === 'true'
+
+  const datavalid_result = get_response_datavalid
+    ? await serproDatavalidV3ValidatePfBasica({ body })
+    : mockDatavalidPfBasicResponse
 
   await datavalidVerifyResultPfBasic({
     datavalid_result,
-    dynamodbClient,
     person_id,
     request_id,
+    s3Client,
+    sqsClient,
   })
 
   logger.info({

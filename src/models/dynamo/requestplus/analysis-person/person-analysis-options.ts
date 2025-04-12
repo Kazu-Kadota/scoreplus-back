@@ -1,10 +1,9 @@
 import { CompanyRequestPersonConfigEnum } from '../../enums/company'
-import { AnalysisResultEnum, PersonStateEnum } from '../../enums/request'
+import { PersonStateEnum } from '../../enums/request'
 
 export type PersonAnalysisOptionsRequestValueAnswer = {
   answered_at: string
   reason?: string
-  result: AnalysisResultEnum
   type: CompanyRequestPersonConfigEnum
 }
 

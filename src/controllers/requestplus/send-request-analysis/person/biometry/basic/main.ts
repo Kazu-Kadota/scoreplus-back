@@ -43,7 +43,7 @@ const requestPersonBiometryBasic: BinaryController<true> = async (req) => {
   const body = validateBody(parsed_body)
 
   const company_name = req.user.user_type === UserGroupEnum.ADMIN
-    ? parsed_body.company_name as string
+    ? parsed_body.person.company_name as string
     : req.user.company_name
 
   const company = await getCompanyAdapter(company_name, dynamodbClient)
@@ -72,6 +72,7 @@ const requestPersonBiometryBasic: BinaryController<true> = async (req) => {
     })
 
     await publishSnsTopicPersonAdapter({
+      company_request_person_config: company.request_person_config,
       request_person,
       snsClient,
     })

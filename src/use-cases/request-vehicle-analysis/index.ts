@@ -1,6 +1,6 @@
 import { SNSClient } from '@aws-sdk/client-sns'
 
-import publishSnsTopicVehicleAdapter, { publishSnsTopicVehicleAdapterParams } from '../publish-sns-topic-vehicle'
+import publishSnsTopicVehicleAdapter, { PublishSnsTopicVehicleAdapterParams } from '../publish-sns-topic-vehicle'
 
 import requestVehicleAnalysis, { VehicleAnalysisRequest } from './request-vehicle-analysis'
 
@@ -13,7 +13,7 @@ const useCaseRequestVehicleAnalysis = async (params: UseCaseRequestVehicleAnalys
 
   const vehicle_analysis = await requestVehicleAnalysis(vehicle_analysis_constructor)
 
-  const vehicle_params: publishSnsTopicVehicleAdapterParams = {
+  const vehicle_params: PublishSnsTopicVehicleAdapterParams = {
     request_id: vehicle_analysis.vehicle_request_id,
     vehicle_analysis_options: vehicle_analysis.vehicle_analysis_options,
     vehicle_data: vehicle_analysis_constructor.vehicle_data,

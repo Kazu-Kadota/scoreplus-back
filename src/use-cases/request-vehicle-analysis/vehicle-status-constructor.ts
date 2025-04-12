@@ -17,6 +17,8 @@ const vehicleStatusConstructor = (
       general: RequestStatusEnum.WAITING,
     } as VehicleAnalysisStatus<false>
 
+  let at_least_one_waiting = false
+
   for (const [analysis, object] of Object.entries(vehicle_analysis_options)) {
     const analysis_key = analysis as CompanyRequestVehicleConfigEnum
     if (analysis_key === CompanyRequestVehicleConfigEnum.PLATE_HISTORY) {
@@ -27,12 +29,20 @@ const vehicleStatusConstructor = (
             [region]: RequestStatusEnum.WAITING,
           },
         )
+
+        at_least_one_waiting = true
       }
     } else if (analysis_key === CompanyRequestVehicleConfigEnum.ETHICAL) {
       status[analysis_key] = RequestStatusEnum.WAITING
+
+      at_least_one_waiting = true
     } else {
       status[analysis_key] = RequestStatusEnum.PROCESSING
     }
+  }
+
+  if (!at_least_one_waiting) {
+    status.general = RequestStatusEnum.PROCESSING
   }
 
   return status

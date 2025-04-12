@@ -1,4 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { S3Client } from '@aws-sdk/client-s3'
 
 import { Controller } from '~/models/lambda'
 import logger from '~/utils/logger'
@@ -7,7 +8,14 @@ import getRequestVehicleAdapter, { GetRequestVehicleAdapterParams } from './get-
 import validateVehicleParam from './validate-param'
 import validateVehicleQuery from './validate-query'
 
-const dynamodbClient = new DynamoDBClient({ region: 'us-east-1' })
+const dynamodbClient = new DynamoDBClient({
+  region: 'us-east-1',
+})
+
+const s3Client = new S3Client({
+  region: 'us-east-1',
+  maxAttempts: 5,
+})
 
 const getVehicleController: Controller<true> = async (req) => {
   logger.debug({
@@ -19,14 +27,15 @@ const getVehicleController: Controller<true> = async (req) => {
 
   const user_info = req.user
 
-  const get_request_person_adapter_params: GetRequestVehicleAdapterParams = {
+  const get_request_vehicle_adapter_params: GetRequestVehicleAdapterParams = {
     dynamodbClient,
     request_id,
     user_info,
     vehicle_id,
+    s3Client,
   }
 
-  const request_vehicle = await getRequestVehicleAdapter(get_request_person_adapter_params)
+  const request_vehicle = await getRequestVehicleAdapter(get_request_vehicle_adapter_params)
 
   logger.info({
     message: 'Finish on get vehicle request info',

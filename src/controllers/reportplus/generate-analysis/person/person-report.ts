@@ -4,6 +4,7 @@ import { CompanyRequestPersonConfigEnum } from '~/models/dynamo/enums/company'
 import { AnalysisResultEnum, AnalysisTypeEnum } from '~/models/dynamo/enums/request'
 import queryRequestplusAnalysisPersonByCompany, { QueryRequestplusAnalysisPersonByCompanyQuery, QueryRequestplusAnalysisPersonByCompanyResponse } from '~/services/aws/dynamo/request/analysis/person/query-by-company'
 import queryRequestplusFinishedAnalysisPersonByCompany, { QueryFinishedRequestPersonByCompanyResponse } from '~/services/aws/dynamo/request/finished/person/query-by-company'
+import queryRequestplusValidateAnalysisPersonByCompany, { QueryRequestplusValidateAnalysisPersonByCompanyResponse } from '~/services/aws/dynamo/request/validate/person/query-by-company'
 import { MappedObject } from '~/utils/types/mapped-object'
 
 import { PersonReportCSVHeader } from './convert-csv'
@@ -68,6 +69,45 @@ const personReport = async (
     count += query_waiting_processing_result.count
 
     last_evaluated_key = query_waiting_processing_result.last_evaluated_key
+  } while (last_evaluated_key)
+
+  do {
+    const query_validating_result: QueryRequestplusValidateAnalysisPersonByCompanyResponse | undefined = await queryRequestplusValidateAnalysisPersonByCompany(
+      data,
+      dynamodbClient,
+      last_evaluated_key,
+    )
+
+    if (!query_validating_result) {
+      break
+    }
+
+    for (const item of query_validating_result.result) {
+      const person_analysis_options_contructor = Object
+        .keys(item.person_analysis_options)
+        .reduce((prev, key) => {
+          return {
+            ...prev,
+            [key]: true,
+          }
+        }, {})
+      result.push({
+        ...person_analysis_options_contructor,
+        analysis_type: item.analysis_type,
+        combo_id: item.combo_id,
+        combo_number: item.combo_number,
+        company_name: item.company_name,
+        created_at: item.created_at,
+        document: item.document,
+        name: item.name,
+        person_id: item.person_id,
+        request_id: item.request_id,
+      })
+    }
+
+    count += query_validating_result.count
+
+    last_evaluated_key = query_validating_result.last_evaluated_key
   } while (last_evaluated_key)
 
   do {

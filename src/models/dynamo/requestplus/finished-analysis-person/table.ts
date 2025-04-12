@@ -1,10 +1,9 @@
-import { AnalysisResultEnum, AnalysisTypeEnum, PersonStateEnum } from '../../enums/request'
+import { AnalysisResultEnum, PersonStateEnum } from '../../enums/request'
 import { Timestamp } from '../../timestamp'
-import { PersonRequestForms } from '../analysis-person/forms'
-import { PersonAnalysisOptionsRequest, PersonAnalysisOptionsRequestValueAnswer } from '../analysis-person/person-analysis-options'
-import { PersonAnalysisType } from '../analysis-person/person-analysis-type'
+import { PersonAnalysisOptionsRequestValueAnswer } from '../analysis-person/person-analysis-options'
 import { PersonAnalysisStatus } from '../analysis-person/status'
-import { M2PersonRequestAnalysisResponseBody } from '~/models/m2system/request/analysis-person'
+import { RequestplusValidateAnalysisPersonBody } from '../validate-analysis-person/table'
+import { PersonAnalysisInformationValidation } from '../validate-analysis-person/validation-information'
 
 export type SendAnswerPersonPath = {
   person_id: string
@@ -19,19 +18,13 @@ export type RequestplusFinishedAnalysisPersonKey = {
   request_id: string
 }
 
-export type RequestplusFinishedAnalysisPersonBody = PersonRequestForms & {
+export type RequestplusFinishedAnalysisPersonBody = Omit<RequestplusValidateAnalysisPersonBody, 'status' | 'information_validation'> & {
   already_consulted?: boolean
-  analysis_type: AnalysisTypeEnum
-  combo_id?: string
-  combo_number?: number
-  company_name: string
-  m2_request?: M2PersonRequestAnalysisResponseBody[]
-  person_analysis_options: Partial<PersonAnalysisOptionsRequest<true>>
-  person_analysis_type: PersonAnalysisType
+  information_validation: Partial<PersonAnalysisInformationValidation<true>>
   release_extract_id?: string
   result: AnalysisResultEnum
   status: PersonAnalysisStatus<true>
-  user_id: string
+  validation_user_id: string
 }
 
 export type RequestplusFinishedAnalysisPerson = RequestplusFinishedAnalysisPersonKey & RequestplusFinishedAnalysisPersonBody & Timestamp & {

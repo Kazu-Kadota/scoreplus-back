@@ -1,4 +1,8 @@
-import { PlateStateEnum, VehicleType } from '../../enums/request'
+import {
+  PlateStateEnum,
+  // VehicleAnalysisStateEnum,
+  VehicleType,
+} from '../../enums/request'
 
 export interface VehicleRequestForms {
   chassis?: string
@@ -8,6 +12,7 @@ export interface VehicleRequestForms {
   owner_name: string
   plate_state: PlateStateEnum
   plate: string
+  // region?: VehicleAnalysisStateEnum
   renavam?: string
   vehicle_model: string
   vehicle_type: VehicleType

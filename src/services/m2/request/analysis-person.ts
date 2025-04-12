@@ -43,6 +43,7 @@ const m2RequestAnalysisPerson = async ({
   logger.debug({
     message: 'M2Request: request person analysis',
     service: 'M2System',
+    name: body.person.name,
     cpf: body.person.document,
   })
 

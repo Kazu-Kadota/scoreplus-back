@@ -50,6 +50,10 @@ export const vehicle_schema = Joi.object<VehicleRequestForms, true>({
     .string()
     .max(255)
     .optional(),
+  // region: Joi
+  //   .string()
+  //   .valid(...Object.values(VehicleAnalysisStateEnum))
+  //   .optional(),
   vehicle_model: Joi
     .string()
     .max(255)
@@ -78,6 +82,31 @@ const schema = Joi.object<ValidateBodyVehicle, true>({
   vehicle_analysis_options_to_request: vehicle_analysis_options_to_request_schema.required(),
   vehicle_analysis_type: vehicle_analysis_type_schema.required(),
 })
+// .custom((value, helpers) => {
+//   if (
+//     value.vehicle_analysis_options_to_request.includes(CompanyRequestVehicleConfigEnum.PLATE_HISTORY)
+//   && !Object.values(M2RequestAnalysisStateEnum).includes(value.vehicle.region)
+//   ) {
+//     return helpers.error('any.custom', {
+//       message: "invalid or missing 'region' when 'type' is PLATE_HISTORY",
+//       key: 'region',
+//     })
+//   }
+//   if (
+//     !value.vehicle_analysis_options_to_request.includes(CompanyRequestVehicleConfigEnum.PLATE_HISTORY)
+//   && value.vehicle.region !== undefined
+//   ) {
+//     helpers.message({
+//       message: "'region' should not be present unless 'type' is PLATE_HISTORY",
+//     })
+//     return helpers.error('any.custom', {
+//       message: "'region' should not be present unless 'type' is PLATE_HISTORY",
+//       key: 'region',
+//       label: 'vehicle.region',
+//     })
+//   }
+//   return value
+// })
 
 const validateBodyVehicle = (
   data: Partial<ValidateBodyVehicle>,
@@ -91,7 +120,7 @@ const validateBodyVehicle = (
       message: 'Error on validate "request vehicle" body',
     })
 
-    throw new BadRequestError('Erro na validação do body para solicitação de análise de veículo', error.stack as string)
+    throw new BadRequestError('Erro na validação do body para solicitação de análise de veículo', [error.stack as string, error.details.map(err => err.context?.message).join('; ')].join(''))
   }
 
   return value

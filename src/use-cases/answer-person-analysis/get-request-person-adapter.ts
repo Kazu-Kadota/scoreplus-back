@@ -15,6 +15,7 @@ const getRequestPersonAdapter = async (
     logger.warn({
       message: 'Person not exist',
       person_id: request_person_key.person_id,
+      request_id: request_person_key.request_id,
     })
 
     throw new NotFoundError('Pessoa não existe')

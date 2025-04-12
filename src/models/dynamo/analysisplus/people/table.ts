@@ -9,6 +9,7 @@ export type AnalysisplusPeopleKey = {
   document: string
 }
 
+// Validated need to be an array, to have a traceability
 export type AnalysisplusPeopleBody = Omit<PersonRequestForms, 'document' | 'company_name'> & {
   companies: Partial<PeopleAnalysisCompanyOptions>
   validated: Partial<PeopleAnalysisValidatedOptions>

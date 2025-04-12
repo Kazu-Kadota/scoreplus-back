@@ -24,6 +24,14 @@ const countConsult = async ({
   const now = new Date().toISOString()
   const year_month = dayjs().format('YYYY-MM')
 
+  const finished_date = new Date(finished_person.finished_at)
+
+  finished_date.setDate(finished_date.getDate() + 1)
+
+  if (finished_date.toISOString() < now) {
+    return
+  }
+
   if (user_info.company_name === finished_person.company_name) {
     if (!finished_person.already_consulted) {
       const finished_person_key: RequestplusFinishedAnalysisPersonKey = {

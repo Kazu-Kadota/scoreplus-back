@@ -1,11 +1,21 @@
 import dayjs from 'dayjs'
 
-import { RequestplusFinishedAnalysisPerson } from '~/models/dynamo/requestplus/finished-analysis-person/table'
-import { UserplusCompany } from '~/models/dynamo/userplus/company'
+import { CompanyPersonAnalysisConfigEnum } from '~/models/dynamo/enums/company'
+import { PersonAnalysisType } from '~/models/dynamo/requestplus/analysis-person/person-analysis-type'
 
-const verifyValidityDate = (finished_person: RequestplusFinishedAnalysisPerson, company: UserplusCompany) => {
-  const finished_at = dayjs(finished_person.finished_at).toDate()
-  finished_at.setDate(finished_at.getDate() + company.analysis_config[finished_person.person_analysis_type.type])
+export type VerifyValidityDateParams = {
+  person_analysis_type: PersonAnalysisType
+  person_finished_at: string
+  company_analysis_config: Record<CompanyPersonAnalysisConfigEnum, number>
+}
+
+const verifyValidityDate = ({
+  company_analysis_config,
+  person_analysis_type,
+  person_finished_at,
+}: VerifyValidityDateParams) => {
+  const finished_at = dayjs(person_finished_at).toDate()
+  finished_at.setDate(finished_at.getDate() + company_analysis_config[person_analysis_type.type])
 
   return dayjs(finished_at.toISOString()).format('DD/MM/YYYY')
 }

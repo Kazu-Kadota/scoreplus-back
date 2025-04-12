@@ -15,6 +15,7 @@ const useCaseRequestPersonAnalysis = async (params: UseCaseRequestPersonAnalysis
   const person_analysis = await requestPersonAnalysis(person_analysis_request)
 
   const publish_sns_topic_adapter_params: PublishSnsTopicPersonParams = {
+    company_request_person_config: person_analysis_request.company_request_person_config,
     person_analysis_options: person_analysis.person_analysis_options,
     person_data: person_analysis_request.person_data,
     person_id: person_analysis.person_id,
