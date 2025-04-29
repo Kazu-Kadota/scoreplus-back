@@ -20,12 +20,12 @@ function m2PersonAnalysisConstructor ({
   request_id,
 }: M2PersonAnalysisConstructorParams): M2PersonRequestAnalysisBody {
   if (person_analysis_options_to_request === CompanyRequestPersonConfigEnum.ETHICAL) {
-    // const type = M2PersonAnalysisTypeEnum.HISTORY
-    // const region_types = [M2PersonRegionTypeEnum.STATES]
-    // const regions = [M2RequestAnalysisStateEnum.NATIONAL_HISTORY_WITH_SP]
+    const type = M2PersonAnalysisTypeEnum.HISTORY
+    const region_types = [M2PersonRegionTypeEnum.STATES]
+    const regions = [M2RequestAnalysisStateEnum.NATIONAL_HISTORY_WITH_SP]
 
-    const type = M2PersonAnalysisTypeEnum.SIMPLE
-    const region_types = [M2PersonRegionTypeEnum.NATIONAL]
+    // const type = M2PersonAnalysisTypeEnum.SIMPLE
+    // const region_types = [M2PersonRegionTypeEnum.NATIONAL]
 
     return {
       person: {
@@ -50,7 +50,7 @@ function m2PersonAnalysisConstructor ({
       person_analysis: [{
         type,
         region_types,
-        // regions,
+        regions,
       }],
     }
   } else {
