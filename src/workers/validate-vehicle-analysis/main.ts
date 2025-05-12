@@ -28,7 +28,7 @@ const validateVehicleAnalysisWorker: SQSController = async (message) => {
   await useCaseValidateVehicleAnalysis(validate_vehicle_analysis_params)
 
   logger.info({
-    message: 'Finish on validate request vehicle analysis from eagle system response',
+    message: 'Finish on validate request vehicle analysis',
     vehicle_id: body.vehicle_id,
     request_id: body.request_id,
   })

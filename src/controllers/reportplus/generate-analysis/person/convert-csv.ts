@@ -67,6 +67,7 @@ const convertCsv = ({
     combo_id: 'ID do combo',
     combo_number: 'Número de requisições dentro do combo',
     ethical: person_analysis_options.ethical,
+    'ethical-complete': person_analysis_options['ethical-complete'],
     history: person_analysis_options.history,
     'basic-data': person_analysis_options['basic-data'],
     'biometry-basic': person_analysis_options['biometry-basic'],

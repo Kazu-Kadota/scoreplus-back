@@ -1,22 +1,24 @@
-// import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { S3Client } from '@aws-sdk/client-s3'
 import { SQSClient } from '@aws-sdk/client-sqs'
 
 import { m2SystemScoreplusPersonConfigMap } from '~/constants/scoreplus-m2-system-map'
 import { CompanyRequestPersonConfigEnum } from '~/models/dynamo/enums/company'
+import { PersonStateEnum } from '~/models/dynamo/enums/request'
 import { EventBridgeSQSEventBody } from '~/models/eventbridge'
 import { SQSController } from '~/models/lambda'
 import { M2PersonAnalysisTypeEnum } from '~/models/m2system/enums/analysis'
 import logger from '~/utils/logger'
 
 import fetchS3PresignedURLAdapter from './fetch-s3-presigned-url-adapter'
+import getRequestPersonAdapter from './get-request-person-adapter'
 import sendAnswerAnalysisMessage, { SendAnswerAnalysisMessageParams } from './send-answer-analysis-message'
 import validateBody from './validate-body'
 
-// const dynamodbClient = new DynamoDBClient({
-//   region: 'us-east-1',
-//   maxAttempts: 5,
-// })
+const dynamodbClient = new DynamoDBClient({
+  region: 'us-east-1',
+  maxAttempts: 5,
+})
 
 const sqsClient = new SQSClient({
   region: 'us-east-1',
@@ -37,10 +39,29 @@ const m2SystemPersonAnalysisAnswerConsumerWorker: SQSController = async (message
 
   const s3_presigned_url = body.detail.s3_presigned_url
 
-  const company_request_person = m2SystemScoreplusPersonConfigMap[body.detail.person_analysis_type as M2PersonAnalysisTypeEnum] as CompanyRequestPersonConfigEnum
+  const m2_person_analysis_type = body.detail.person_analysis_type as M2PersonAnalysisTypeEnum
+  const m2_region = body.detail.region
 
   const person_id = body.detail.person_id
   const request_id = body.detail.request_id
+
+  const request_person = await getRequestPersonAdapter({
+    dynamodbClient,
+    person_id,
+    request_id,
+  })
+
+  let company_request_person: CompanyRequestPersonConfigEnum
+  // This region is only to decouple region from answers body when is a Ethical-Complete Analysis. In s3_answer_key is needed to be body.detail.region because to fetch presignedURL, is need to
+  // be the same value from the source: M2 is stored with region information, so here need to have region too.
+  let region: PersonStateEnum | undefined
+
+  if (m2_person_analysis_type === M2PersonAnalysisTypeEnum.HISTORY && m2_region === PersonStateEnum.NATIONAL_HISTORY_WITH_SP && request_person.person_analysis_options['ethical-complete']) {
+    company_request_person = CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE
+  } else {
+    company_request_person = m2SystemScoreplusPersonConfigMap[body.detail.person_analysis_type as M2PersonAnalysisTypeEnum] as CompanyRequestPersonConfigEnum
+    region = body.detail.region
+  }
 
   const s3_answer_key = await fetchS3PresignedURLAdapter({
     company_request_person,
@@ -53,7 +74,7 @@ const m2SystemPersonAnalysisAnswerConsumerWorker: SQSController = async (message
 
   const send_person_answer_params: SendAnswerAnalysisMessageParams = {
     answers_body: [{
-      region: body.detail.region,
+      region,
       type: company_request_person,
       reason: s3_answer_key,
     }],

@@ -12,6 +12,7 @@ import updateRequestPersonAdapter from './update-request-person-adapter'
 import validateBody from './validate-body'
 
 export type M2SystemRequestPersonAnalysis = {
+  [CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE]?: M2PersonRequestAnalysisBody
   [CompanyRequestPersonConfigEnum.ETHICAL]?: M2PersonRequestAnalysisBody
   [CompanyRequestPersonConfigEnum.HISTORY]?: M2PersonRequestAnalysisBody
 }

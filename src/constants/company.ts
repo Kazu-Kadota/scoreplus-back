@@ -15,6 +15,7 @@ export const companyRequestPersonConfigEnum: Record<CompanyRequestPersonConfigEn
   [CompanyRequestPersonConfigEnum.CNH_ADVANCED]: 'CNH avançado',
   [CompanyRequestPersonConfigEnum.CNH_SIMPLE]: 'CNH simples',
   [CompanyRequestPersonConfigEnum.ETHICAL]: 'Ético',
+  [CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE]: 'Ético Completo',
   [CompanyRequestPersonConfigEnum.HISTORY]: 'Histórico',
   [CompanyRequestPersonConfigEnum.PROCESS]: 'Processo',
 }

@@ -82,6 +82,9 @@ const company_config_person_schema = Joi.object<CompanyRequestPersonConfig, true
   ethical: Joi
     .boolean()
     .required(),
+  'ethical-complete': Joi
+    .boolean()
+    .required(),
   history: Joi
     .object<Record<PersonStateEnum, boolean>>()
     .default({

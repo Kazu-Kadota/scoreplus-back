@@ -31,6 +31,7 @@ export enum CompanyRequestPersonConfigEnum {
   BIOMETRY_FACIAL = 'biometry-facial',
   CNH_ADVANCED = 'cnh-advanced',
   CNH_SIMPLE = 'cnh-simple',
+  ETHICAL_COMPLETE = 'ethical-complete',
   ETHICAL = 'ethical',
   HISTORY = 'history',
   PROCESS = 'process',
@@ -45,6 +46,7 @@ export const CompanyRequestPersonConfigDefaultArray: Array<Omit<CompanyRequestPe
   CompanyRequestPersonConfigEnum.CNH_ADVANCED,
   CompanyRequestPersonConfigEnum.CNH_SIMPLE,
   CompanyRequestPersonConfigEnum.ETHICAL,
+  CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE,
   CompanyRequestPersonConfigEnum.HISTORY,
   CompanyRequestPersonConfigEnum.PROCESS,
 ]
