@@ -24,6 +24,9 @@ const personStatusConstructor = (
 
   for (const [analysis, object] of Object.entries(person_analysis_options)) {
     const analysis_key = analysis as CompanyRequestPersonConfigEnum
+    const is_ethical_analysis = analysis_key === CompanyRequestPersonConfigEnum.ETHICAL
+      || analysis_key === CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE
+
     if (analysis_key === CompanyRequestPersonConfigEnum.HISTORY) {
       const object_value = object as PersonAnalysisOptionsRequestValueHistory<false>
       for (const { region } of object_value.regions) {
@@ -35,7 +38,7 @@ const personStatusConstructor = (
 
         at_least_one_waiting = true
       }
-    } else if (analysis_key === CompanyRequestPersonConfigEnum.ETHICAL) {
+    } else if (is_ethical_analysis) {
       status[analysis_key] = RequestStatusEnum.WAITING
 
       at_least_one_waiting = true

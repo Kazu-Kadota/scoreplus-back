@@ -6,7 +6,7 @@ import { AnalysisTypeEnum, PersonStateEnum, PersonThirdPartyEnum } from '~/model
 import { s3ThirdPartyGetParamsResponseType } from '~/services/aws/s3/third-party/answer/person/get'
 
 import s3ThirdPartyAnswerPersonPut from '~/services/aws/s3/third-party/answer/person/put'
-import eagleSystemFetchS3PresignedURL from '~/services/eagle/s3-presigned-url/fetch'
+import m2SystemFetchS3PresignedURL from '~/services/m2/s3-presigned-url/fetch'
 
 export type FetchS3PresignedURL = {
   company_request_person: CompanyRequestPersonConfigEnum
@@ -25,7 +25,7 @@ const fetchS3PresignedURLAdapter = async ({
   s3_client,
   s3_presigned_url,
 }: FetchS3PresignedURL): Promise<string> => {
-  const content = await eagleSystemFetchS3PresignedURL({
+  const content = await m2SystemFetchS3PresignedURL({
     s3_presigned_url,
   })
 

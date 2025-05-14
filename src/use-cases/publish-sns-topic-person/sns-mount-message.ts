@@ -88,6 +88,18 @@ const personSnsMountMessage = ({
       }
 
       return undefined
+    case CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE:
+      if (person_data.company_name !== 'SCORE PLUS TECH LTDA') {
+        return m2PersonAnalysisConstructor({
+          company_request_person_config,
+          person_analysis_options_to_request: person_analysis_option,
+          person_data,
+          person_id,
+          request_id,
+        })
+      }
+
+      return undefined
     case CompanyRequestPersonConfigEnum.HISTORY:
       if (person_data.company_name !== 'SCORE PLUS TECH LTDA') {
         return m2PersonAnalysisConstructor({
@@ -100,13 +112,17 @@ const personSnsMountMessage = ({
       }
 
       return undefined
-    default:
+    default: {
+      const exhaustiveness_check: never = person_analysis_option
+
       logger.warn({
         message: 'There is no option in person analysis options to mount sns message',
         person_analysis_option,
+        exhaustiveness_check,
       })
 
       return undefined
+    }
   }
 }
 

@@ -8,6 +8,7 @@ export const thirdPartyCompanyRequestPersonConfigMap: Record<CompanyRequestPerso
   [CompanyRequestPersonConfigEnum.CNH_ADVANCED]: 'eagle_system_person',
   [CompanyRequestPersonConfigEnum.CNH_SIMPLE]: 'eagle_system_person',
   [CompanyRequestPersonConfigEnum.ETHICAL]: 'm2_system_person',
+  [CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE]: 'm2_system_person',
   [CompanyRequestPersonConfigEnum.HISTORY]: 'm2_system_person',
   [CompanyRequestPersonConfigEnum.PROCESS]: 'eagle_system_person',
 }

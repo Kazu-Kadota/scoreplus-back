@@ -67,6 +67,9 @@ const verifyRequestStatus = ({
       || answer.type === CompanyRequestPersonConfigEnum.CNH_ADVANCED
       || answer.type === CompanyRequestPersonConfigEnum.PROCESS
 
+    const is_ethical_request = answer.type === CompanyRequestPersonConfigEnum.ETHICAL
+      || answer.type === CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE
+
     if (answer.type === CompanyRequestPersonConfigEnum.HISTORY) {
       const historical_status = request_person_status[answer.type]
       if (!historical_status) {
@@ -138,7 +141,7 @@ const verifyRequestStatus = ({
         region,
         answered_at: now,
       }
-    } else if (answer.type === CompanyRequestPersonConfigEnum.ETHICAL) {
+    } else if (is_ethical_request) {
       const ethical_status = request_person_status[answer.type]
 
       const is_already_answered = ethical_status === RequestStatusEnum.FINISHED

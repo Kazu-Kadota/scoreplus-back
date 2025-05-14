@@ -3,7 +3,7 @@ import { S3Client } from '@aws-sdk/client-s3'
 import { CompanyRequestVehicleConfigEnum } from '~/models/dynamo/enums/company'
 import { AnalysisTypeEnum, VehicleThirdPartyEnum, VehicleAnalysisStateEnum } from '~/models/dynamo/enums/request'
 import s3ThirdPartyAnswerVehiclePut, { s3ThirdPartyPutParamsResponseType } from '~/services/aws/s3/third-party/answer/vehicle/put'
-import eagleSystemFetchS3PresignedURL from '~/services/eagle/s3-presigned-url/fetch'
+import m2SystemFetchS3PresignedURL from '~/services/m2/s3-presigned-url/fetch'
 
 export type FetchS3PresignedURL = {
   company_request_vehicle: CompanyRequestVehicleConfigEnum
@@ -22,7 +22,7 @@ const fetchS3PresignedURLAdapter = async ({
   s3_client,
   s3_presigned_url,
 }: FetchS3PresignedURL): Promise<string> => {
-  const content = await eagleSystemFetchS3PresignedURL({
+  const content = await m2SystemFetchS3PresignedURL({
     s3_presigned_url,
   })
 

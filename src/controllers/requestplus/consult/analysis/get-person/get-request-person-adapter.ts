@@ -76,6 +76,9 @@ const getRequestPersonAdapter = async ({
       // Only Ethical and Historical is forbidden to client see from third party responses
       for (const key of Object.keys(request_person.person_analysis_options)) {
         const company_request_person = key as CompanyRequestPersonConfigEnum
+        const is_ethical_request = company_request_person === CompanyRequestPersonConfigEnum.ETHICAL
+          || company_request_person === CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE
+
         if (company_request_person === CompanyRequestPersonConfigEnum.HISTORY) {
           const regions = request_person.person_analysis_options[company_request_person]?.regions.map((region): (Partial<PersonAnalysisOptionsRequestValueAnswer> & {
             region: PersonStateEnum
@@ -90,7 +93,7 @@ const getRequestPersonAdapter = async ({
             ...request_person.person_analysis_options[company_request_person],
             regions,
           }
-        } else if (company_request_person === CompanyRequestPersonConfigEnum.ETHICAL) {
+        } else if (is_ethical_request) {
           delete request_person.person_analysis_options[company_request_person]?.reason
         }
       }
@@ -165,6 +168,9 @@ const getRequestPersonAdapter = async ({
       // Only Ethical and Historical is forbidden to client see from third party responses
       for (const key of Object.keys(validate_request_person.person_analysis_options)) {
         const company_request_person = key as CompanyRequestPersonConfigEnum
+        const is_ethical_request = company_request_person === CompanyRequestPersonConfigEnum.ETHICAL
+          || company_request_person === CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE
+
         if (company_request_person === CompanyRequestPersonConfigEnum.HISTORY) {
           const regions = validate_request_person.person_analysis_options[company_request_person]?.regions.map((region): (PersonAnalysisOptionsRequestValueAnswer & {
             region: PersonStateEnum
@@ -179,7 +185,7 @@ const getRequestPersonAdapter = async ({
             ...validate_request_person.person_analysis_options[company_request_person],
             regions,
           }
-        } else if (company_request_person === CompanyRequestPersonConfigEnum.ETHICAL) {
+        } else if (is_ethical_request) {
           delete validate_request_person.person_analysis_options[company_request_person]?.reason
         }
       }
@@ -206,7 +212,10 @@ const getRequestPersonAdapter = async ({
       // Only Ethical is forbidden to client see from validation
       for (const key of Object.keys(validate_request_person.information_validation)) {
         const company_request_person = key as CompanyRequestPersonConfigEnum
-        if (company_request_person === CompanyRequestPersonConfigEnum.ETHICAL) {
+        const is_ethical_request = company_request_person === CompanyRequestPersonConfigEnum.ETHICAL
+          || company_request_person === CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE
+
+        if (is_ethical_request) {
           delete validate_request_person.information_validation[company_request_person]?.reason
         }
       }
@@ -289,6 +298,9 @@ const getRequestPersonAdapter = async ({
       // Only Ethical and Historical is forbidden to client see from third party responses
       for (const key of Object.keys(finished_person.person_analysis_options)) {
         const company_request_person = key as CompanyRequestPersonConfigEnum
+        const is_ethical_request = company_request_person === CompanyRequestPersonConfigEnum.ETHICAL
+          || company_request_person === CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE
+
         if (company_request_person === CompanyRequestPersonConfigEnum.HISTORY) {
           const regions = finished_person.person_analysis_options[company_request_person]?.regions.map((region): (PersonAnalysisOptionsRequestValueAnswer & {
             region: PersonStateEnum
@@ -303,7 +315,7 @@ const getRequestPersonAdapter = async ({
             ...finished_person.person_analysis_options[company_request_person],
             regions,
           }
-        } else if (company_request_person === CompanyRequestPersonConfigEnum.ETHICAL) {
+        } else if (is_ethical_request) {
           delete finished_person.person_analysis_options[company_request_person]?.reason
         }
       }
@@ -330,7 +342,10 @@ const getRequestPersonAdapter = async ({
       // Only Ethical is forbidden to client see from validation
       for (const key of Object.keys(finished_person.information_validation)) {
         const company_request_person = key as CompanyRequestPersonConfigEnum
-        if (company_request_person === CompanyRequestPersonConfigEnum.ETHICAL) {
+        const is_ethical_request = company_request_person === CompanyRequestPersonConfigEnum.ETHICAL
+          || company_request_person === CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE
+
+        if (is_ethical_request) {
           delete finished_person.information_validation[company_request_person]?.reason
         }
       }

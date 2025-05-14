@@ -5,9 +5,9 @@ import { M2PersonAnalysisTypeEnum, M2PersonRegionTypeEnum, M2RequestAnalysisStat
 import { M2PersonRequestAnalysisBody } from '~/models/m2system/request/analysis-person'
 
 export type M2PersonAnalysisConstructorParams = {
-  person_analysis_options_to_request: CompanyRequestPersonConfigEnum
-  person_data: PersonRequestForms
   company_request_person_config: CompanyRequestPersonConfig
+  person_analysis_options_to_request: CompanyRequestPersonConfigEnum.ETHICAL | CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE | CompanyRequestPersonConfigEnum.HISTORY
+  person_data: PersonRequestForms
   person_id: string
   request_id: string
 }
@@ -20,10 +20,6 @@ function m2PersonAnalysisConstructor ({
   request_id,
 }: M2PersonAnalysisConstructorParams): M2PersonRequestAnalysisBody {
   if (person_analysis_options_to_request === CompanyRequestPersonConfigEnum.ETHICAL) {
-    // const type = M2PersonAnalysisTypeEnum.HISTORY
-    // const region_types = [M2PersonRegionTypeEnum.STATES]
-    // const regions = [M2RequestAnalysisStateEnum.NATIONAL_HISTORY_WITH_SP]
-
     const type = M2PersonAnalysisTypeEnum.SIMPLE
     const region_types = [M2PersonRegionTypeEnum.NATIONAL]
 
@@ -50,7 +46,37 @@ function m2PersonAnalysisConstructor ({
       person_analysis: [{
         type,
         region_types,
-        // regions,
+      }],
+    }
+  } else if (person_analysis_options_to_request === CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE) {
+    const type = M2PersonAnalysisTypeEnum.HISTORY
+    const region_types = [M2PersonRegionTypeEnum.STATES]
+    const regions = [M2RequestAnalysisStateEnum.NATIONAL_HISTORY_WITH_SP]
+
+    return {
+      person: {
+        birth_date: person_data.birth_date,
+        category_cnh: person_data.category_cnh,
+        cnh: person_data.cnh,
+        document: person_data.document,
+        expire_at_cnh: person_data.expire_at_cnh,
+        father_name: person_data.father_name,
+        metadata: {
+          person_id,
+          request_id,
+        },
+        mother_name: person_data.mother_name,
+        name: person_data.name,
+        naturalness: person_data.naturalness,
+        postback: 'scoreplus',
+        rg: person_data.rg,
+        security_number_cnh: person_data.mirror_number_cnh,
+        state_rg: person_data.state_rg,
+      },
+      person_analysis: [{
+        type,
+        region_types,
+        regions,
       }],
     }
   } else {

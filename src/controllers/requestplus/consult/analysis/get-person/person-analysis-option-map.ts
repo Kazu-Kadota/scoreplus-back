@@ -1,6 +1,7 @@
 import { S3Client } from '@aws-sdk/client-s3'
 
 import { CompanyRequestPersonConfigEnum } from '~/models/dynamo/enums/company'
+import { PersonStateEnum } from '~/models/dynamo/enums/request'
 import { PersonAnalysisOptionsRequest, PersonAnalysisOptionsRequestValueDefault, PersonAnalysisOptionsRequestValueHistory, PersonAnalysisOptionsRequestValueHistoryRegion } from '~/models/dynamo/requestplus/analysis-person/person-analysis-options'
 import { S3ThirdPartyAnswerPersonGetResponseType } from '~/services/aws/s3/third-party/answer/person/get'
 
@@ -66,7 +67,36 @@ const personAnalysisOptionMap = async ({
         regions,
       },
     }
+  } else if (company_request_person === CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE) {
+    const content = value as PersonAnalysisOptionValuesDefault
+
+    if (!content.reason) {
+      return {
+        [company_request_person]: {
+          ...content,
+        },
+      }
+    }
+
+    const get_s3_analysis_info_params: GetS3AnalysisInfoAdapterParams = {
+      company_request_person,
+      region: PersonStateEnum.NATIONAL_HISTORY_WITH_SP,
+      person_id,
+      request_id,
+      response_type,
+      s3_client: s3Client,
+    }
+
+    const analysis_info = await getS3AnalysisInfoAdapter(get_s3_analysis_info_params)
+
+    return {
+      [company_request_person]: {
+        ...content,
+        reason: analysis_info,
+      },
+    }
   }
+
   const content = value as PersonAnalysisOptionValuesDefault
 
   if (!content.reason) {

@@ -28,7 +28,7 @@ const validatePersonAnalysisWorker: SQSController = async (message) => {
   await useCaseValidatePersonAnalysis(validate_person_analysis_params)
 
   logger.info({
-    message: 'Finish on validate request person analysis from eagle system response',
+    message: 'Finish on validate request person analysis',
     person_id: body.person_id,
     request_id: body.request_id,
   })
