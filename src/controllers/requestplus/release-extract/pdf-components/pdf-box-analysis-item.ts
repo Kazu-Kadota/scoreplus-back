@@ -25,7 +25,7 @@ const PdfBoxAnalysisItem = (container: pdf.Cell, {
   values,
 }: PdfBoxAnalysisItemData) => {
   const row = container
-    .table({ widths: [null, 165] })
+    .table({ widths: [null, 180] })
     .row({ padding: 0, paddingTop: 7, paddingBottom: 9 })
 
   const analysisLeftCell = row.cell()
