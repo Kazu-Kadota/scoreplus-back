@@ -2,6 +2,7 @@ import { CompanyRequestPersonConfigEnum } from '../../enums/company'
 import { PersonStateEnum } from '../../enums/request'
 
 export type PersonAnalysisOptionsRequestValueAnswer = {
+  updated_at?: string
   answered_at: string
   reason?: string
   type: CompanyRequestPersonConfigEnum
