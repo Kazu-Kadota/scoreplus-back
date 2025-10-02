@@ -306,7 +306,9 @@ const verifyRequestStatus = ({
           // is_all_approved,
         }
       }
-    } else if (person_analysis === CompanyRequestPersonConfigEnum.ETHICAL) {
+    } else if (person_analysis === CompanyRequestPersonConfigEnum.ETHICAL
+      || person_analysis === CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE
+    ) {
       const status = value as RequestStatusEnum
       if (status === RequestStatusEnum.WAITING) {
         return {
