@@ -77,41 +77,29 @@ const personSnsMountMessage = ({
         request_id,
       })
     case CompanyRequestPersonConfigEnum.ETHICAL:
-      if (person_data.company_name !== 'SCORE PLUS TECH LTDA') {
-        return m2PersonAnalysisConstructor({
-          company_request_person_config,
-          person_analysis_options_to_request: person_analysis_option,
-          person_data,
-          person_id,
-          request_id,
-        })
-      }
-
-      return undefined
+      return m2PersonAnalysisConstructor({
+        company_request_person_config,
+        person_analysis_options_to_request: person_analysis_option,
+        person_data,
+        person_id,
+        request_id,
+      })
     case CompanyRequestPersonConfigEnum.ETHICAL_COMPLETE:
-      if (person_data.company_name !== 'SCORE PLUS TECH LTDA') {
-        return m2PersonAnalysisConstructor({
-          company_request_person_config,
-          person_analysis_options_to_request: person_analysis_option,
-          person_data,
-          person_id,
-          request_id,
-        })
-      }
-
-      return undefined
+      return m2PersonAnalysisConstructor({
+        company_request_person_config,
+        person_analysis_options_to_request: person_analysis_option,
+        person_data,
+        person_id,
+        request_id,
+      })
     case CompanyRequestPersonConfigEnum.HISTORY:
-      if (person_data.company_name !== 'SCORE PLUS TECH LTDA') {
-        return m2PersonAnalysisConstructor({
-          company_request_person_config,
-          person_analysis_options_to_request: person_analysis_option,
-          person_data,
-          person_id,
-          request_id,
-        })
-      }
-
-      return undefined
+      return m2PersonAnalysisConstructor({
+        company_request_person_config,
+        person_analysis_options_to_request: person_analysis_option,
+        person_data,
+        person_id,
+        request_id,
+      })
     default: {
       const exhaustiveness_check: never = person_analysis_option
 
