@@ -39,8 +39,8 @@ const generateComboPdf = async ({
           analysis_result: person_analysis.result,
           values: [
             { label: 'Nome', text: person_analysis.name },
-            { label: 'CPF', text: person_analysis.document },
-            { label: 'RG', text: person_analysis.rg },
+            { label: 'Cpf', text: person_analysis.document },
+            { label: 'Rg', text: person_analysis.rg },
             { label: 'Vínculo', text: person_analysis.analysis_config_string ?? '' },
           ],
         }],
